@@ -1,0 +1,8 @@
+
+<%= for pass <- @passes do %>
+  <div>
+    <%= pass.sat.name %>
+    <%= length(pass.alerts) %>
+    <button phx-click="create_alert" phx-value-pass_id={pass.id}>Create alert</button>
+  </div>
+<% end %>

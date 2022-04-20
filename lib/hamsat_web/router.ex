@@ -18,6 +18,8 @@ defmodule HamsatWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+
+    live "/alerts", AlertsLive, :index
   end
 
   # Other scopes may use custom stacks.

@@ -3,6 +3,13 @@ defmodule Hamsat.Satellites do
 
   alias Hamsat.Schemas.Sat
 
+  def list_satellites do
+    Repo.all(
+      from s in Sat,
+        order_by: s.name
+    )
+  end
+
   def upsert_satellite!(number, attrs) do
     case Repo.get_by(Sat, number: number) do
       nil ->

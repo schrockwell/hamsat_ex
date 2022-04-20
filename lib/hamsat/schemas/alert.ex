@@ -11,13 +11,15 @@ defmodule Hamsat.Schemas.Alert do
     field :los_at, :utc_datetime
     field :mode, :string
 
+    field :is_visible?, :boolean, default: false, virtual: true
+
     timestamps()
   end
 
   def insert_changeset(_context, pass, attrs \\ %{}) do
     %__MODULE__{
-      aos_at: Hamsat.Util.erl_to_utc_datetime(pass.aos.datetime),
-      los_at: Hamsat.Util.erl_to_utc_datetime(pass.los.datetime)
+      aos_at: Hamsat.Util.erl_to_utc_datetime(pass.info.aos.datetime),
+      los_at: Hamsat.Util.erl_to_utc_datetime(pass.info.los.datetime)
     }
     |> cast(attrs, [
       :callsign,

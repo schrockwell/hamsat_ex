@@ -50,7 +50,7 @@ defmodule Hamsat.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
-      {:satellite_ex, "~> 0.1.4"}
+      {:satellite_ex, path: "../satelliteEx"}
     ]
   end
 

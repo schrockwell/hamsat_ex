@@ -47,6 +47,8 @@ defmodule HamsatWeb do
       use Phoenix.LiveView,
         layout: {HamsatWeb.LayoutView, "live.html"}
 
+      on_mount HamsatWeb.ContextHook
+
       unquote(view_helpers())
     end
   end

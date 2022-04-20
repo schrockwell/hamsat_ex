@@ -26,7 +26,9 @@ defmodule AlertsTest do
     test "can be inserted with valid attributes", %{context: context, ao_7: ao_7} do
       [pass] = Alerts.list_passes(context, ao_7, count: 1)
 
-      assert {:ok, _alert} = Alerts.create_alert(context, pass, %{callsign: "WW1X"})
+      assert {:ok, alert} = Alerts.create_alert(context, pass, %{callsign: "WW1X"})
+
+      assert alert.satellite_id
     end
 
     test "fail insertion with invalid attributes", %{context: context, ao_7: ao_7} do
