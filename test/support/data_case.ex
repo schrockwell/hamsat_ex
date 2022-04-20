@@ -18,6 +18,7 @@ defmodule Hamsat.DataCase do
 
   using do
     quote do
+      alias Hamsat.Factory
       alias Hamsat.Repo
 
       import Ecto
