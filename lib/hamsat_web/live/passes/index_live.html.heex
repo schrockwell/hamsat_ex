@@ -1,1 +1,15 @@
-passes
+<table> 
+  <%= for pass <- @passes do %>
+    <tr>
+      <td><%= Util.erl_to_utc_datetime(pass.info.aos.datetime) %></td>
+      <td> to <%= Util.erl_to_utc_datetime(pass.info.los.datetime) %></td>
+      <td><%= pass.sat.name %></td>
+    </tr>
+  <% end %>
+</table>
+
+<%= if @loading? do %>
+  <div>Loading...</div>
+<% else %>
+  <button phx-click="load-more">Load more</button>
+<% end %>

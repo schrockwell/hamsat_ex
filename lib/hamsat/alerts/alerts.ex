@@ -38,8 +38,15 @@ defmodule Hamsat.Alerts do
     observer = Coord.to_observer(context.location)
     satrec = Sat.get_satrec(sat)
     count = opts[:count] || 1
+    starting = opts[:starting] || DateTime.utc_now()
+    ending = opts[:ending] || Timex.shift(starting, hours: 6)
 
-    Satellite.list_passes(satrec, count, observer, :calendar.universal_time())
+    Satellite.list_passes_until(
+      satrec,
+      observer,
+      Util.utc_datetime_to_erl(starting),
+      Util.utc_datetime_to_erl(ending)
+    )
   end
 
   defp convert_pass_infos_to_passes(infos, context) do
@@ -87,6 +94,7 @@ defmodule Hamsat.Alerts do
         sat: sat,
         observer: observer
       }
+      |> Pass.put_hash()
     end
   end
 

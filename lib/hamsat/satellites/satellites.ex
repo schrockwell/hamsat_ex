@@ -36,7 +36,7 @@ defmodule Hamsat.Satellites do
       %{name: "ISS", number: 25544},
       %{name: "JO-97", number: 43803},
       %{name: "LilacSat-2", number: 40908},
-      %{name: "MO-112", number: 48868},
+      # %{name: "MO-112", number: 48868},
       %{name: "PO-101", number: 43678},
       %{name: "RS-44", number: 44909},
       %{name: "SO-50", number: 27607},

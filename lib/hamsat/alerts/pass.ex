@@ -1,8 +1,12 @@
 defmodule Hamsat.Alerts.Pass do
-  defstruct [:id, :info, :alerts, :sat, :observer]
+  defstruct [:id, :info, :alerts, :sat, :observer, :hash]
 
   def equal?(pass1, pass2) do
     encode_hash(pass1) == encode_hash(pass2)
+  end
+
+  def put_hash(pass) do
+    %{pass | hash: encode_hash(pass)}
   end
 
   def encode_hash(pass) do

@@ -25,6 +25,8 @@ defmodule HamsatWeb.Router do
     live "/passes", Passes.IndexLive, :index, as: :passes
 
     live "/location", Location.EditLive, :edit, as: :location
+
+    post "/session_location", SessionLocationController, :update
   end
 
   # Other scopes may use custom stacks.

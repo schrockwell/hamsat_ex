@@ -1,1 +1,12 @@
 <%= live_component LocationPicker, id: "location-picker", coord: @coord %>
+
+<form method="post" action={Routes.session_location_path(@socket, :update)}>
+  <%= csrf_input_tag(Routes.session_location_path(@socket, :update)) %>
+  
+  <%= if @coord do %>
+    <input type="hidden" name="lat" value={@coord.lat}>
+    <input type="hidden" name="lon" value={@coord.lon}>
+  <% end %>
+  
+  <input type="submit" value="Save changes">
+</form>
