@@ -1,6 +1,13 @@
 <div>
-    <%= Hamsat.Grid.encode!(@coords, 6) %>
-    <form phx-change="form-changed" phx-target={@myself}>
-        <input name="query">
-    </form>
+  <.form let={f} for={@changeset} phx-change="form-changed" phx-target={@myself} autocomplete="off">
+    <div class="flex">
+      <%= text_input f, :grid, placeholder: "Grid" %>
+      <%= text_input f, :lat, placeholder: "Latitude" %>
+      <%= text_input f, :lon, placeholder: "Longitude" %>
+    </div>
+  </.form>
+  
+  <div phx-update="ignore" id="location-picker-map-container">
+    <div id="location-picker-map" style="height: 400px" phx-hook="Leaflet" data-mapbox-access-token={@mapbox_access_token}></div>
+  </div>
 </div>

@@ -3,6 +3,7 @@ defmodule Hamsat.Alerts do
 
   alias Hamsat.Alerts.Pass
   alias Hamsat.Context
+  alias Hamsat.Coord
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.Sat
   alias Hamsat.Util
@@ -34,7 +35,7 @@ defmodule Hamsat.Alerts do
   end
 
   defp list_pass_infos(context, sat, opts) do
-    observer = Context.get_observer(context)
+    observer = Coord.to_observer(context.location)
     satrec = Sat.get_satrec(sat)
     count = opts[:count] || 1
 
@@ -43,7 +44,7 @@ defmodule Hamsat.Alerts do
 
   defp convert_pass_infos_to_passes(infos, context) do
     sat_numbers = infos |> Enum.map(& &1.satnum) |> Enum.uniq()
-    observer = Context.get_observer(context)
+    observer = Coord.to_observer(context.location)
 
     sats =
       from(s in Sat, where: s.number in ^sat_numbers)
@@ -126,19 +127,20 @@ defmodule Hamsat.Alerts do
   end
 
   defp amend_visible_passes(alerts, context) do
-    case Context.get_observer(context) do
+    case context.location do
       nil ->
         alerts
 
-      observer ->
+      coord ->
         for alert <- alerts do
-          %{alert | is_visible?: is_visible_during_alert?(alert, observer)}
+          %{alert | is_visible?: is_visible_during_alert?(alert, coord)}
         end
     end
   end
 
-  defp is_visible_during_alert?(alert, observer) do
+  defp is_visible_during_alert?(alert, coord) do
     satrec = Sat.get_satrec(alert.sat)
+    observer = Coord.to_observer(coord)
 
     visible_at_aos? =
       Satellite.Passes.current_position(satrec, observer, Util.utc_datetime_to_erl(alert.aos_at)).elevation_in_degrees >

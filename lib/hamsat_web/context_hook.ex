@@ -1,8 +1,10 @@
 defmodule HamsatWeb.ContextHook do
   def on_mount(:default, _params, session, socket) do
+    user = get_session_user(session)
+
     context = %Hamsat.Context{
-      user: get_session_user(session),
-      observer: get_session_observer(session)
+      user: user,
+      location: get_session_location(user, session)
     }
 
     {:cont, Phoenix.LiveView.assign(socket, :context, context)}
@@ -10,9 +12,9 @@ defmodule HamsatWeb.ContextHook do
 
   defp get_session_user(_session), do: nil
 
-  defp get_session_observer(%{"observer_lat" => lat, "observer_lon" => lon}) do
-    Observer.create_from(lat, lon, 0)
+  defp get_session_location(nil, %{"lat" => lat, "lon" => lon} = _session) do
+    %Hamsat.Coord{lat: lat, lon: lon}
   end
 
-  defp get_session_observer(_session), do: Observer.create_from(0, 0, 0)
+  defp get_session_location(nil, _session), do: nil
 end

@@ -2,18 +2,18 @@ defmodule HamsatWeb.Location.EditLive do
   use HamsatWeb, :live_view
 
   alias Hamsat.Context
+  alias Hamsat.Coord
 
   alias HamsatWeb.LocationPicker
 
   def mount(_params, _session, socket) do
-    coords =
-      case Context.get_observer(socket.assigns.context) do
-        nil -> {0, 0}
-        obs -> {obs.latitude_deg, obs.longitude_deg}
-      end
-
-    socket = assign(socket, :coords, coords)
+    socket = assign(socket, :coord, socket.assigns.context.location)
 
     {:ok, socket}
+  end
+
+  def handle_info({LocationPicker, :coord_selected, coord}, socket) do
+    socket = assign(socket, :coord, coord)
+    {:noreply, socket}
   end
 end

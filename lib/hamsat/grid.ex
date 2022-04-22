@@ -1,10 +1,13 @@
 defmodule Hamsat.Grid do
   @moduledoc false
 
+  alias Hamsat.Coord
+
   @alphabet ~w(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)
   @regex ~r/[A-R]{2}[0-9]{2}($|([a-x]{2}$))/i
 
   def encode({lat, lon}, length), do: encode(lat, lon, length)
+  def encode(%Coord{lat: lat, lon: lon}, length), do: encode(lat, lon, length)
 
   def encode(lat, lon, length)
       when length in [4, 6] and lat >= -90.0 and lat <= 90 and lon >= -180 and lon <= 180 do
@@ -53,6 +56,7 @@ defmodule Hamsat.Grid do
   def encode(_, _, _), do: :error
 
   def encode!({lat, lon}, length), do: encode!(lat, lon, length)
+  def encode!(%Coord{lat: lat, lon: lon}, length), do: encode!(lat, lon, length)
 
   def encode!(lat, lon, length) do
     {:ok, grid} = encode(lat, lon, length)
