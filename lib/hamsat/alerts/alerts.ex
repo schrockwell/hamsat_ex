@@ -2,7 +2,6 @@ defmodule Hamsat.Alerts do
   use Hamsat, :repo
 
   alias Hamsat.Alerts.Pass
-  alias Hamsat.Context
   alias Hamsat.Coord
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.Sat
@@ -37,7 +36,6 @@ defmodule Hamsat.Alerts do
   defp list_pass_infos(context, sat, opts) do
     observer = Coord.to_observer(context.location)
     satrec = Sat.get_satrec(sat)
-    count = opts[:count] || 1
     starting = opts[:starting] || DateTime.utc_now()
     ending = opts[:ending] || Timex.shift(starting, hours: 6)
 

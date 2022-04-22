@@ -66,23 +66,29 @@ defmodule HamsatWeb.LocationPicker do
   def update(assigns, socket) do
     previous_coord = socket.assigns[:coord]
 
-    socket = assign(socket, assigns)
-
-    next_coord = socket.assigns[:coord]
-
     socket =
-      cond do
-        next_coord == previous_coord ->
-          socket
-
-        next_coord == nil ->
-          clear_coord(socket, event?: false)
-
-        true ->
-          try_updating_coord(socket, %{lat: next_coord.lat, lon: next_coord.lon}, event?: false)
-      end
+      socket
+      |> assign(assigns)
+      |> update_coord_if_changed(previous_coord)
 
     {:ok, socket}
+  end
+
+  defp update_coord_if_changed(socket, previous_coord) do
+    current_coord = socket.assigns[:coord]
+
+    cond do
+      current_coord == previous_coord ->
+        socket
+
+      current_coord == nil ->
+        clear_coord(socket, event?: false)
+
+      true ->
+        try_updating_coord(socket, %{lat: current_coord.lat, lon: current_coord.lon},
+          event?: false
+        )
+    end
   end
 
   def handle_event("form-changed", %{"form" => params}, socket) do
@@ -105,7 +111,7 @@ defmodule HamsatWeb.LocationPicker do
     socket |> push_event("set-marker", %{"id" => "location-picker-map", "coord" => coord_payload})
   end
 
-  defp clear_coord(socket, opts \\ []) do
+  defp clear_coord(socket, opts) do
     event? = Keyword.get(opts, :event?, true)
 
     form = %Form{}
