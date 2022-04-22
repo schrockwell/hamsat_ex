@@ -1,0 +1,21 @@
+<%= if @browse_link_to do %>
+  <%= live_patch "View past alerts", to: @browse_link_to %>
+<% else %>
+  <div>
+    <%= live_patch "View upcoming alerts", to: Routes.alerts_path(@socket, :index) %>
+
+    <form phx-change="filter-form-changed">
+      <input type="date" name="date" value={@filter[:date]}>
+    </form>
+  </div>
+<% end %>
+
+<table>
+  <%= for alert <- @alerts do %>
+    <tr>
+      <td><%= alert.aos_at %></td>
+      <td><%= alert.sat.name %></td>
+      <td><%= alert.callsign %></td>
+    </tr>
+  <% end %>
+</table>

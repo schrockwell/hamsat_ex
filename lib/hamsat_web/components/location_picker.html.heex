@@ -1,0 +1,6 @@
+<div>
+    <%= Hamsat.Grid.encode!(@coords, 6) %>
+    <form phx-change="form-changed" phx-target={@myself}>
+        <input name="query">
+    </form>
+</div>

@@ -17,9 +17,14 @@ defmodule HamsatWeb.Router do
   scope "/", HamsatWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    live "/", Alerts.IndexLive, :index, as: :alerts
+    live "/alerts/new", Alerts.NewLive, :new, as: :alerts
+    live "/alerts/:id", Alerts.ShowLive, :show, as: :alerts
+    live "/alerts/:id/edit", Alerts.EditLive, :edit, as: :alerts
 
-    live "/alerts", AlertsLive, :index
+    live "/passes", Passes.IndexLive, :index, as: :passes
+
+    live "/location", Location.EditLive, :edit, as: :location
   end
 
   # Other scopes may use custom stacks.

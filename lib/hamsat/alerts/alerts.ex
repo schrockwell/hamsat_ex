@@ -14,7 +14,7 @@ defmodule Hamsat.Alerts do
     context
     |> list_pass_infos(sat, opts)
     |> Enum.sort_by(& &1.aos.datetime)
-    |> convert_pass_infos_to_passes()
+    |> convert_pass_infos_to_passes(context)
   end
 
   @doc """
@@ -30,7 +30,7 @@ defmodule Hamsat.Alerts do
     |> Task.await_many()
     |> List.flatten()
     |> Enum.sort_by(& &1.aos.datetime)
-    |> convert_pass_infos_to_passes()
+    |> convert_pass_infos_to_passes(context)
   end
 
   defp list_pass_infos(context, sat, opts) do
@@ -41,8 +41,9 @@ defmodule Hamsat.Alerts do
     Satellite.list_passes(satrec, count, observer, :calendar.universal_time())
   end
 
-  defp convert_pass_infos_to_passes(infos) do
+  defp convert_pass_infos_to_passes(infos, context) do
     sat_numbers = infos |> Enum.map(& &1.satnum) |> Enum.uniq()
+    observer = Context.get_observer(context)
 
     sats =
       from(s in Sat, where: s.number in ^sat_numbers)
@@ -82,7 +83,8 @@ defmodule Hamsat.Alerts do
         id: Ecto.UUID.generate(),
         info: info,
         alerts: alerts,
-        sat: sat
+        sat: sat,
+        observer: observer
       }
     end
   end
@@ -99,14 +101,28 @@ defmodule Hamsat.Alerts do
   @doc """
   Lists all upcoming alerts.
   """
-  def list_upcoming_alerts(context) do
-    from(a in Alert,
-      where: a.los_at > ^DateTime.utc_now(),
-      order_by: a.aos
-    )
+  def list_alerts(context, filter \\ []) do
+    filter
+    |> Enum.reduce(Alert, &apply_alert_filter/2)
+    |> order_by([a], a.aos_at)
     |> Repo.all()
     |> Repo.preload([:sat])
     |> amend_visible_passes(context)
+  end
+
+  defp apply_alert_filter({:date, :upcoming}, query) do
+    where(query, [a], a.aos_at >= ^DateTime.utc_now())
+  end
+
+  defp apply_alert_filter({:date, %Date{} = date}, query) do
+    bod = date |> Timex.to_datetime() |> Timex.beginning_of_day()
+    eod = date |> Timex.to_datetime() |> Timex.end_of_day()
+
+    where(
+      query,
+      [a],
+      (a.aos_at >= ^bod or a.los_at >= ^bod) and (a.aos_at <= ^eod or a.los_at <= ^eod)
+    )
   end
 
   defp amend_visible_passes(alerts, context) do
@@ -125,11 +141,11 @@ defmodule Hamsat.Alerts do
     satrec = Sat.get_satrec(alert.sat)
 
     visible_at_aos? =
-      Satellite.Passes.current_position(satrec, observer, Util.utc_datetime_to_erl(alert.aos_at)).elevation_degrees >
+      Satellite.Passes.current_position(satrec, observer, Util.utc_datetime_to_erl(alert.aos_at)).elevation_in_degrees >
         0
 
     visible_at_los? =
-      Satellite.Passes.current_position(satrec, observer, Util.utc_datetime_to_erl(alert.los_at)).elevation_degrees >
+      Satellite.Passes.current_position(satrec, observer, Util.utc_datetime_to_erl(alert.los_at)).elevation_in_degrees >
         0
 
     visible_at_aos? or visible_at_los?
