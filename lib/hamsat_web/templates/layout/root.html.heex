@@ -10,6 +10,7 @@
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
   <body>
+    <%= render "_user_menu.html", assigns %>
     <div class="w-full px-4 py-2 border-b flex items-center justify-between">
       <div class="flex items-center">
         <div class="text-lg font-medium mr-8">SatSpot</div>
