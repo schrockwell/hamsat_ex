@@ -3,6 +3,23 @@
 @tailwind components;
 @tailwind utilities;
 
+.table tbody tr {
+  @apply hover:bg-gray-100 text-sm;
+}
+
+.table td,
+.table th {
+  @apply py-2;
+}
+
+.table td {
+  @apply border-b;
+}
+
+.table th {
+  @apply uppercase border-b-2 font-medium text-sm text-gray-500;
+}
+
 /* LEAFLET CSS */
 /* required styles */
 

@@ -1,6 +1,6 @@
 <.pass_table passes={@passes}>
   <%= for pass <- @passes do %>
-    <.pass_table_row context={@context} pass={pass} />
+    <.pass_table_row context={@context} pass={pass} now={@now} />
   <% end  %>
 </.pass_table>
 

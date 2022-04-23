@@ -26,6 +26,9 @@ defmodule HamsatWeb.ViewHelpers do
   end
 
   def hms(seconds) do
+    sign = if seconds < 0, do: "-", else: ""
+    seconds = abs(seconds)
+
     hours = floor(seconds / 3600)
     seconds = seconds - hours * 3600
 
@@ -33,9 +36,9 @@ defmodule HamsatWeb.ViewHelpers do
     seconds = seconds - minutes * 60
 
     case {hours, minutes, seconds} do
-      {0, 0, s} -> "0:#{zero_pad(s)}"
-      {0, m, s} -> "#{m}:#{zero_pad(s)}"
-      {h, m, s} -> "#{h}h #{zero_pad(m)}:#{zero_pad(s)}"
+      {0, 0, s} -> "#{sign}0:#{zero_pad(s)}"
+      {0, m, s} -> "#{sign}#{m}:#{zero_pad(s)}"
+      {h, m, s} -> "#{sign}#{h}:#{zero_pad(m)}:#{zero_pad(s)}"
     end
   end
 
@@ -68,5 +71,11 @@ defmodule HamsatWeb.ViewHelpers do
 
   def pass_los_direction(%Pass{} = pass) do
     cardinal_direction(pass.info.los.azimuth_in_degrees)
+  end
+
+  def pass_aos_in(now, %Pass{} = pass) do
+    pass.info.aos.datetime
+    |> Timex.diff(now, :second)
+    |> hms()
   end
 end

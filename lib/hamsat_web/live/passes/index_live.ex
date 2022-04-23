@@ -13,7 +13,10 @@ defmodule HamsatWeb.Passes.IndexLive do
       |> assign(:hours, 6)
       |> assign(:passes, [])
       |> assign(:loading?, true)
+      |> assign(:now, DateTime.utc_now())
       |> assign_sats()
+
+    Process.send_after(self(), :set_now, 1_000)
 
     socket =
       if connected?(socket) do
@@ -74,6 +77,11 @@ defmodule HamsatWeb.Passes.IndexLive do
      socket
      |> assign(:passes, next_passes)
      |> assign(:loading?, false)}
+  end
+
+  def handle_info(:set_now, socket) do
+    Process.send_after(self(), :set_now, 1_000)
+    {:noreply, assign(socket, :now, DateTime.utc_now())}
   end
 
   def handle_event("load-more", _, socket) do
