@@ -9,9 +9,8 @@
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
-  <body>
-    <%= render "_user_menu.html", assigns %>
-    <div class="w-full px-4 py-2 border-b flex items-center justify-between">
+  <body class="text-gray-900">
+    <div class="w-full px-4 py-2 border-b flex items-center justify-between fixed bg-gray-100">
       <div class="flex items-center">
         <div class="text-lg font-medium mr-8">SatSpot</div>
         <.nav_pill_button to={Routes.alerts_path(@conn, :index)}>Alerts</.nav_pill_button>
@@ -19,11 +18,12 @@
         <.nav_pill_button to={Routes.location_path(@conn, :edit)}>Location</.nav_pill_button>
       </div>
       <div class="flex items-center space-x-4">
-        <div>whoa</div>
-        <div>nelly</div>
+        <%= render "_user_menu.html", assigns %>
       </div>
     </div>
 
-    <%= @inner_content %>
+    <div class="p-4 pt-20 container mx-auto">
+      <%= @inner_content %>
+    </div>
   </body>
 </html>

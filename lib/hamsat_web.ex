@@ -98,6 +98,7 @@ defmodule HamsatWeb do
       import Phoenix.View
 
       import HamsatWeb.ErrorHelpers
+      import HamsatWeb.ViewHelpers
       import HamsatWeb.Gettext
       alias HamsatWeb.Router.Helpers, as: Routes
     end

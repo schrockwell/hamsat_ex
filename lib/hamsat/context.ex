@@ -1,3 +1,3 @@
 defmodule Hamsat.Context do
-  defstruct [:user, :location]
+  defstruct user: nil, location: nil, timezone: "Etc/UTC"
 end

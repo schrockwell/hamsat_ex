@@ -1,12 +1,9 @@
-<table> 
+<.pass_table passes={@passes}>
   <%= for pass <- @passes do %>
-    <tr>
-      <td><%= Util.erl_to_utc_datetime(pass.info.aos.datetime) %></td>
-      <td> to <%= Util.erl_to_utc_datetime(pass.info.los.datetime) %></td>
-      <td><%= pass.sat.name %></td>
-    </tr>
-  <% end %>
-</table>
+    <.pass_table_row context={@context} pass={pass} />
+  <% end  %>
+</.pass_table>
+
 
 <%= if @loading? do %>
   <div>Loading...</div>
