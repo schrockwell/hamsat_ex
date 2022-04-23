@@ -20,6 +20,18 @@
   @apply uppercase border-b-2 font-medium text-sm text-gray-500;
 }
 
+.btn {
+  @apply rounded bg-gray-100 px-4 py-2 transition-all;
+}
+
+.btn-green {
+  @apply bg-green-500 hover:bg-green-600 text-white;
+}
+
+.btn-sm {
+  @apply text-sm px-2 py-1 font-medium;
+}
+
 /* LEAFLET CSS */
 /* required styles */
 

@@ -1,6 +1,14 @@
 defmodule Hamsat.Alerts.Pass do
   defstruct [:id, :info, :alerts, :sat, :observer, :hash]
 
+  def progression(pass, now) do
+    cond do
+      Timex.compare(now, pass.info.aos.datetime) == -1 -> :upcoming
+      Timex.compare(now, pass.info.los.datetime) == 1 -> :passed
+      true -> :in_progress
+    end
+  end
+
   def equal?(pass1, pass2) do
     encode_hash(pass1) == encode_hash(pass2)
   end

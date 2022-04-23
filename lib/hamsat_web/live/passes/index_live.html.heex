@@ -1,3 +1,7 @@
+<.filter_panel>
+  whoa
+</.filter_panel>
+
 <.pass_table passes={@passes}>
   <%= for pass <- @passes do %>
     <.pass_table_row context={@context} pass={pass} now={@now} />
@@ -5,8 +9,18 @@
 </.pass_table>
 
 
-<%= if @loading? do %>
-  <div>Loading...</div>
-<% else %>
-  <button phx-click="load-more">Load more</button>
-<% end %>
+<div class="my-8 flex justify-center">
+  <%= if @loading? or @can_load_more? do %>
+    <button phx-click="load-more" class="btn" disabled={@loading?}>
+      <%= if @loading? do %>
+        Calculating...
+      <% else  %>
+        Load more
+      <% end %>
+    </button>
+  <% else %>
+    <div>
+      Switch to the date view to see future passes.
+    </div>
+  <% end %>
+</div>

@@ -1,19 +1,21 @@
 defmodule HamsatWeb.PassComponents do
   use HamsatWeb, :component
 
+  alias Hamsat.Alerts.Pass
+
   def pass_table(%{passes: passes} = assigns) do
     ~H"""
     <table class="table w-full">
       <thead>
         <tr>
-          <th>AOS (UTC)</th>
-          <th>AOS In</th>
-          <th>Sat</th>
-          <th>Mod</th>
-          <th>Length</th>
-          <th>Max El</th>
-          <th colspan="3">Pass</th>
-          <th>Alerts</th>
+          <th title="Time of acquisition of signal">AOS (UTC)</th>
+          <th title="Time until acquisition of signal">AOS In</th>
+          <th title="Satellite name">Sat</th>
+          <th title="Satellite modulation">Mod</th>
+          <th title="Duration of visible pass">Length</th>
+          <th title="Max elevation during pass">Max El</th>
+          <th colspan="3" title="Azimuth of satellite during pass">Az</th>
+          <th title="Activation alerts">Alerts</th>
           <th></th>
         </tr>
       </thead>
@@ -26,7 +28,7 @@ defmodule HamsatWeb.PassComponents do
 
   def pass_table_row(%{pass: pass} = assigns) do
     ~H"""
-    <tr>
+    <tr class={pass_table_row_class(@pass, @now)}>
       <td class="text-center">
         <span class="mr-4"><%= date(@context, @pass.info.aos.datetime) %></span>
         <span class="mr-4"><%= time(@context, @pass.info.aos.datetime) %></span>
@@ -40,19 +42,33 @@ defmodule HamsatWeb.PassComponents do
       <td class="text-center">→</td>
       <td class="text-left"><%= pass_los_direction(@pass) %></td>
       <td class="text-center"><%= length(@pass.alerts) %></td>
-      <td class="text-center"><%= link "Create an Alert", to: "#" %></td>
+      <td class="text-center"><%= link "Create an Alert", to: "#", class: "btn btn-sm btn-green" %></td>
     </tr>
     """
   end
 
-  def sat_modulation_label(%{sat: sat} = assigns) do
-    assigns = assign(assigns, :text, sat_modulation_text(sat))
+  defp pass_table_row_class(pass, now) do
+    case Pass.progression(pass, now) do
+      :upcoming -> ""
+      :in_progress -> "text-red-500 font-semibold"
+      :passed -> "text-gray-400 line-through"
+    end
+  end
 
+  def sat_modulation_label(%{sat: sat} = assigns) do
     ~H"""
-    <span class="text-xs rounded px-2 py-1 font-semibold bg-gray-200 uppercase"><%= @text %></span>
+    <span title={sat_modulation_title(@sat)} class={[sat_modulation_class(@sat), "text-xs rounded-full px-2 py-0.5 font-semibold text-gray-600 uppercase"]}>
+      <%= sat_modulation_text(@sat) %>
+    </span>
     """
   end
 
+  defp sat_modulation_title(%{modulation: :fm}), do: "FM Modulation"
+  defp sat_modulation_title(%{modulation: :linear}), do: "Linear (SSB/CW) Modulation"
+
   defp sat_modulation_text(%{modulation: :fm}), do: "FM"
   defp sat_modulation_text(%{modulation: :linear}), do: "Lin"
+
+  defp sat_modulation_class(%{modulation: :fm}), do: "bg-amber-200 text-amber-600"
+  defp sat_modulation_class(%{modulation: :linear}), do: "bg-emerald-200 text-emerald-600"
 end

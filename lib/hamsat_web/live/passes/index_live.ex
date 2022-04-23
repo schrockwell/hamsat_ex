@@ -2,21 +2,28 @@ defmodule HamsatWeb.Passes.IndexLive do
   use HamsatWeb, :live_view
 
   import HamsatWeb.PassComponents
+  import HamsatWeb.LayoutComponents
 
   alias Hamsat.Alerts
+  alias Hamsat.Alerts.Pass
   alias Hamsat.Satellites
   alias Hamsat.Util
+
+  @set_now_interval :timer.seconds(1)
+  @reload_passes_interval :timer.minutes(15)
 
   def mount(_params, _session, socket) do
     socket =
       socket
       |> assign(:hours, 6)
+      |> assign(:can_load_more?, true)
       |> assign(:passes, [])
       |> assign(:loading?, true)
       |> assign(:now, DateTime.utc_now())
       |> assign_sats()
 
-    Process.send_after(self(), :set_now, 1_000)
+    Process.send_after(self(), :set_now, @set_now_interval)
+    Process.send_after(self(), :reload_passes, @reload_passes_interval)
 
     socket =
       if connected?(socket) do
@@ -56,9 +63,17 @@ defmodule HamsatWeb.Passes.IndexLive do
     |> assign(:loading?, true)
   end
 
+  defp purge_passed_passes(socket) do
+    next_passes = Enum.reject(socket.assigns.passes, &(Pass.progression(&1) == :passed))
+    assign(socket, :passes, next_passes)
+  end
+
   defp increment_hours(socket, more_hours) do
+    next_hours = socket.assigns.hours + more_hours
+
     socket
-    |> assign(:hours, socket.assigns.hours + more_hours)
+    |> assign(:hours, next_hours)
+    |> assign(:can_load_more?, next_hours < 24)
     |> append_upcoming_passes()
   end
 
@@ -80,7 +95,18 @@ defmodule HamsatWeb.Passes.IndexLive do
   end
 
   def handle_info(:set_now, socket) do
-    Process.send_after(self(), :set_now, 1_000)
+    Process.send_after(self(), :set_now, @set_now_interval)
+    {:noreply, assign(socket, :now, DateTime.utc_now())}
+  end
+
+  def handle_info(:reload_passes, socket) do
+    Process.send_after(self(), :reload_passes, @reload_passes_interval)
+
+    socket =
+      socket
+      |> append_upcoming_passes()
+      |> purge_passed_passes()
+
     {:noreply, assign(socket, :now, DateTime.utc_now())}
   end
 
