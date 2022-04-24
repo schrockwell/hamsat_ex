@@ -61,9 +61,14 @@ defmodule HamsatWeb.UserAuth do
   #     end
   #
   defp renew_session(conn) do
+    old_lat = get_session(conn, :lat)
+    old_lon = get_session(conn, :lon)
+
     conn
     |> configure_session(renew: true)
     |> clear_session()
+    |> put_session(:lat, old_lat)
+    |> put_session(:lon, old_lon)
   end
 
   @doc """

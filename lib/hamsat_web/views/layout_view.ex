@@ -28,7 +28,7 @@ defmodule HamsatWeb.LayoutView do
         "@ #{grid}"
 
       true ->
-        "Set Location"
+        "⚠️ Set Location"
     end
   end
 end
