@@ -15,31 +15,58 @@ defmodule HamsatWeb.Passes.IndexLive do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(:hours, 6)
-      |> assign(:can_load_more?, true)
-      |> assign(:passes, [])
       |> assign(:loading?, true)
-      |> assign(:now, DateTime.utc_now())
       |> assign_sats()
 
     Process.send_after(self(), :set_now, @set_now_interval)
     Process.send_after(self(), :reload_passes, @reload_passes_interval)
 
+    {:ok, socket}
+  end
+
+  def handle_params(%{"date" => date}, _uri, socket) do
     socket =
-      if connected?(socket) do
-        append_upcoming_passes(socket)
-      else
-        socket
+      case Date.from_iso8601(date) do
+        {:ok, date} -> assign(socket, :date, date)
+        {:error, _} -> assign(socket, :date, Date.utc_today())
       end
 
-    {:ok, socket}
+    {:noreply,
+     socket
+     |> assign(:duration, :browse)
+     |> assign(:can_load_more?, false)
+     |> assign(:now, DateTime.utc_now())
+     |> assign(:passes, [])
+     |> maybe_append_upcoming_passes()}
+  end
+
+  def handle_params(_, _uri, socket) do
+    {:noreply,
+     socket
+     |> assign(:duration, :upcoming)
+     |> assign(:hours, 6)
+     |> assign(:date, nil)
+     |> assign(:can_load_more?, true)
+     |> assign(:now, DateTime.utc_now())
+     |> assign(:date, nil)
+     |> assign(:passes, [])
+     |> assign(:passes_calculated_until, nil)
+     |> maybe_append_upcoming_passes()}
   end
 
   defp assign_sats(socket) do
     assign(socket, :sats, Satellites.list_satellites())
   end
 
-  defp append_upcoming_passes(socket) do
+  defp maybe_append_upcoming_passes(socket) do
+    if connected?(socket) do
+      append_upcoming_passes(socket)
+    else
+      socket
+    end
+  end
+
+  defp append_upcoming_passes(%{assigns: %{date: nil}} = socket) do
     parent = self()
     starting = socket.assigns[:passes_calculated_until] || DateTime.utc_now()
     ending = Timex.shift(DateTime.utc_now(), hours: socket.assigns.hours)
@@ -47,7 +74,7 @@ defmodule HamsatWeb.Passes.IndexLive do
     Task.start(fn ->
       send(
         parent,
-        {:passes_loaded,
+        {:more_upcoming_passes_loaded,
          Alerts.list_all_passes(socket.assigns.context, socket.assigns.sats,
            starting: starting,
            ending: ending
@@ -63,8 +90,30 @@ defmodule HamsatWeb.Passes.IndexLive do
     |> assign(:loading?, true)
   end
 
+  defp append_upcoming_passes(%{assigns: %{date: date}} = socket) do
+    parent = self()
+    starting = date |> Timex.to_datetime() |> Timex.beginning_of_day()
+    ending = date |> Timex.to_datetime() |> Timex.end_of_day()
+
+    Task.start(fn ->
+      send(
+        parent,
+        {:daily_passes_loaded,
+         Alerts.list_all_passes(socket.assigns.context, socket.assigns.sats,
+           starting: starting,
+           ending: ending
+         )}
+      )
+    end)
+
+    socket
+    |> assign(:loading?, true)
+  end
+
   defp purge_passed_passes(socket) do
-    next_passes = Enum.reject(socket.assigns.passes, &(Pass.progression(&1) == :passed))
+    next_passes =
+      Enum.reject(socket.assigns.passes, &(Pass.progression(&1, socket.assigns.now) == :passed))
+
     assign(socket, :passes, next_passes)
   end
 
@@ -77,7 +126,7 @@ defmodule HamsatWeb.Passes.IndexLive do
     |> append_upcoming_passes()
   end
 
-  def handle_info({:passes_loaded, passes}, socket) do
+  def handle_info({:more_upcoming_passes_loaded, passes}, socket) do
     truncated_passes =
       Enum.filter(passes, fn pass ->
         pass.info.aos.datetime
@@ -91,6 +140,13 @@ defmodule HamsatWeb.Passes.IndexLive do
     {:noreply,
      socket
      |> assign(:passes, next_passes)
+     |> assign(:loading?, false)}
+  end
+
+  def handle_info({:daily_passes_loaded, passes}, socket) do
+    {:noreply,
+     socket
+     |> assign(:passes, passes)
      |> assign(:loading?, false)}
   end
 
@@ -114,6 +170,24 @@ defmodule HamsatWeb.Passes.IndexLive do
     {:noreply, increment_hours(socket, 6)}
   end
 
+  def handle_event("select", %{"id" => "interval", "selected" => "upcoming"}, socket) do
+    {:noreply, push_patch(socket, to: Routes.passes_path(socket, :index))}
+  end
+
+  def handle_event("select", %{"id" => "interval", "selected" => "browse"}, socket) do
+    {:noreply, push_patch(socket, to: browse_url(socket))}
+  end
+
+  def handle_event("date-changed", %{"date" => date}, socket) do
+    case Date.from_iso8601(date) do
+      {:ok, _date} ->
+        {:noreply, push_patch(socket, to: Routes.passes_path(socket, :index, date: date))}
+
+      _ ->
+        {:noreply, socket}
+    end
+  end
+
   defp merge_new_passes(old_passes, new_passes) do
     old_passes_map = for pass <- old_passes, into: %{}, do: {pass.hash, pass}
     new_passes_map = for pass <- new_passes, into: %{}, do: {pass.hash, pass}
@@ -126,5 +200,10 @@ defmodule HamsatWeb.Passes.IndexLive do
 
   defp duration_options do
     [upcoming: "Upcoming", browse: "Browse"]
+  end
+
+  defp browse_url(socket) do
+    default_date = Date.utc_today() |> Timex.shift(days: 1) |> Date.to_iso8601()
+    Routes.passes_path(socket, :index, date: default_date)
   end
 end

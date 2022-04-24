@@ -51,7 +51,7 @@ defmodule HamsatWeb.PassComponents do
     case Pass.progression(pass, now) do
       :upcoming -> ""
       :in_progress -> "text-red-500 font-semibold"
-      :passed -> "text-gray-400 line-through"
+      :passed -> "text-gray-400"
     end
   end
 

@@ -1,6 +1,11 @@
 <.filter_panel>
-  <div class="flex justify-between">
-    <.pill_picker id="interval" options={duration_options()} value={:upcoming} />
+  <div class="flex space-x-4 items-center">
+    <.pill_picker id="interval" options={duration_options()} value={@duration} />
+      <%= if @date do %>
+        <form phx-change="date-changed">
+          <input name="date" type="date" class="input-date text-sm" value={@date} phx-debounce="500">
+        </form>
+      <% end %>
   </div>
 </.filter_panel>
 
@@ -12,19 +17,22 @@
   </.pass_table>
 </div>
 
+<%= if @loading? do %>
+  <div class="py-8 italic text-gray-400 text-center">
+    Calculating...
+  </div>
+<% end %>
 
-<div class="py-8 flex justify-center">
-  <%= if @loading? or @can_load_more? do %>
-    <button phx-click="load-more" class="btn btn-default" disabled={@loading?}>
-      <%= if @loading? do %>
-        Calculating...
-      <% else  %>
+<%= if @duration == :upcoming do %>
+  <div class="py-8 flex justify-center">
+    <%= if @loading? or @can_load_more? do %>
+      <button phx-click="load-more" class="btn btn-default" disabled={@loading?}>
         Load more
-      <% end %>
-    </button>
-  <% else %>
-    <div>
-      Switch to the date view to see future passes.
-    </div>
-  <% end %>
-</div>
+      </button>
+    <% else %>
+      <div>
+        <%= live_patch "Browse", to: browse_url(@socket), class: "link" %> to see more passes
+      </div>
+    <% end %>
+  </div>
+<% end %>

@@ -13,7 +13,7 @@ defmodule HamsatWeb.LayoutComponents do
     ~H"""
     <div class="flex rounded-lg text-sm overflow-hidden">
       <%= for {value, label} <- @options do %>
-        <button phx-click="select" phx-value-id={@id} phx-value-value={value} class={pill_picker_class(value, @value)}>
+        <button phx-click="select" phx-value-id={@id} phx-value-selected={value} class={pill_picker_class(value, @value)}>
           <%= label %>
         </button>
       <% end %>

@@ -3,6 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
+a.link {
+  @apply font-medium text-sky-600;
+}
+
 .table tbody tr {
   @apply hover:bg-gray-100 text-sm;
 }
@@ -42,6 +46,10 @@
 
 .btn-sm {
   @apply text-sm px-2 py-1 font-medium;
+}
+
+.input-date {
+  @apply px-2 py-1 bg-white border rounded;
 }
 
 /* LEAFLET CSS */

@@ -29,16 +29,20 @@ defmodule HamsatWeb.ViewHelpers do
     sign = if seconds < 0, do: "-", else: ""
     seconds = abs(seconds)
 
+    days = floor(seconds / 86400)
+    seconds = seconds - days * 86400
+
     hours = floor(seconds / 3600)
     seconds = seconds - hours * 3600
 
     minutes = floor(seconds / 60)
     seconds = seconds - minutes * 60
 
-    case {hours, minutes, seconds} do
-      {0, 0, s} -> "#{sign}0:#{zero_pad(s)}"
-      {0, m, s} -> "#{sign}#{m}:#{zero_pad(s)}"
-      {h, m, s} -> "#{sign}#{h}:#{zero_pad(m)}:#{zero_pad(s)}"
+    case {days, hours, minutes, seconds} do
+      {0, 0, 0, s} -> "#{sign}0:#{zero_pad(s)}"
+      {0, 0, m, s} -> "#{sign}#{m}:#{zero_pad(s)}"
+      {0, h, m, s} -> "#{sign}#{h}:#{zero_pad(m)}:#{zero_pad(s)}"
+      {d, h, m, s} -> "#{sign}#{d}d #{h}:#{zero_pad(m)}:#{zero_pad(s)}"
     end
   end
 
