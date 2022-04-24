@@ -71,8 +71,8 @@ defmodule HamsatWeb.Router do
   scope "/", HamsatWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
-    get "/users/register", UserRegistrationController, :new
-    post "/users/register", UserRegistrationController, :create
+    live "/users/register", UserRegistration.NewLive, :new, as: :user_registration
+
     get "/users/log_in", UserSessionController, :new
     post "/users/log_in", UserSessionController, :create
     get "/users/reset_password", UserResetPasswordController, :new

@@ -9,6 +9,10 @@ defmodule Hamsat.Accounts.User do
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
 
+    field :home_lat, :float
+    field :home_lon, :float
+    field :latest_callsign, :string
+
     timestamps()
   end
 
@@ -31,9 +35,10 @@ defmodule Hamsat.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :password, :home_lat, :home_lon])
     |> validate_email()
     |> validate_password(opts)
+    |> validate_required([:home_lat, :home_lon])
   end
 
   defp validate_email(changeset) do
@@ -48,7 +53,7 @@ defmodule Hamsat.Accounts.User do
   defp validate_password(changeset, opts) do
     changeset
     |> validate_required([:password])
-    |> validate_length(:password, min: 12, max: 72)
+    |> validate_length(:password, min: 8, max: 72)
     # |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
     # |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
     # |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/, message: "at least one digit or punctuation character")

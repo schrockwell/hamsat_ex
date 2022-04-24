@@ -52,6 +52,26 @@ a.link {
   @apply px-2 py-1 bg-white border rounded;
 }
 
+fieldset {
+  @apply mb-4;
+}
+
+.input-text {
+  @apply px-2 py-1 bg-white border border-gray-400;
+}
+
+.form-label {
+  @apply block text-xs uppercase text-gray-500 font-semibold tracking-wider mb-1;
+}
+
+.h1 {
+  @apply text-2xl;
+}
+
+.h2 {
+  @apply text-xl;
+}
+
 /* LEAFLET CSS */
 /* required styles */
 

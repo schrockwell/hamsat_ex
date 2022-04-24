@@ -1,9 +1,22 @@
-<div>
+<div class="rounded-md p-4 border bg-gray-100">
+  <div class="text-sm mb-8 text-gray-600 italic">
+    Select your station location by entering a grid square, coordinates, or by clicking the map.
+  </div>
+
   <.form let={f} for={@changeset} phx-change="form-changed" phx-target={@myself} autocomplete="off">
-    <div class="flex">
-      <%= text_input f, :grid, placeholder: "Grid" %>
-      <%= text_input f, :lat, placeholder: "Latitude" %>
-      <%= text_input f, :lon, placeholder: "Longitude" %>
+    <div class="flex space-x-4 mb-4">
+      <div>
+        <%= label f, :grid, class: "form-label" %>
+        <%= text_input f, :grid, placeholder: "Grid", class: "w-24 input-text font-mono" %>
+      </div>
+      <div class="flex-1">
+        <%= label f, :lat, "Latitude (°N)", class: "form-label" %>
+        <%= text_input f, :lat, placeholder: "Latitude", class: "input-text w-full" %>
+      </div>
+      <div class="flex-1">
+        <%= label f, :lon, "Longitude (°E)", class: "form-label" %>
+        <%= text_input f, :lon, placeholder: "Longitude", class: "input-text w-full" %>
+      </div>
     </div>
   </.form>
   
