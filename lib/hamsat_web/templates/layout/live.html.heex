@@ -1,9 +1,9 @@
 <main>
-  <p class="alert alert-info" role="alert"
+  <p class="bg-emerald-600 text-white px-6 py-2 empty:hidden" role="alert"
     phx-click="lv:clear-flash"
     phx-value-key="info"><%= live_flash(@flash, :info) %></p>
 
-  <p class="alert alert-danger" role="alert"
+  <p class="bg-red-600 text-white px-6 py-2 empty:hidden" role="alert"
     phx-click="lv:clear-flash"
     phx-value-key="error"><%= live_flash(@flash, :error) %></p>
 

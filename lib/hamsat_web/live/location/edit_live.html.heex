@@ -1,12 +1,23 @@
-<%= live_component LocationPicker, id: "location-picker", coord: @coord %>
+<div class="px-6 py-6">
+  <h1 class="h1 mb-6">Set Your Operating Location</h1>
 
-<form method="post" action={Routes.session_location_path(@socket, :update)}>
-  <%= csrf_input_tag(Routes.session_location_path(@socket, :update)) %>
+  <p class="my-6">
+    Specify your station location to predict upcoming satellite passes, and to identify others' 
+    upcoming activations that you should be able to work from your location.
+  </p>
   
-  <%= if @coord do %>
-    <input type="hidden" name="lat" value={@coord.lat}>
-    <input type="hidden" name="lon" value={@coord.lon}>
-  <% end %>
-  
-  <input type="submit" value="Save changes">
-</form>
+  <div class="w-full lg:w-1/2">
+    <%= live_component LocationPicker, id: "location-picker", coord: @coord %>
+  </div>
+
+  <form method="post" action={Routes.session_location_path(@socket, :update)}>
+    <%= csrf_input_tag(Routes.session_location_path(@socket, :update)) %>
+    
+    <%= if @coord do %>
+      <input type="hidden" name="lat" value={@coord.lat}>
+      <input type="hidden" name="lon" value={@coord.lon}>
+    <% end %>
+    
+    <input type="submit" value="Set Location" class="btn btn-default mt-6">
+  </form>
+</div>

@@ -15,11 +15,11 @@
         <div class="text-lg font-medium mr-8">SatSpot</div>
         <.nav_pill_button to={Routes.alerts_path(@conn, :index)} conn={@conn} active={~r/^(\/alerts|\/$)/}>Alerts</.nav_pill_button>
         <.nav_pill_button to={Routes.passes_path(@conn, :index)} conn={@conn} active={~r/^\/passes/}>Passes</.nav_pill_button>
-        <.nav_pill_button to={Routes.location_path(@conn, :edit)} conn={@conn} active={~r/^\/location/}>Location</.nav_pill_button>
+        <.nav_pill_button to={Routes.location_path(@conn, :edit)} conn={@conn} active={~r/^\/location/}>
+          <%= location_nav_button_text(@conn) %>
+        </.nav_pill_button>
       </div>
-      <div class="flex items-center space-x-4">
-        <%= render "_user_menu.html", assigns %>
-      </div>
+      <%= render "_user_menu.html", assigns %>
     </div>
 
     <div class="mx-4 bg-white shadow-md rounded-b-xl mb-4">

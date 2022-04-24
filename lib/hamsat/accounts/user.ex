@@ -38,7 +38,7 @@ defmodule Hamsat.Accounts.User do
     |> cast(attrs, [:email, :password, :home_lat, :home_lon])
     |> validate_email()
     |> validate_password(opts)
-    |> validate_required([:home_lat, :home_lon])
+    |> validate_home_location()
   end
 
   defp validate_email(changeset) do
@@ -142,5 +142,18 @@ defmodule Hamsat.Accounts.User do
     else
       add_error(changeset, :current_password, "is not valid")
     end
+  end
+
+  def home_location_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:home_lat, :home_lon])
+    |> validate_home_location()
+  end
+
+  defp validate_home_location(changeset) do
+    changeset
+    |> validate_required([:home_lat, :home_lon])
+    |> validate_number(:home_lat, greater_than_or_equal_to: -90, less_than_or_equal_to: 90)
+    |> validate_number(:home_lon, greater_than_or_equal_to: -180, less_than_or_equal_to: 180)
   end
 end

@@ -350,4 +350,10 @@ defmodule Hamsat.Accounts do
       {:error, :user, changeset, _} -> {:error, changeset}
     end
   end
+
+  def update_home_location(user, attrs) do
+    user
+    |> User.home_location_changeset(attrs)
+    |> Repo.update()
+  end
 end
