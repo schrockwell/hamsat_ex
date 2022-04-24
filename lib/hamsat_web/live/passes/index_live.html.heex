@@ -1,17 +1,21 @@
 <.filter_panel>
-  whoa
+  <div class="flex justify-between">
+    <.pill_picker id="interval" options={duration_options()} value={:upcoming} />
+  </div>
 </.filter_panel>
 
-<.pass_table passes={@passes}>
-  <%= for pass <- @passes do %>
-    <.pass_table_row context={@context} pass={pass} now={@now} />
-  <% end  %>
-</.pass_table>
+<div class="mt-2">
+  <.pass_table passes={@passes}>
+    <%= for pass <- @passes do %>
+      <.pass_table_row context={@context} pass={pass} now={@now} />
+    <% end  %>
+  </.pass_table>
+</div>
 
 
-<div class="my-8 flex justify-center">
+<div class="py-8 flex justify-center">
   <%= if @loading? or @can_load_more? do %>
-    <button phx-click="load-more" class="btn" disabled={@loading?}>
+    <button phx-click="load-more" class="btn btn-default" disabled={@loading?}>
       <%= if @loading? do %>
         Calculating...
       <% else  %>

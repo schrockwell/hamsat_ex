@@ -123,4 +123,8 @@ defmodule HamsatWeb.Passes.IndexLive do
     |> Map.values()
     |> Enum.sort_by(& &1.info.aos.datetime)
   end
+
+  defp duration_options do
+    [upcoming: "Upcoming", browse: "Browse"]
+  end
 end

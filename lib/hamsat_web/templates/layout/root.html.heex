@@ -9,20 +9,20 @@
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
-  <body class="text-gray-900">
-    <div class="w-full px-4 py-2 border-b flex items-center justify-between fixed bg-gray-100">
+  <body class="text-gray-900 bg-gray-200">
+    <div class="mt-4 mx-4 px-6 py-2 flex items-center justify-between rounded-t-xl bg-gray-700 text-white shadow-md">
       <div class="flex items-center">
         <div class="text-lg font-medium mr-8">SatSpot</div>
-        <.nav_pill_button to={Routes.alerts_path(@conn, :index)}>Alerts</.nav_pill_button>
-        <.nav_pill_button to={Routes.passes_path(@conn, :index)}>Passes</.nav_pill_button>
-        <.nav_pill_button to={Routes.location_path(@conn, :edit)}>Location</.nav_pill_button>
+        <.nav_pill_button to={Routes.alerts_path(@conn, :index)} conn={@conn} active={~r/^(\/alerts|\/$)/}>Alerts</.nav_pill_button>
+        <.nav_pill_button to={Routes.passes_path(@conn, :index)} conn={@conn} active={~r/^\/passes/}>Passes</.nav_pill_button>
+        <.nav_pill_button to={Routes.location_path(@conn, :edit)} conn={@conn} active={~r/^\/location/}>Location</.nav_pill_button>
       </div>
       <div class="flex items-center space-x-4">
         <%= render "_user_menu.html", assigns %>
       </div>
     </div>
 
-    <div class="p-4 pt-20 container mx-auto">
+    <div class="mx-4 bg-white shadow-md rounded-b-xl mb-4">
       <%= @inner_content %>
     </div>
   </body>

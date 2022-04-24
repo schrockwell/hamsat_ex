@@ -2,7 +2,7 @@
   <%= live_patch "View past alerts", to: @browse_link_to %>
 <% else %>
   <div>
-    <%= live_patch "View upcoming alerts", to: Routes.alerts_path(@socket, :index) %>
+    <%= live_patch "Upcoming alerts", to: Routes.alerts_path(@socket, :index) %>
 
     <form phx-change="filter-form-changed">
       <input type="date" name="date" value={@filter[:date]}>
