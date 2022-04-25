@@ -2,18 +2,22 @@ defmodule HamsatWeb.ViewHelpers do
   alias Hamsat.Alerts.Pass
   alias Hamsat.Context
 
+  @date_format "{YYYY}-{0M}-{0D}"
+  @time_format "{h24}:{m}:{s}"
+  @datetime_format @date_format <> " " <> @time_format
+
   def date(context, utc_datetime) do
     utc_datetime
     |> normalize_datetime()
     |> Timex.to_datetime(context.timezone)
-    |> Timex.format!("{YYYY}-{0M}-{0D}")
+    |> Timex.format!(@date_format)
   end
 
   def time(context, utc_datetime) do
     utc_datetime
     |> normalize_datetime()
     |> Timex.to_datetime(context.timezone)
-    |> Timex.format!("{h24}:{m}:{s}")
+    |> Timex.format!(@time_format)
   end
 
   defp normalize_datetime(%DateTime{} = datetime), do: datetime
@@ -81,5 +85,39 @@ defmodule HamsatWeb.ViewHelpers do
     pass.info.aos.datetime
     |> Timex.diff(now, :second)
     |> hms()
+  end
+
+  def date_span(start_datetime, end_datetime) do
+    if Timex.to_date(start_datetime) == Timex.to_date(end_datetime) do
+      Timex.format!(start_datetime, @date_format)
+    else
+      Timex.format!(start_datetime, @date_format) <>
+        " – " <> Timex.format!(end_datetime, @date_format)
+    end
+  end
+
+  def time_span(start_datetime, end_datetime) do
+    if Timex.to_date(start_datetime) == Timex.to_date(end_datetime) do
+      Timex.format!(start_datetime, @time_format) <>
+        " – " <> Timex.format!(end_datetime, @time_format)
+    else
+      Timex.format!(start_datetime, @datetime_format) <>
+        " – " <> Timex.format!(end_datetime, @datetime_format)
+    end
+  end
+
+  def datetime_span(start_datetime, end_datetime) do
+    start_string = Timex.format!(start_datetime, "{YYYY}-{0M}-{0D} {h24}:{m}:{s}")
+
+    end_format =
+      if Timex.to_date(start_datetime) == Timex.to_date(end_datetime) do
+        "{h24}:{m}:{s}"
+      else
+        "{YYYY}-{0M}-{0D} {h24}:{m}:{s}"
+      end
+
+    end_string = Timex.format!(end_datetime, end_format)
+
+    "#{start_string} – #{end_string} UTC"
   end
 end

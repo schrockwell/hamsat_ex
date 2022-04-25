@@ -5,10 +5,10 @@ defmodule Hamsat.Schemas.Alert do
     belongs_to :sat, Hamsat.Schemas.Sat, foreign_key: :satellite_id
 
     field :aos_at, :utc_datetime
+    field :los_at, :utc_datetime
     field :callsign, :string
     field :comment, :string
     field :downlink_mhz, :float
-    field :los_at, :utc_datetime
     field :mode, :string
 
     field :is_visible?, :boolean, default: false, virtual: true

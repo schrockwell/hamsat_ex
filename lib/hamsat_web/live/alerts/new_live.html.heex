@@ -1,4 +1,32 @@
-new alert!
+<div class="p-6">
+  <h1 class="h1 mb-6">Create an Alert For <%= @sat.name %></h1>
 
-<%= @pass.sat.name %>
-<%= inspect(@pass.info.aos.datetime) %>
+  <.form_row label="UTC Date">
+    <%= date_span(@pass.info.aos.datetime, @pass.info.los.datetime) %>
+  </.form_row>
+
+  <.form_row label="UTC Time">
+    <%= time_span(@pass.info.aos.datetime, @pass.info.los.datetime) %>
+  </.form_row>
+
+  <.form_row label="From Location">
+    <%= @grid %>
+  </.form_row>
+
+  <.form_row label="Callsign">
+    TODO
+  </.form_row>
+
+  <.form_row label="Downlink MHz">
+    TODO
+  </.form_row>
+
+  <.form_row label="Mode">
+    TODO
+  </.form_row>
+
+  <.form_row label="Comment">
+    TODO
+  </.form_row>
+
+</div>
