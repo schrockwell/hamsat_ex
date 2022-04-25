@@ -25,11 +25,11 @@ a.link {
 }
 
 .btn {
-  @apply rounded px-4 py-2 transition-all cursor-pointer;
+  @apply rounded px-4 py-2 transition-all cursor-pointer border;
 }
 
 .btn-default {
-  @apply bg-gray-100 hover:bg-gray-200 text-gray-700;
+  @apply bg-gray-200 hover:bg-gray-300 text-gray-700;
 }
 
 .btn-default:disabled {

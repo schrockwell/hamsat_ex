@@ -25,7 +25,7 @@ defmodule Hamsat.Alerts.Pass do
     "#{satnum}-#{grid}-#{max_unix}"
   end
 
-  def decode_hash(hash) do
+  def decode_hash!(hash) do
     [satnum, grid, max_unix] = String.split(hash, "-")
 
     satnum = String.to_integer(satnum)

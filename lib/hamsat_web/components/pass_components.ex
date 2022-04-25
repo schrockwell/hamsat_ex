@@ -1,6 +1,7 @@
 defmodule HamsatWeb.PassComponents do
   use HamsatWeb, :component
 
+  alias Hamsat.Alerts
   alias Hamsat.Alerts.Pass
 
   def pass_table(%{passes: passes} = assigns) do
@@ -42,7 +43,11 @@ defmodule HamsatWeb.PassComponents do
       <td class="text-center">→</td>
       <td class="text-left"><%= pass_los_direction(@pass) %></td>
       <td class="text-center"><%= length(@pass.alerts) %></td>
-      <td class="text-center"><%= link "Create an Alert", to: "#", class: "btn btn-sm btn-green" %></td>
+      <td class="text-center">
+        <%= if Alerts.can_create_alert_for?(@pass, at: @now) do %>
+          <%= link "Create an Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :new, pass: Pass.encode_hash(pass)), class: "btn btn-sm btn-default" %>
+        <% end %>
+      </td>
     </tr>
     """
   end

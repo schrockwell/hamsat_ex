@@ -17,6 +17,7 @@ defmodule HamsatWeb.Passes.IndexLive do
       socket
       |> assign(:loading?, true)
       |> assign_sats()
+      |> assign_results_description()
 
     Process.send_after(self(), :set_now, @set_now_interval)
     Process.send_after(self(), :reload_passes, @reload_passes_interval)
@@ -88,6 +89,7 @@ defmodule HamsatWeb.Passes.IndexLive do
       Timex.shift(DateTime.utc_now(), hours: socket.assigns.hours)
     )
     |> assign(:loading?, true)
+    |> assign_results_description()
   end
 
   defp append_upcoming_passes(%{assigns: %{date: date}} = socket) do
@@ -108,13 +110,16 @@ defmodule HamsatWeb.Passes.IndexLive do
 
     socket
     |> assign(:loading?, true)
+    |> assign_results_description()
   end
 
   defp purge_passed_passes(socket) do
     next_passes =
       Enum.reject(socket.assigns.passes, &(Pass.progression(&1, socket.assigns.now) == :passed))
 
-    assign(socket, :passes, next_passes)
+    socket
+    |> assign(:passes, next_passes)
+    |> assign_results_description()
   end
 
   defp increment_hours(socket, more_hours) do
@@ -140,14 +145,16 @@ defmodule HamsatWeb.Passes.IndexLive do
     {:noreply,
      socket
      |> assign(:passes, next_passes)
-     |> assign(:loading?, false)}
+     |> assign(:loading?, false)
+     |> assign_results_description()}
   end
 
   def handle_info({:daily_passes_loaded, passes}, socket) do
     {:noreply,
      socket
      |> assign(:passes, passes)
-     |> assign(:loading?, false)}
+     |> assign(:loading?, false)
+     |> assign_results_description()}
   end
 
   def handle_info(:set_now, socket) do
@@ -205,5 +212,39 @@ defmodule HamsatWeb.Passes.IndexLive do
   defp browse_url(socket) do
     default_date = Date.utc_today() |> Timex.shift(days: 1) |> Date.to_iso8601()
     Routes.passes_path(socket, :index, date: default_date)
+  end
+
+  defp assign_results_description(%{assigns: %{loading?: true}} = socket) do
+    assign(socket, :results_description, "Calculating…")
+  end
+
+  defp assign_results_description(%{assigns: %{duration: :upcoming}} = socket) do
+    grid =
+      Hamsat.Grid.encode!(
+        socket.assigns.context.location.lat,
+        socket.assigns.context.location.lon,
+        6
+      )
+
+    assign(
+      socket,
+      :results_description,
+      "Found #{length(socket.assigns.passes)} passes visible from #{grid} within the next #{socket.assigns.hours} hours."
+    )
+  end
+
+  defp assign_results_description(%{assigns: %{duration: :browse}} = socket) do
+    grid =
+      Hamsat.Grid.encode!(
+        socket.assigns.context.location.lat,
+        socket.assigns.context.location.lon,
+        6
+      )
+
+    assign(
+      socket,
+      :results_description,
+      "Found #{length(socket.assigns.passes)} passes visible from #{grid} on #{Date.to_iso8601(socket.assigns.date)}."
+    )
   end
 end

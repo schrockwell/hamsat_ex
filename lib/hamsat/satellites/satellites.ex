@@ -24,6 +24,10 @@ defmodule Hamsat.Satellites do
     Repo.get_by!(Sat, slug: slug)
   end
 
+  def get_satellite_by_number!(number) do
+    Repo.get_by!(Sat, number: number)
+  end
+
   # SOURCE: https://www.amsat.org/two-way-satellites/
   def known do
     [

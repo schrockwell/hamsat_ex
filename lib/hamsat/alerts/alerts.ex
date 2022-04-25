@@ -7,6 +7,16 @@ defmodule Hamsat.Alerts do
   alias Hamsat.Schemas.Sat
   alias Hamsat.Util
 
+  def get_pass_by_hash(context, hash) do
+    hash = Pass.decode_hash!(hash)
+    sat = Hamsat.Satellites.get_satellite_by_number!(hash.satnum)
+    max_datetime = Timex.to_datetime(hash.max_datetime_erl)
+    # observer = Observer.create_from(hash.lat, hash.lon)
+
+    [pass] = list_passes(context, sat, starting: max_datetime, ending: max_datetime)
+    pass
+  end
+
   @doc """
   Returns a sorted list of satellite passes for one satellite.
   """
@@ -157,5 +167,10 @@ defmodule Hamsat.Alerts do
         0
 
     visible_at_aos? or visible_at_los?
+  end
+
+  def can_create_alert_for?(pass, at: now) do
+    # now < LOS
+    Timex.compare(now, pass.info.los.datetime) == -1
   end
 end
