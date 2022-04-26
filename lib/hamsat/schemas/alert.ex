@@ -1,8 +1,14 @@
 defmodule Hamsat.Schemas.Alert do
   use Hamsat, :schema
 
+  import Hamsat.Changeset
+
+  alias Hamsat.Schemas.Sat
+  alias Hamsat.Accounts.User
+
   schema "alerts" do
-    belongs_to :sat, Hamsat.Schemas.Sat, foreign_key: :satellite_id
+    belongs_to :sat, Sat, foreign_key: :satellite_id
+    belongs_to :user, User
 
     field :aos_at, :utc_datetime
     field :los_at, :utc_datetime
@@ -16,10 +22,12 @@ defmodule Hamsat.Schemas.Alert do
     timestamps()
   end
 
-  def insert_changeset(_context, pass, attrs \\ %{}) do
+  def insert_changeset(context, pass, attrs \\ %{}) do
     %__MODULE__{
       aos_at: Hamsat.Util.erl_to_utc_datetime(pass.info.aos.datetime),
-      los_at: Hamsat.Util.erl_to_utc_datetime(pass.info.los.datetime)
+      los_at: Hamsat.Util.erl_to_utc_datetime(pass.info.los.datetime),
+      callsign: context.user.latest_callsign,
+      mode: hd(mode_options(pass.sat))
     }
     |> cast(attrs, [
       :callsign,
@@ -27,6 +35,8 @@ defmodule Hamsat.Schemas.Alert do
       :mode,
       :comment
     ])
+    |> format_callsign()
+    |> put_assoc(:user, context.user)
     |> put_assoc(:sat, pass.sat)
     |> validate_required([
       :callsign,
@@ -34,4 +44,7 @@ defmodule Hamsat.Schemas.Alert do
       :los_at
     ])
   end
+
+  def mode_options(%Sat{modulation: :fm}), do: ["FM"]
+  def mode_options(%Sat{modulation: :linear}), do: ["SSB", "CW", "Data"]
 end

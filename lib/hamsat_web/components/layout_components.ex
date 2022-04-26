@@ -9,7 +9,7 @@ defmodule HamsatWeb.LayoutComponents do
     """
   end
 
-  def pill_picker(%{id: id} = assigns) do
+  def pill_picker(%{id: _id} = assigns) do
     ~H"""
     <div class="flex rounded-lg text-sm overflow-hidden">
       <%= for {value, label} <- @options do %>

@@ -5,6 +5,7 @@ defmodule Hamsat.Repo.Migrations.CreateAlerts do
     create table(:alerts, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :satellite_id, references(:satellites, on_delete: :nothing, type: :binary_id)
+      add :user_id, references(:users, on_delete: :nothing, type: :binary_id)
 
       add :callsign, :string, null: false
       add :aos_at, :utc_datetime, null: false
@@ -17,6 +18,7 @@ defmodule Hamsat.Repo.Migrations.CreateAlerts do
     end
 
     create index(:alerts, [:satellite_id])
+    create index(:alerts, [:user_id])
     create index(:alerts, [:aos_at])
   end
 end

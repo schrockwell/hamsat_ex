@@ -1,6 +1,8 @@
 defmodule Hamsat.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
+  import Hamsat.Changeset
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "users" do
@@ -155,5 +157,11 @@ defmodule Hamsat.Accounts.User do
     |> validate_required([:home_lat, :home_lon])
     |> validate_number(:home_lat, greater_than_or_equal_to: -90, less_than_or_equal_to: 90)
     |> validate_number(:home_lon, greater_than_or_equal_to: -180, less_than_or_equal_to: 180)
+  end
+
+  def latest_callsign_changeset(user, callsign) do
+    user
+    |> change(latest_callsign: callsign)
+    |> format_callsign(:latest_callsign)
   end
 end

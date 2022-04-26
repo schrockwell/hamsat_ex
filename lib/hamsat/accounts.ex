@@ -356,4 +356,10 @@ defmodule Hamsat.Accounts do
     |> User.home_location_changeset(attrs)
     |> Repo.update()
   end
+
+  def update_latest_callsign!(user, callsign) do
+    user
+    |> User.latest_callsign_changeset()
+    |> Repo.update!()
+  end
 end

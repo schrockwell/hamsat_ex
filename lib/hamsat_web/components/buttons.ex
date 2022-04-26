@@ -1,7 +1,7 @@
 defmodule HamsatWeb.Buttons do
   use HamsatWeb, :component
 
-  def nav_pill_button(%{to: to} = assigns) do
+  def nav_pill_button(%{to: _to} = assigns) do
     link_opts =
       assigns
       |> Map.take([:to, :method])

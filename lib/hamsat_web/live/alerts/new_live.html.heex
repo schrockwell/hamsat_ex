@@ -1,32 +1,50 @@
 <div class="p-6">
   <h1 class="h1 mb-6">Create an Alert For <%= @sat.name %></h1>
 
-  <.form_row label="UTC Date">
-    <%= date_span(@pass.info.aos.datetime, @pass.info.los.datetime) %>
-  </.form_row>
+  <.form let={f} for={@changeset}>
+    <.form_row label="UTC Date">
+      <%= date_span(@pass.info.aos.datetime, @pass.info.los.datetime) %>
+    </.form_row>
 
-  <.form_row label="UTC Time">
-    <%= time_span(@pass.info.aos.datetime, @pass.info.los.datetime) %>
-  </.form_row>
+    <.form_row label="UTC Time">
+      <%= time_span(@pass.info.aos.datetime, @pass.info.los.datetime) %>
+    </.form_row>
 
-  <.form_row label="From Location">
-    <%= @grid %>
-  </.form_row>
+    <.form_row label="From Location">
+      <%= @grid %>
+    </.form_row>
 
-  <.form_row label="Callsign">
-    TODO
-  </.form_row>
+    <%= if @sat.modulation == :fm do %>
+      <.form_row label="Downlink MHz">
+        <%= sat_downlink_ranges(@sat) %>
+      </.form_row>
+    <% else %>
+      <.form_row label="Downlink MHz" input?={true}>
+        <%= text_input f, :downlink_mhz, class: "input-text", placeholder: "Optional" %>
 
-  <.form_row label="Downlink MHz">
-    TODO
-  </.form_row>
+        <div class="mt-1 text-sm font-medium text-gray-500">
+          <%= sat_downlink_ranges(@sat) %>
+        </div>
+      </.form_row>
+    <% end %>
 
-  <.form_row label="Mode">
-    TODO
-  </.form_row>
+    <%= if length(@mode_options) == 1 do %>
+      <.form_row label="Mode">
+        <%= hd(@mode_options) %>
+      </.form_row>
+    <% else %>
+      <.form_row label="Mode" input?={true}>
+        <%= select f, :mode, @mode_options %>
+      </.form_row>
+    <% end %>
 
-  <.form_row label="Comment">
-    TODO
-  </.form_row>
+    <.form_row label="Callsign" input?={true}>
+      <%= text_input f, :callsign, class: "input-text", required: true, placeholder: "Required" %>
+    </.form_row>
+
+    <.form_row label="Comment" input?={true}>
+      <%= text_input f, :comment, class: "input-text", placeholder: "Optional" %>
+    </.form_row>
+  </.form>
 
 </div>

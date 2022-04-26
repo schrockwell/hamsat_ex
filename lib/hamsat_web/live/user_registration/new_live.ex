@@ -5,7 +5,6 @@ defmodule HamsatWeb.UserRegistration.NewLive do
   alias Hamsat.Accounts.User
   alias Hamsat.Coord
 
-  alias HamsatWeb.UserAuth
   alias HamsatWeb.LocationPicker
 
   def mount(_, _, socket) do

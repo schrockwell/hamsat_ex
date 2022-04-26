@@ -31,22 +31,100 @@ defmodule Hamsat.Satellites do
   # SOURCE: https://www.amsat.org/two-way-satellites/
   def known do
     [
-      %{name: "AO-7", number: 7530, modulation: :linear},
-      %{name: "AO-27", number: 22825, modulation: :fm},
-      %{name: "AO-73", number: 39444, modulation: :linear},
-      %{name: "AO-91", number: 43017, modulation: :fm},
-      %{name: "CAS-4A", number: 42761, modulation: :linear},
-      %{name: "CAS-4B", number: 42759, modulation: :linear},
-      %{name: "FO-29", number: 24278, modulation: :linear},
-      %{name: "ISS", number: 25544, modulation: :fm},
-      %{name: "JO-97", number: 43803, modulation: :linear},
-      %{name: "LilacSat-2", number: 40908, modulation: :fm},
+      %{
+        name: "AO-7",
+        number: 7530,
+        modulation: :linear,
+        downlinks: [
+          %{lower_mhz: 29.4000, upper_mhz: 29.5000},
+          %{lower_mhz: 145.925, upper_mhz: 145.975}
+        ]
+      },
+      %{
+        name: "AO-27",
+        number: 22825,
+        modulation: :fm,
+        downlinks: [%{lower_mhz: 436.795, upper_mhz: 436.795}]
+      },
+      %{
+        name: "AO-73",
+        number: 39444,
+        modulation: :linear,
+        downlinks: [%{lower_mhz: 145.950, upper_mhz: 145.970}]
+      },
+      %{
+        name: "AO-91",
+        number: 43017,
+        modulation: :fm,
+        downlinks: [%{lower_mhz: 145.96, upper_mhz: 145.96}]
+      },
+      %{
+        name: "CAS-4A",
+        number: 42761,
+        modulation: :linear,
+        downlinks: [%{lower_mhz: 145.860, upper_mhz: 145.880}]
+      },
+      %{
+        name: "CAS-4B",
+        number: 42759,
+        modulation: :linear,
+        downlinks: [%{lower_mhz: 145.915, upper_mhz: 145.935}]
+      },
+      %{
+        name: "FO-29",
+        number: 24278,
+        modulation: :linear,
+        downlinks: [%{lower_mhz: 435.800, upper_mhz: 435.900}]
+      },
+      %{
+        name: "ISS",
+        number: 25544,
+        modulation: :fm,
+        downlinks: [%{lower_mhz: 437.8, upper_mhz: 437.8}]
+      },
+      %{
+        name: "JO-97",
+        number: 43803,
+        modulation: :linear,
+        downlinks: [%{lower_mhz: 145.855, upper_mhz: 145.875}]
+      },
+      %{
+        name: "LilacSat-2",
+        number: 40908,
+        modulation: :fm,
+        downlinks: [%{lower_mhz: 437.2, upper_mhz: 437.2}]
+      },
       # %{name: "MO-112", number: 48868, modulation: :fm},
-      %{name: "PO-101", number: 43678, modulation: :fm},
-      %{name: "RS-44", number: 44909, modulation: :linear},
-      %{name: "SO-50", number: 27607, modulation: :fm},
-      %{name: "TO-108", number: 44881, modulation: :linear},
-      %{name: "XW-2A", number: 40903, modulation: :linear}
+      %{
+        name: "PO-101",
+        number: 43678,
+        modulation: :fm,
+        downlinks: [%{lower_mhz: 145.9, upper_mhz: 145.9}]
+      },
+      %{
+        name: "RS-44",
+        number: 44909,
+        modulation: :linear,
+        downlinks: [%{lower_mhz: 435.610, upper_mhz: 435.670}]
+      },
+      %{
+        name: "SO-50",
+        number: 27607,
+        modulation: :fm,
+        downlinks: [%{lower_mhz: 436.795, upper_mhz: 436.795}]
+      },
+      %{
+        name: "TO-108",
+        number: 44881,
+        modulation: :linear,
+        downlinks: [%{lower_mhz: 145.915, upper_mhz: 145.935}]
+      },
+      %{
+        name: "XW-2A",
+        number: 40903,
+        modulation: :linear,
+        downlinks: [%{lower_mhz: 145.665, upper_mhz: 145.685}]
+      }
     ]
     |> Enum.map(&Map.put_new(&1, :slug, &1.name))
   end

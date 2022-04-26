@@ -1,6 +1,7 @@
 defmodule Hamsat.Alerts do
   use Hamsat, :repo
 
+  alias Hamsat.Accounts
   alias Hamsat.Alerts.Pass
   alias Hamsat.Coord
   alias Hamsat.Schemas.Alert
@@ -111,8 +112,24 @@ defmodule Hamsat.Alerts do
   """
   def create_alert(context, pass, attrs \\ %{}) do
     context
-    |> Alert.insert_changeset(pass, attrs)
+    |> change_alert(pass, attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, alert} ->
+        Accounts.update_latest_callsign!(context.user, alert.callsign)
+        {:ok, alert}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  @doc """
+  Creates an alert changeset for a pass.
+  """
+  def change_alert(context, pass, attrs \\ %{}) do
+    context
+    |> Alert.insert_changeset(pass, attrs)
   end
 
   @doc """
@@ -173,4 +190,6 @@ defmodule Hamsat.Alerts do
     # now < LOS
     Timex.compare(now, pass.info.los.datetime) == -1
   end
+
+  defdelegate mode_options(sat), to: Hamsat.Schemas.Alert
 end

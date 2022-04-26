@@ -3,27 +3,56 @@ defmodule HamsatWeb.Alerts.NewLive do
 
   alias Hamsat.Alerts
   alias Hamsat.Grid
+  alias Hamsat.Schemas.Alert
 
   def mount(%{"pass" => pass_hash}, _, socket) do
     pass = Alerts.get_pass_by_hash(socket.assigns.context, pass_hash)
-
-    IO.inspect(pass, label: "pass")
 
     socket =
       socket
       |> assign(:pass, pass)
       |> assign(:sat, pass.sat)
       |> assign(:grid, Grid.encode!(pass.observer.latitude_deg, pass.observer.longitude_deg, 6))
+      |> assign_mode_options()
+      |> assign_alert_changeset()
 
     {:ok, socket}
   end
 
-  defp form_row(%{label: label} = assigns) do
+  defp form_row(%{label: _label} = assigns) do
+    extra_class = if assigns[:input?], do: "mt-1", else: ""
+
+    assigns = assign(assigns, :label_class, ["w-48 text-right font-medium", extra_class])
+
     ~H"""
     <fieldset class="flex space-x-8">
-      <div class="w-48 text-right font-medium"><%= @label %></div>
+      <div class={@label_class}><%= @label %></div>
       <div><%= render_slot @inner_block %></div>
     </fieldset>
     """
+  end
+
+  defp assign_alert_changeset(socket, params \\ %{}) do
+    assign(
+      socket,
+      :changeset,
+      Alerts.change_alert(socket.assigns.context, socket.assigns.pass, params)
+    )
+  end
+
+  defp assign_mode_options(socket) do
+    assign(socket, :mode_options, Alerts.mode_options(socket.assigns.sat))
+  end
+
+  defp sat_downlink_ranges(sat) do
+    sat.downlinks
+    |> Enum.map(fn
+      %{lower_mhz: mhz, upper_mhz: mhz} ->
+        "#{mhz} MHz"
+
+      downlink ->
+        "#{downlink.lower_mhz} – #{downlink.upper_mhz} MHz"
+    end)
+    |> Enum.join(", ")
   end
 end

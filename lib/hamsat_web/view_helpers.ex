@@ -1,6 +1,5 @@
 defmodule HamsatWeb.ViewHelpers do
   alias Hamsat.Alerts.Pass
-  alias Hamsat.Context
 
   @date_format "{YYYY}-{0M}-{0D}"
   @time_format "{h24}:{m}:{s}"

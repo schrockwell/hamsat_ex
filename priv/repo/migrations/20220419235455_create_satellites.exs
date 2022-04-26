@@ -8,6 +8,7 @@ defmodule Hamsat.Repo.Migrations.CreateSatellites do
       add :name, :text, null: false
       add :slug, :text, null: false
       add :modulation, :text, null: false
+      add :downlinks, :json, null: false, default: "[]"
 
       timestamps(type: :utc_datetime)
     end

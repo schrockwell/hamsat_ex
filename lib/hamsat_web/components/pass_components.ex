@@ -4,7 +4,7 @@ defmodule HamsatWeb.PassComponents do
   alias Hamsat.Alerts
   alias Hamsat.Alerts.Pass
 
-  def pass_table(%{passes: passes} = assigns) do
+  def pass_table(%{passes: _passes} = assigns) do
     ~H"""
     <table class="table w-full">
       <thead>
@@ -60,7 +60,7 @@ defmodule HamsatWeb.PassComponents do
     end
   end
 
-  def sat_modulation_label(%{sat: sat} = assigns) do
+  def sat_modulation_label(%{sat: _sat} = assigns) do
     ~H"""
     <span title={sat_modulation_title(@sat)} class={[sat_modulation_class(@sat), "text-xs rounded-full px-2 py-0.5 font-semibold text-gray-600 uppercase"]}>
       <%= sat_modulation_text(@sat) %>
