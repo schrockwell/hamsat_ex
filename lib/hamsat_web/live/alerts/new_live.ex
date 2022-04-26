@@ -3,7 +3,6 @@ defmodule HamsatWeb.Alerts.NewLive do
 
   alias Hamsat.Alerts
   alias Hamsat.Grid
-  alias Hamsat.Schemas.Alert
 
   def mount(%{"pass" => pass_hash}, _, socket) do
     pass = Alerts.get_pass_by_hash(socket.assigns.context, pass_hash)
@@ -17,6 +16,19 @@ defmodule HamsatWeb.Alerts.NewLive do
       |> assign_alert_changeset()
 
     {:ok, socket}
+  end
+
+  def handle_event("submit", %{"alert" => alert_params}, socket) do
+    case Alerts.create_alert(socket.assigns.context, socket.assigns.pass, alert_params) do
+      {:ok, alert} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Created an alert.")
+         |> push_redirect(to: Routes.passes_path(socket, :index))}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, :changeset, changeset)}
+    end
   end
 
   defp form_row(%{label: _label} = assigns) do

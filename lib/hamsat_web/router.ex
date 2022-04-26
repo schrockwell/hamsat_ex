@@ -18,21 +18,21 @@ defmodule HamsatWeb.Router do
   end
 
   scope "/", HamsatWeb do
+    pipe_through [:browser, :require_authenticated_user]
+    live "/alerts/new", Alerts.NewLive, :new, as: :alerts
+    live "/alerts/:id/edit", Alerts.EditLive, :edit, as: :alerts
+  end
+
+  scope "/", HamsatWeb do
     pipe_through :browser
 
     live "/", Alerts.IndexLive, :index, as: :alerts
-    # live "/alerts/:id", Alerts.ShowLive, :show, as: :alerts
+    live "/alerts/:id", Alerts.ShowLive, :show, as: :alerts
 
     live "/passes", Passes.IndexLive, :index, as: :passes
 
     live "/location", Location.EditLive, :edit, as: :location
     post "/session_location", SessionLocationController, :update
-  end
-
-  scope "/", HamsatWeb do
-    pipe_through [:browser, :require_authenticated_user]
-    live "/alerts/new", Alerts.NewLive, :new, as: :alerts
-    live "/alerts/:id/edit", Alerts.EditLive, :edit, as: :alerts
   end
 
   # Other scopes may use custom stacks.

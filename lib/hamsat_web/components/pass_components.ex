@@ -30,22 +30,29 @@ defmodule HamsatWeb.PassComponents do
   def pass_table_row(%{pass: pass} = assigns) do
     ~H"""
     <tr class={pass_table_row_class(@pass, @now)}>
-      <td class="text-center">
+      <td class="text-center whitespace-nowrap">
         <span class="mr-4"><%= date(@context, @pass.info.aos.datetime) %></span>
         <span class="mr-4"><%= time(@context, @pass.info.aos.datetime) %></span>
       </td>
       <td class="text-center"><%= pass_aos_in(@now, @pass) %></td>
-      <td class="text-center"><%= pass_sat_name(@pass) %></td>
+      <td class="text-center whitespace-nowrap"><%= pass_sat_name(@pass) %></td>
       <td class="text-center"><.sat_modulation_label sat={@pass.sat} /></td>
       <td class="text-center"><%= pass_duration(@pass) %></td>
       <td class="text-center"><%= pass_max_el(@pass) %></td>
       <td class="text-right"><%= pass_aos_direction(@pass) %></td>
       <td class="text-center">→</td>
       <td class="text-left"><%= pass_los_direction(@pass) %></td>
-      <td class="text-center"><%= length(@pass.alerts) %></td>
       <td class="text-center">
-        <%= if Alerts.can_create_alert_for?(@pass, at: @now) do %>
-          <%= link "Create an Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :new, pass: Pass.encode_hash(pass)), class: "btn btn-sm btn-default" %>
+        <%= for alert <- @pass.alerts do %>
+          <%= live_patch alert.callsign, to: Routes.alerts_path(HamsatWeb.Endpoint, :show, alert.id), class: "link mx-1" %>
+        <% end %>
+      </td>
+      <td class="text-right pr-6 whitespace-nowrap">
+        <%= if Alerts.can_create_alert_for?(@context, @pass, @now) do %>
+          <%= link "Create an Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :new, pass: Pass.encode_hash(pass)), class: "link" %>
+        <% end %>
+        <%= if Alerts.can_edit_alert_for?(@context, @pass, @now) do %>
+          <%= link "Modify Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :edit, Alerts.my_alert_during_pass(@context, @pass, @now).id), class: "link" %>
         <% end %>
       </td>
     </tr>

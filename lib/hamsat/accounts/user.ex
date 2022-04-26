@@ -14,6 +14,7 @@ defmodule Hamsat.Accounts.User do
     field :home_lat, :float
     field :home_lon, :float
     field :latest_callsign, :string
+    field :latest_modes, {:array, :string}
 
     timestamps()
   end
@@ -159,9 +160,12 @@ defmodule Hamsat.Accounts.User do
     |> validate_number(:home_lon, greater_than_or_equal_to: -180, less_than_or_equal_to: 180)
   end
 
-  def latest_callsign_changeset(user, callsign) do
+  def alert_preferences_changeset(user, alert) do
+    # Reorder latest_modes, putting this alert's mode at the front of the list
+    new_latest_modes = Enum.uniq([alert.mode | user.latest_modes])
+
     user
-    |> change(latest_callsign: callsign)
+    |> change(latest_callsign: alert.callsign, latest_modes: new_latest_modes)
     |> format_callsign(:latest_callsign)
   end
 end

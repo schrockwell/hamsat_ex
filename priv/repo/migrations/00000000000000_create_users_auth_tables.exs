@@ -10,6 +10,7 @@ defmodule Hamsat.Repo.Migrations.CreateUsersAuthTables do
       add :hashed_password, :string, null: false
       add :confirmed_at, :naive_datetime
       add :latest_callsign, :string
+      add :latest_modes, {:array, :string}, default: "{}"
       add :home_lat, :float, null: false
       add :home_lon, :float, null: false
       timestamps()

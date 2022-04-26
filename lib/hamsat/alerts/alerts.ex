@@ -116,7 +116,7 @@ defmodule Hamsat.Alerts do
     |> Repo.insert()
     |> case do
       {:ok, alert} ->
-        Accounts.update_latest_callsign!(context.user, alert.callsign)
+        Accounts.update_alert_preferences!(context.user, alert)
         {:ok, alert}
 
       {:error, changeset} ->
@@ -186,9 +186,19 @@ defmodule Hamsat.Alerts do
     visible_at_aos? or visible_at_los?
   end
 
-  def can_create_alert_for?(pass, at: now) do
+  def can_create_alert_for?(context, pass, now) do
     # now < LOS
-    Timex.compare(now, pass.info.los.datetime) == -1
+    Timex.compare(now, pass.info.los.datetime) == -1 and
+      context.user.id not in Enum.map(pass.alerts, & &1.user_id)
+  end
+
+  def can_edit_alert_for?(context, pass, now) do
+    Timex.compare(now, pass.info.los.datetime) == -1 and
+      my_alert_during_pass(context, pass, now) != nil
+  end
+
+  def my_alert_during_pass(context, pass, now) do
+    Enum.find(pass.alerts, &(&1.user_id == context.user.id))
   end
 
   defdelegate mode_options(sat), to: Hamsat.Schemas.Alert

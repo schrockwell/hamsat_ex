@@ -357,9 +357,9 @@ defmodule Hamsat.Accounts do
     |> Repo.update()
   end
 
-  def update_latest_callsign!(user, callsign) do
+  def update_alert_preferences!(user, alert) do
     user
-    |> User.latest_callsign_changeset()
+    |> User.alert_preferences_changeset(alert)
     |> Repo.update!()
   end
 end

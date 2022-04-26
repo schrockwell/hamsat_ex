@@ -1,7 +1,7 @@
 <div class="p-6">
   <h1 class="h1 mb-6">Create an Alert For <%= @sat.name %></h1>
 
-  <.form let={f} for={@changeset}>
+  <.form let={f} for={@changeset} phx-submit="submit">
     <.form_row label="UTC Date">
       <%= date_span(@pass.info.aos.datetime, @pass.info.los.datetime) %>
     </.form_row>
@@ -35,16 +35,23 @@
     <% else %>
       <.form_row label="Mode" input?={true}>
         <%= select f, :mode, @mode_options %>
+        <%= error_tag f, :mode %>
       </.form_row>
     <% end %>
 
     <.form_row label="Callsign" input?={true}>
-      <%= text_input f, :callsign, class: "input-text", required: true, placeholder: "Required" %>
+      <%= text_input f, :callsign, class: "input-text", required: true, minlength: 3, placeholder: "Required" %>
+      <%= error_tag f, :callsign %>
     </.form_row>
 
     <.form_row label="Comment" input?={true}>
       <%= text_input f, :comment, class: "input-text", placeholder: "Optional" %>
+      <%= error_tag f, :comment %>
     </.form_row>
-  </.form>
 
+    <.form_row label="">
+      <%= submit "Create Alert", class: "btn btn-default mt-4" %>
+    </.form_row>
+
+  </.form>
 </div>

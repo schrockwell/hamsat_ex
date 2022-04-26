@@ -9,7 +9,10 @@ defmodule Hamsat.Repo.Migrations.CreateAlerts do
 
       add :callsign, :string, null: false
       add :aos_at, :utc_datetime, null: false
+      add :max_at, :utc_datetime, null: false
       add :los_at, :utc_datetime, null: false
+      add :observer_lat, :float, null: false
+      add :observer_lon, :float, null: false
       add :downlink_mhz, :float
       add :mode, :string
       add :comment, :text
