@@ -36,6 +36,13 @@ defmodule Hamsat.Schemas.Alert do
       observer_lat: context.location.lat,
       observer_lon: context.location.lon
     })
+    |> put_assoc(:user, context.user)
+    |> put_assoc(:sat, pass.sat)
+    |> update_changeset(attrs)
+  end
+
+  def update_changeset(alert, attrs \\ %{}) do
+    alert
     |> cast(attrs, [
       :callsign,
       :downlink_mhz,
@@ -43,13 +50,7 @@ defmodule Hamsat.Schemas.Alert do
       :comment
     ])
     |> format_callsign()
-    |> put_assoc(:user, context.user)
-    |> put_assoc(:sat, pass.sat)
-    |> validate_required([
-      :callsign,
-      :aos_at,
-      :los_at
-    ])
+    |> validate_required([:callsign])
     |> validate_length(:callsign, min: 3)
   end
 

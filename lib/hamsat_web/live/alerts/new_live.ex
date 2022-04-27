@@ -6,19 +6,47 @@ defmodule HamsatWeb.Alerts.NewLive do
 
   def mount(%{"pass" => pass_hash}, _, socket) do
     pass = Alerts.get_pass_by_hash(socket.assigns.context, pass_hash)
+    existing_alert = Alerts.my_alert_during_pass(socket.assigns.context, pass)
+
+    if existing_alert do
+      {:ok, push_redirect(socket, to: Routes.alerts_path(socket, :edit, existing_alert.id))}
+    else
+      socket =
+        socket
+        |> assign(:pass, pass)
+        |> assign(:sat, pass.sat)
+        |> assign(:grid, Grid.encode!(pass.observer.latitude_deg, pass.observer.longitude_deg, 6))
+        |> assign_mode_options()
+        |> assign_new_alert_changeset()
+
+      {:ok, socket}
+    end
+  end
+
+  def mount(%{"id" => alert_id}, _, socket) do
+    # existing_alert = Alerts.my_alert_during_pass(socket.assigns.context, pass)
+    # pass = Alerts.get_pass_by_hash(socket.assigns.context, pass_hash)
+
+    alert = Alerts.get_my_alert!(socket.assigns.context, alert_id)
+    pass = Alerts.get_pass_by_alert(alert)
 
     socket =
       socket
+      |> assign(:alert, alert)
       |> assign(:pass, pass)
-      |> assign(:sat, pass.sat)
+      |> assign(:sat, alert.sat)
       |> assign(:grid, Grid.encode!(pass.observer.latitude_deg, pass.observer.longitude_deg, 6))
       |> assign_mode_options()
-      |> assign_alert_changeset()
+      |> assign_edit_alert_changeset(alert)
 
     {:ok, socket}
   end
 
-  def handle_event("submit", %{"alert" => alert_params}, socket) do
+  def handle_event(
+        "submit",
+        %{"alert" => alert_params},
+        %{assigns: %{live_action: :new}} = socket
+      ) do
     case Alerts.create_alert(socket.assigns.context, socket.assigns.pass, alert_params) do
       {:ok, _alert} ->
         {:noreply,
@@ -29,6 +57,32 @@ defmodule HamsatWeb.Alerts.NewLive do
       {:error, changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
     end
+  end
+
+  def handle_event(
+        "submit",
+        %{"alert" => alert_params},
+        %{assigns: %{live_action: :edit}} = socket
+      ) do
+    case Alerts.update_alert(socket.assigns.alert, alert_params) do
+      {:ok, _alert} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Updated an alert.")
+         |> push_redirect(to: Routes.passes_path(socket, :index))}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, :changeset, changeset)}
+    end
+  end
+
+  def handle_event("delete", _, socket) do
+    Alerts.delete_alert(socket.assigns.alert)
+
+    {:noreply,
+     socket
+     |> put_flash(:info, "Alert deleted.")
+     |> push_redirect(to: Routes.passes_path(socket, :index))}
   end
 
   defp form_row(%{label: _label} = assigns) do
@@ -44,11 +98,19 @@ defmodule HamsatWeb.Alerts.NewLive do
     """
   end
 
-  defp assign_alert_changeset(socket, params \\ %{}) do
+  defp assign_new_alert_changeset(socket, params \\ %{}) do
     assign(
       socket,
       :changeset,
-      Alerts.change_alert(socket.assigns.context, socket.assigns.pass, params)
+      Alerts.change_new_alert(socket.assigns.context, socket.assigns.pass, params)
+    )
+  end
+
+  defp assign_edit_alert_changeset(socket, alert, params \\ %{}) do
+    assign(
+      socket,
+      :changeset,
+      Alerts.change_alert(alert, params)
     )
   end
 
@@ -67,4 +129,7 @@ defmodule HamsatWeb.Alerts.NewLive do
     end)
     |> Enum.join(", ")
   end
+
+  defp action_verb(:new), do: "Create"
+  defp action_verb(:edit), do: "Update"
 end

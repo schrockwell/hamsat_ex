@@ -3,6 +3,7 @@ defmodule Hamsat.Alerts do
 
   alias Hamsat.Accounts
   alias Hamsat.Alerts.Pass
+  alias Hamsat.Context
   alias Hamsat.Coord
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.Sat
@@ -18,14 +19,26 @@ defmodule Hamsat.Alerts do
     pass
   end
 
+  def get_pass_by_alert(alert) do
+    coord = %Coord{lat: alert.observer_lat, lon: alert.observer_lon}
+    [pass] = list_passes(coord, alert.sat, starting: alert.max_at, ending: alert.max_at)
+    pass
+  end
+
   @doc """
   Returns a sorted list of satellite passes for one satellite.
   """
-  def list_passes(context, sat, opts \\ []) do
-    context
+  def list_passes(context, sat, opts \\ [])
+
+  def list_passes(%Context{} = context, sat, opts) do
+    list_passes(context.location, sat, opts)
+  end
+
+  def list_passes(%Coord{} = coord, sat, opts) do
+    coord
     |> list_pass_infos(sat, opts)
     |> Enum.sort_by(& &1.aos.datetime)
-    |> convert_pass_infos_to_passes(context)
+    |> convert_pass_infos_to_passes(coord)
   end
 
   @doc """
@@ -35,17 +48,17 @@ defmodule Hamsat.Alerts do
     sats
     |> Enum.map(fn sat ->
       Task.async(fn ->
-        list_pass_infos(context, sat, opts)
+        list_pass_infos(context.location, sat, opts)
       end)
     end)
     |> Task.await_many()
     |> List.flatten()
     |> Enum.sort_by(& &1.aos.datetime)
-    |> convert_pass_infos_to_passes(context)
+    |> convert_pass_infos_to_passes(context.location)
   end
 
-  defp list_pass_infos(context, sat, opts) do
-    observer = Coord.to_observer(context.location)
+  defp list_pass_infos(coord, sat, opts) do
+    observer = Coord.to_observer(coord)
     satrec = Sat.get_satrec(sat)
     starting = opts[:starting] || DateTime.utc_now()
     ending = opts[:ending] || Timex.shift(starting, hours: 6)
@@ -58,9 +71,9 @@ defmodule Hamsat.Alerts do
     )
   end
 
-  defp convert_pass_infos_to_passes(infos, context) do
+  defp convert_pass_infos_to_passes(infos, coord) do
     sat_numbers = infos |> Enum.map(& &1.satnum) |> Enum.uniq()
-    observer = Coord.to_observer(context.location)
+    observer = Coord.to_observer(coord)
 
     sats =
       from(s in Sat, where: s.number in ^sat_numbers)
@@ -112,7 +125,7 @@ defmodule Hamsat.Alerts do
   """
   def create_alert(context, pass, attrs \\ %{}) do
     context
-    |> change_alert(pass, attrs)
+    |> change_new_alert(pass, attrs)
     |> Repo.insert()
     |> case do
       {:ok, alert} ->
@@ -124,12 +137,25 @@ defmodule Hamsat.Alerts do
     end
   end
 
+  def update_alert(alert, attrs \\ %{}) do
+    alert
+    |> change_alert(attrs)
+    |> Repo.update()
+  end
+
+  def delete_alert(alert) do
+    Repo.delete(alert)
+  end
+
   @doc """
   Creates an alert changeset for a pass.
   """
-  def change_alert(context, pass, attrs \\ %{}) do
-    context
-    |> Alert.insert_changeset(pass, attrs)
+  def change_new_alert(context, pass, attrs \\ %{}) do
+    Alert.insert_changeset(context, pass, attrs)
+  end
+
+  def change_alert(alert, attrs \\ %{}) do
+    Alert.update_changeset(alert, attrs)
   end
 
   @doc """
@@ -142,6 +168,17 @@ defmodule Hamsat.Alerts do
     |> Repo.all()
     |> Repo.preload([:sat])
     |> amend_visible_passes(context)
+  end
+
+  def get_my_alert!(context, id) do
+    Alert
+    |> user_alert_query(context.user)
+    |> Repo.get!(id)
+    |> Repo.preload(:sat)
+  end
+
+  defp user_alert_query(queryable, user) do
+    from a in queryable, where: a.user_id == ^user.id
   end
 
   defp apply_alert_filter({:date, :upcoming}, query) do
@@ -186,16 +223,18 @@ defmodule Hamsat.Alerts do
     visible_at_aos? or visible_at_los?
   end
 
-  def can_create_alert_for?(context, pass, now) do
+  def show_create_alert_button?(context, pass, now) do
     # now < LOS
     Timex.compare(now, pass.info.los.datetime) == -1 and
-      context.user.id not in Enum.map(pass.alerts, & &1.user_id)
+      (context.user == :guest or context.user.id not in Enum.map(pass.alerts, & &1.user_id))
   end
 
-  def can_edit_alert_for?(context, pass, now) do
+  def show_edit_alert_button?(context, pass, now) do
     Timex.compare(now, pass.info.los.datetime) == -1 and
       my_alert_during_pass(context, pass) != nil
   end
+
+  def my_alert_during_pass(%{user: :guest}, _pass), do: nil
 
   def my_alert_during_pass(context, pass) do
     Enum.find(pass.alerts, &(&1.user_id == context.user.id))

@@ -3,7 +3,7 @@ defmodule HamsatWeb.ContextHook do
   alias Hamsat.Accounts.User
 
   def on_mount(:default, _params, session, socket) do
-    user = get_session_user(session)
+    user = get_session_user(session) || :guest
 
     context = %Hamsat.Context{
       user: user,
@@ -23,9 +23,9 @@ defmodule HamsatWeb.ContextHook do
     %Hamsat.Coord{lat: user.home_lat, lon: user.home_lon}
   end
 
-  defp get_session_location(nil, %{"lat" => lat, "lon" => lon} = _session) do
+  defp get_session_location(:guest, %{"lat" => lat, "lon" => lon} = _session) do
     %Hamsat.Coord{lat: lat, lon: lon}
   end
 
-  defp get_session_location(nil, _session), do: nil
+  defp get_session_location(:guest, _session), do: nil
 end

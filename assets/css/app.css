@@ -36,6 +36,10 @@ a.link {
   @apply bg-gray-100 text-gray-300;
 }
 
+.btn-text-danger {
+  @apply text-red-500;
+}
+
 .btn-green {
   @apply bg-emerald-500 hover:bg-emerald-600 text-white;
 }

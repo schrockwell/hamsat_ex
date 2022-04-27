@@ -20,7 +20,7 @@ defmodule HamsatWeb.Router do
   scope "/", HamsatWeb do
     pipe_through [:browser, :require_authenticated_user]
     live "/alerts/new", Alerts.NewLive, :new, as: :alerts
-    live "/alerts/:id/edit", Alerts.EditLive, :edit, as: :alerts
+    live "/alerts/:id/edit", Alerts.NewLive, :edit, as: :alerts
   end
 
   scope "/", HamsatWeb do

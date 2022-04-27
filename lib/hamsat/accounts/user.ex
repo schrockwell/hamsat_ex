@@ -16,6 +16,8 @@ defmodule Hamsat.Accounts.User do
     field :latest_callsign, :string
     field :latest_modes, {:array, :string}
 
+    has_many :alerts, Hamsat.Schemas.Alert
+
     timestamps()
   end
 

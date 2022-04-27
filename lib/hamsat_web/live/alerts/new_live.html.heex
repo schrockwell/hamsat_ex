@@ -1,5 +1,7 @@
 <div class="p-6">
-  <h1 class="h1 mb-6">Create an Alert For <%= @sat.name %></h1>
+  <h1 class="h1 mb-6">
+    <%= action_verb(@live_action) %> an Alert For <%= @sat.name %>
+  </h1>
 
   <.form let={f} for={@changeset} phx-submit="submit">
     <.form_row label="UTC Date">
@@ -17,14 +19,6 @@
     <%= if @sat.modulation == :fm do %>
       <.form_row label="Downlink MHz">
         <%= sat_downlink_ranges(@sat) %>
-      </.form_row>
-    <% else %>
-      <.form_row label="Downlink MHz" input?={true}>
-        <%= text_input f, :downlink_mhz, class: "input-text", placeholder: "Optional" %>
-
-        <div class="mt-1 text-sm font-medium text-gray-500">
-          <%= sat_downlink_ranges(@sat) %>
-        </div>
       </.form_row>
     <% end %>
 
@@ -44,13 +38,29 @@
       <%= error_tag f, :callsign %>
     </.form_row>
 
+    <%= if @sat.modulation == :linear do %>
+      <.form_row label="Downlink MHz" input?={true}>
+        <%= text_input f, :downlink_mhz, class: "input-text", placeholder: "Optional" %>
+
+        <%= error_tag f, :downlink_mhz %>
+        
+        <div class="mt-1 text-sm font-medium text-gray-500">
+          <%= sat_downlink_ranges(@sat) %>
+        </div>
+      </.form_row>
+    <% end %>
+
     <.form_row label="Comment" input?={true}>
       <%= text_input f, :comment, class: "input-text", placeholder: "Optional" %>
       <%= error_tag f, :comment %>
     </.form_row>
 
     <.form_row label="">
-      <%= submit "Create Alert", class: "btn btn-default mt-4" %>
+      <%= submit "#{action_verb(@live_action)} Alert", class: "btn btn-default" %>
+
+      <%= if @live_action == :edit do %>
+        <button type="button" phx-click="delete" data-confirm="Are you sure you want to delete this alert?" class="btn btn-default btn-text-danger">Delete Alert</button>
+      <% end %>
     </.form_row>
 
   </.form>
