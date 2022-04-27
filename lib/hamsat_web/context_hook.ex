@@ -23,9 +23,10 @@ defmodule HamsatWeb.ContextHook do
     %Hamsat.Coord{lat: user.home_lat, lon: user.home_lon}
   end
 
-  defp get_session_location(:guest, %{"lat" => lat, "lon" => lon} = _session) do
+  defp get_session_location(:guest, %{"lat" => lat, "lon" => lon} = _session)
+       when is_float(lat) and is_float(lon) do
     %Hamsat.Coord{lat: lat, lon: lon}
   end
 
-  defp get_session_location(:guest, _session), do: nil
+  defp get_session_location(_user, _session), do: nil
 end

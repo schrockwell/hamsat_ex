@@ -4,7 +4,8 @@ defmodule HamsatWeb.Alerts.IndexLive do
   alias Hamsat.Alerts
 
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    Process.send_after(self(), :set_now, 1_000)
+    {:ok, assign(socket, :now, DateTime.utc_now())}
   end
 
   def handle_params(params, _uri, socket) do
@@ -38,5 +39,10 @@ defmodule HamsatWeb.Alerts.IndexLive do
     socket = push_patch(socket, to: Routes.alerts_path(socket, :index, params))
 
     {:noreply, socket}
+  end
+
+  def handle_info(:set_now, socket) do
+    Process.send_after(self(), :set_now, 1_000)
+    {:noreply, assign(socket, :now, DateTime.utc_now())}
   end
 end

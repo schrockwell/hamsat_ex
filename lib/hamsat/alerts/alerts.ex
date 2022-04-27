@@ -182,7 +182,7 @@ defmodule Hamsat.Alerts do
   end
 
   defp apply_alert_filter({:date, :upcoming}, query) do
-    where(query, [a], a.aos_at >= ^DateTime.utc_now())
+    where(query, [a], a.los_at >= ^DateTime.utc_now())
   end
 
   defp apply_alert_filter({:date, %Date{} = date}, query) do
@@ -203,24 +203,47 @@ defmodule Hamsat.Alerts do
 
       coord ->
         for alert <- alerts do
-          %{alert | is_visible?: is_visible_during_alert?(alert, coord)}
+          Map.merge(alert, visible_attrs(alert, coord))
         end
     end
   end
 
-  defp is_visible_during_alert?(alert, coord) do
+  defp visible_attrs(alert, coord) do
     satrec = Sat.get_satrec(alert.sat)
     observer = Coord.to_observer(coord)
 
-    visible_at_aos? =
-      Satellite.Passes.current_position(satrec, observer, Util.utc_datetime_to_erl(alert.aos_at)).elevation_in_degrees >
-        0
+    case Satellite.Passes.list_passes_until(
+           satrec,
+           observer,
+           Util.utc_datetime_to_erl(alert.aos_at),
+           Util.utc_datetime_to_erl(alert.los_at)
+         ) do
+      [pass_info | _] ->
+        pass_aos = Util.erl_to_utc_datetime(pass_info.aos.datetime)
+        pass_los = Util.erl_to_utc_datetime(pass_info.los.datetime)
 
-    visible_at_los? =
-      Satellite.Passes.current_position(satrec, observer, Util.utc_datetime_to_erl(alert.los_at)).elevation_in_degrees >
-        0
+        [_, overlap_start] = Enum.sort([alert.aos_at, pass_aos], DateTime)
+        [overlap_end, _] = Enum.sort([alert.los_at, pass_los], DateTime)
 
-    visible_at_aos? or visible_at_los?
+        %{workable_start_at: overlap_start, workable_end_at: overlap_end, is_workable?: true}
+
+      [] ->
+        %{is_workable?: false}
+    end
+
+    # visible_at_aos? =
+    #   Satellite.Passes.current_position(satrec, observer, Util.utc_datetime_to_erl(alert.aos_at)).elevation_in_degrees >
+    #     0
+
+    # visible_at_max? =
+    #   Satellite.Passes.current_position(satrec, observer, Util.utc_datetime_to_erl(alert.max_at)).elevation_in_degrees >
+    #     0
+
+    # visible_at_los? =
+    #   Satellite.Passes.current_position(satrec, observer, Util.utc_datetime_to_erl(alert.los_at)).elevation_in_degrees >
+    #     0
+
+    # visible_at_aos? or visible_at_max? or visible_at_los?
   end
 
   def show_create_alert_button?(context, pass, now) do

@@ -10,7 +10,7 @@ defmodule HamsatWeb.PassComponents do
       <thead>
         <tr>
           <th title="Time of acquisition of signal">AOS (UTC)</th>
-          <th title="Time until acquisition of signal">AOS In</th>
+          <th title="Time until acquisition or loss of signal">AOS / LOS In</th>
           <th title="Satellite name">Sat</th>
           <th title="Satellite modulation">Mod</th>
           <th title="Duration of visible pass">Length</th>
@@ -34,7 +34,7 @@ defmodule HamsatWeb.PassComponents do
         <span class="mr-4"><%= date(@context, @pass.info.aos.datetime) %></span>
         <span class="mr-4"><%= time(@context, @pass.info.aos.datetime) %></span>
       </td>
-      <td class="text-center"><%= pass_aos_in(@now, @pass) %></td>
+      <td class="text-center"><%= pass_aos_or_los_in(@now, @pass) %></td>
       <td class="text-center whitespace-nowrap"><%= pass_sat_name(@pass) %></td>
       <td class="text-center"><.sat_modulation_label sat={@pass.sat} /></td>
       <td class="text-center"><%= pass_duration(@pass) %></td>
@@ -49,7 +49,7 @@ defmodule HamsatWeb.PassComponents do
       </td>
       <td class="text-right pr-6 whitespace-nowrap">
         <%= if Alerts.show_create_alert_button?(@context, @pass, @now) do %>
-          <%= link "Create an Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :new, pass: Pass.encode_hash(pass)), class: "link" %>
+          <%= link "Post an Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :new, pass: Pass.encode_hash(pass)), class: "link" %>
         <% end %>
         <%= if Alerts.show_edit_alert_button?(@context, @pass, @now) do %>
           <%= link "Modify Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :edit, Alerts.my_alert_during_pass(@context, @pass).id), class: "link" %>
@@ -62,7 +62,7 @@ defmodule HamsatWeb.PassComponents do
   defp pass_table_row_class(pass, now) do
     case Pass.progression(pass, now) do
       :upcoming -> ""
-      :in_progress -> "text-red-500 font-semibold"
+      :in_progress -> "bg-yellow-100 text-yellow-800 font-semibold"
       :passed -> "text-gray-400"
     end
   end

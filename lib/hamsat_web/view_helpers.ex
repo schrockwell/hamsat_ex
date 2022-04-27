@@ -23,8 +23,12 @@ defmodule HamsatWeb.ViewHelpers do
   defp normalize_datetime(erl_datetime), do: Hamsat.Util.erl_to_utc_datetime(erl_datetime)
 
   def pass_duration(%Pass{} = pass) do
-    pass.info.los.datetime
-    |> Timex.diff(pass.info.aos.datetime, :second)
+    duration(pass.info.aos.datetime, pass.info.los.datetime)
+  end
+
+  def duration(start_time, end_time) do
+    end_time
+    |> Timex.diff(start_time, :second)
     |> hms()
   end
 
@@ -80,10 +84,18 @@ defmodule HamsatWeb.ViewHelpers do
     cardinal_direction(pass.info.los.azimuth_in_degrees)
   end
 
-  def pass_aos_in(now, %Pass{} = pass) do
-    pass.info.aos.datetime
+  def duration_until(now, then) do
+    then
     |> Timex.diff(now, :second)
     |> hms()
+  end
+
+  def pass_aos_or_los_in(now, %Pass{} = pass) do
+    if Timex.compare(now, pass.info.aos.datetime) < 1 do
+      duration_until(now, pass.info.aos.datetime)
+    else
+      duration_until(now, pass.info.los.datetime)
+    end
   end
 
   def date_span(start_datetime, end_datetime) do
@@ -118,5 +130,13 @@ defmodule HamsatWeb.ViewHelpers do
     end_string = Timex.format!(end_datetime, end_format)
 
     "#{start_string} – #{end_string} UTC"
+  end
+
+  def mhz(float, precision \\ 3)
+
+  def mhz(nil, _), do: "–"
+
+  def mhz(float, precision) do
+    :io_lib.format("~.#{precision}f", [float])
   end
 end

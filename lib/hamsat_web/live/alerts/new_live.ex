@@ -130,6 +130,6 @@ defmodule HamsatWeb.Alerts.NewLive do
     |> Enum.join(", ")
   end
 
-  defp action_verb(:new), do: "Create"
+  defp action_verb(:new), do: "Post"
   defp action_verb(:edit), do: "Update"
 end

@@ -20,7 +20,9 @@ defmodule Hamsat.Schemas.Alert do
     field :observer_lat, :float
     field :observer_lon, :float
 
-    field :is_visible?, :boolean, default: false, virtual: true
+    field :is_workable?, :boolean, default: false, virtual: true
+    field :workable_start_at, :utc_datetime, virtual: true
+    field :workable_end_at, :utc_datetime, virtual: true
 
     timestamps()
   end
@@ -33,6 +35,7 @@ defmodule Hamsat.Schemas.Alert do
       los_at: Hamsat.Util.erl_to_utc_datetime(pass.info.los.datetime),
       callsign: context.user.latest_callsign,
       mode: preferred_mode(context.user, pass.sat),
+      downlink_mhz: preferred_downlink_mhz(pass.sat),
       observer_lat: context.location.lat,
       observer_lon: context.location.lon
     })
@@ -70,4 +73,7 @@ defmodule Hamsat.Schemas.Alert do
         end)
     end
   end
+
+  defp preferred_downlink_mhz(%Sat{downlinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}), do: mhz
+  defp preferred_downlink_mhz(_sat), do: nil
 end
