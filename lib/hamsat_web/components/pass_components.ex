@@ -34,7 +34,7 @@ defmodule HamsatWeb.PassComponents do
         <span class="mr-4"><%= date(@context, @pass.info.aos.datetime) %></span>
         <span class="mr-4"><%= time(@context, @pass.info.aos.datetime) %></span>
       </td>
-      <td class="text-center"><%= pass_aos_or_los_in(@now, @pass) %></td>
+      <td class="text-center"><%= next_aos_or_los_in(@now, @pass) %></td>
       <td class="text-center whitespace-nowrap"><%= pass_sat_name(@pass) %></td>
       <td class="text-center"><.sat_modulation_label sat={@pass.sat} /></td>
       <td class="text-center"><%= pass_duration(@pass) %></td>
@@ -83,4 +83,11 @@ defmodule HamsatWeb.PassComponents do
 
   defp sat_modulation_class(%{modulation: :fm}), do: "bg-amber-200 text-amber-600"
   defp sat_modulation_class(%{modulation: :linear}), do: "bg-emerald-200 text-emerald-600"
+
+  defp next_aos_or_los_in(now, pass) do
+    case pass_next_event_in(now, pass) do
+      {:aos, duration} -> duration
+      {:los, duration} -> "LOS in #{duration}"
+    end
+  end
 end

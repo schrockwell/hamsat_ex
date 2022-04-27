@@ -14,7 +14,7 @@
 <div class="mt-2">
   <.pass_table passes={@passes}>
     <%= for pass <- @passes do %>
-      <.pass_table_row context={@context} pass={pass} now={@now} />
+      <.pass_table_row id={Hamsat.Alerts.Pass.encode_hash(pass)} context={@context} pass={pass} now={@now} />
     <% end  %>
   </.pass_table>
 </div>

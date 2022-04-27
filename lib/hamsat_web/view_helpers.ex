@@ -90,11 +90,11 @@ defmodule HamsatWeb.ViewHelpers do
     |> hms()
   end
 
-  def pass_aos_or_los_in(now, %Pass{} = pass) do
+  def pass_next_event_in(now, %Pass{} = pass) do
     if Timex.compare(now, pass.info.aos.datetime) < 1 do
-      duration_until(now, pass.info.aos.datetime)
+      {:aos, duration_until(now, pass.info.aos.datetime)}
     else
-      duration_until(now, pass.info.los.datetime)
+      {:los, duration_until(now, pass.info.los.datetime)}
     end
   end
 
