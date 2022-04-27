@@ -194,10 +194,10 @@ defmodule Hamsat.Alerts do
 
   def can_edit_alert_for?(context, pass, now) do
     Timex.compare(now, pass.info.los.datetime) == -1 and
-      my_alert_during_pass(context, pass, now) != nil
+      my_alert_during_pass(context, pass) != nil
   end
 
-  def my_alert_during_pass(context, pass, now) do
+  def my_alert_during_pass(context, pass) do
     Enum.find(pass.alerts, &(&1.user_id == context.user.id))
   end
 

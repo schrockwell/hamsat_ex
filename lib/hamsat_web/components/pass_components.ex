@@ -52,7 +52,7 @@ defmodule HamsatWeb.PassComponents do
           <%= link "Create an Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :new, pass: Pass.encode_hash(pass)), class: "link" %>
         <% end %>
         <%= if Alerts.can_edit_alert_for?(@context, @pass, @now) do %>
-          <%= link "Modify Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :edit, Alerts.my_alert_during_pass(@context, @pass, @now).id), class: "link" %>
+          <%= link "Modify Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :edit, Alerts.my_alert_during_pass(@context, @pass).id), class: "link" %>
         <% end %>
       </td>
     </tr>

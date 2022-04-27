@@ -20,7 +20,7 @@ defmodule HamsatWeb.Alerts.NewLive do
 
   def handle_event("submit", %{"alert" => alert_params}, socket) do
     case Alerts.create_alert(socket.assigns.context, socket.assigns.pass, alert_params) do
-      {:ok, alert} ->
+      {:ok, _alert} ->
         {:noreply,
          socket
          |> put_flash(:info, "Created an alert.")
