@@ -1,14 +1,13 @@
-<%= if @browse_link_to do %>
-  <%= live_patch "View past alerts", to: @browse_link_to %>
-<% else %>
-  <div>
-    <%= live_patch "Upcoming alerts", to: Routes.alerts_path(@socket, :index) %>
-
-    <form phx-change="filter-form-changed">
-      <input type="date" name="date" value={@filter[:date]}>
-    </form>
+<.filter_panel>
+  <div class="flex space-x-4 items-center">
+    <.pill_picker id="interval" options={duration_options()} value={@duration} />
+    <%= if @duration == :browse do %>
+      <form phx-change="date-changed">
+        <input name="date" type="date" class="input-date text-sm" value={@filter[:date]} phx-debounce="250">
+      </form>
+    <% end %>
   </div>
-<% end %>
+</.filter_panel>
 
 <table class="table w-full">
   <thead>
@@ -46,3 +45,14 @@
     </tr>
   <% end %>
 </table>
+
+<%= if @alerts == [] do %>
+  <div class="text-center py-8 italic text-gray-400">
+    
+    <%= if @duration == :upcoming do %>
+      No future alerts have been posted
+    <% else %>
+      No alerts have been posted for <%= @filter[:date] %>
+    <% end %>
+  </div>
+<% end %>
