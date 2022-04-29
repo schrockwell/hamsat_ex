@@ -17,17 +17,11 @@ defmodule HamsatWeb.Alerts.IndexLive do
 
     duration = if filter[:date] == :upcoming, do: :upcoming, else: :browse
 
-    # browse_link_to =
-    #   if filter[:date] == :upcoming,
-    #     do: Routes.alerts_path(socket, :index, date: Date.utc_today() |> Date.to_iso8601())
-
     socket =
       socket
       |> assign(:filter, filter)
       |> assign(:alerts, alerts)
       |> assign(:duration, duration)
-
-    # |> assign(:browse_link_to, browse_link_to)
 
     {:noreply, socket}
   end
@@ -66,7 +60,7 @@ defmodule HamsatWeb.Alerts.IndexLive do
   end
 
   defp browse_url(socket) do
-    default_date = Date.utc_today() |> Timex.shift(days: 1) |> Date.to_iso8601()
+    default_date = Date.utc_today() |> Date.to_iso8601()
     Routes.alerts_path(socket, :index, date: default_date)
   end
 end

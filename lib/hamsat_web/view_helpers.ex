@@ -1,5 +1,6 @@
 defmodule HamsatWeb.ViewHelpers do
   alias Hamsat.Alerts.Pass
+  alias Hamsat.Schemas.Alert
 
   @date_format "{YYYY}-{0M}-{0D}"
   @time_format "{h24}:{m}:{s}"
@@ -95,6 +96,22 @@ defmodule HamsatWeb.ViewHelpers do
       {:aos, duration_until(now, pass.info.aos.datetime)}
     else
       {:los, duration_until(now, pass.info.los.datetime)}
+    end
+  end
+
+  def alert_next_event_in(now, %Alert{} = alert) do
+    cond do
+      not alert.is_workable? ->
+        :never
+
+      Timex.compare(now, alert.workable_start_at) < 1 ->
+        {:start, duration_until(now, alert.workable_start_at)}
+
+      Timex.compare(now, alert.workable_end_at) < 1 ->
+        {:end, duration_until(now, alert.workable_end_at)}
+
+      true ->
+        :never
     end
   end
 

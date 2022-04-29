@@ -209,7 +209,7 @@ defmodule HamsatWeb.Passes.IndexLive do
   end
 
   defp browse_url(socket) do
-    default_date = Date.utc_today() |> Timex.shift(days: 1) |> Date.to_iso8601()
+    default_date = Date.utc_today() |> Date.to_iso8601()
     Routes.passes_path(socket, :index, date: default_date)
   end
 

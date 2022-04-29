@@ -76,4 +76,14 @@ defmodule Hamsat.Schemas.Alert do
 
   defp preferred_downlink_mhz(%Sat{downlinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}), do: mhz
   defp preferred_downlink_mhz(_sat), do: nil
+
+  def progression(alert, now) do
+    cond do
+      Timex.compare(now, alert.aos_at) == -1 -> :upcoming
+      Timex.compare(now, alert.workable_start_at) == -1 -> :upcoming
+      Timex.compare(now, alert.workable_end_at) == 1 -> :passed
+      Timex.compare(now, alert.los_at) == 1 -> :passed
+      true -> :in_progress
+    end
+  end
 end

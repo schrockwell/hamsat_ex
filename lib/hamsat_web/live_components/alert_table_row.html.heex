@@ -1,10 +1,10 @@
-<tr>
+<tr class={@class}>
     <td class="text-center"><%= date(@context, @alert.aos_at) %></td>
     <td class="text-center"><%= time(@context, @alert.aos_at) %> &ndash; <%= time(@context, @alert.los_at) %></td>
     <td class="text-center"><%= @alert.callsign %></td>
     <td class="text-center"><%= @alert.sat.name %></td>
-    <td class="text-center"><%= @alert.mode %></td>
     <td class="text-center"><%= mhz(@alert.downlink_mhz) %></td>
+    <td class="text-center"><%= @alert.mode %></td>
     <td class="text-center text-green-600 font-medium">
     <%= if @alert.is_workable? do %>
         <%= time(@context, @alert.workable_start_at) %> &ndash;
@@ -12,8 +12,6 @@
     <% end %>
     </td>
     <td class="text-center text-green-600 font-medium">
-    <%= if @alert.is_workable? do %>
-        <%= duration_until(@now, @alert.workable_start_at) %>
-    <% end %>
+    <%= next_workable_in(@now, @alert) %>
     </td>
 </tr>
