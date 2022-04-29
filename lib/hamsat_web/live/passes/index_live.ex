@@ -1,7 +1,6 @@
 defmodule HamsatWeb.Passes.IndexLive do
   use HamsatWeb, :live_view
 
-  import HamsatWeb.PassComponents
   import HamsatWeb.LayoutComponents
 
   alias Hamsat.Alerts

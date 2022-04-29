@@ -1,0 +1,27 @@
+<tr class={@class}>
+    <td class="text-center whitespace-nowrap">
+    <span class="mr-4"><%= date(@context, @pass.info.aos.datetime) %></span>
+    <span class="mr-4"><%= time(@context, @pass.info.aos.datetime) %></span>
+    </td>
+    <td class="text-center"><%= @next_aos %></td>
+    <td class="text-center whitespace-nowrap"><%= pass_sat_name(@pass) %></td>
+    <td class="text-center"><.sat_modulation_label sat={@pass.sat} /></td>
+    <td class="text-center"><%= pass_duration(@pass) %></td>
+    <td class="text-center"><%= pass_max_el(@pass) %></td>
+    <td class="text-right"><%= pass_aos_direction(@pass) %></td>
+    <td class="text-center">→</td>
+    <td class="text-left"><%= pass_los_direction(@pass) %></td>
+    <td class="text-center">
+    <%= for alert <- @pass.alerts do %>
+        <%= live_patch alert.callsign, to: Routes.alerts_path(HamsatWeb.Endpoint, :show, alert.id), class: "link mx-1" %>
+    <% end %>
+    </td>
+    <td class="text-right pr-6 whitespace-nowrap">
+    <%= if Alerts.show_create_alert_button?(@context, @pass, @now) do %>
+        <%= link "Post an Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :new, pass: Pass.encode_hash(@pass)), class: "link" %>
+    <% end %>
+    <%= if Alerts.show_edit_alert_button?(@context, @pass, @now) do %>
+        <%= link "Modify Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :edit, Alerts.my_alert_during_pass(@context, @pass).id), class: "link" %>
+    <% end %>
+    </td>
+</tr>

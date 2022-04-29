@@ -4,7 +4,7 @@
     <%= if @date do %>
       <form phx-change="date-changed">
         <input name="date" type="date" class="input-date text-sm" value={@date} phx-debounce="500">
-      </form>
+    </form>
     <% end %>
   </div>
 
@@ -12,11 +12,26 @@
 </.filter_panel>
 
 <div class="mt-2">
-  <.pass_table passes={@passes}>
-    <%= for pass <- @passes do %>
-      <.pass_table_row id={Hamsat.Alerts.Pass.encode_hash(pass)} context={@context} pass={pass} now={@now} />
-    <% end  %>
-  </.pass_table>
+  <table class="table w-full">
+    <thead>
+      <tr>
+        <th title="Time of acquisition of signal">AOS (UTC)</th>
+        <th title="Time until acquisition or loss of signal">AOS / LOS In</th>
+        <th title="Satellite name">Sat</th>
+        <th title="Satellite modulation">Mod</th>
+        <th title="Duration of visible pass">Length</th>
+        <th title="Max elevation during pass">Max El</th>
+        <th colspan="3" title="Azimuth of satellite during pass">Az</th>
+        <th title="Activation alerts">Alerts</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for pass <- @passes do %>
+        <.live_component module={HamsatWeb.PassTableRow} id={Hamsat.Alerts.Pass.encode_hash(pass)} context={@context} pass={pass} now={@now} />
+      <% end  %>
+    </tbody>
+  </table>
 </div>
 
 <%= if @loading? do %>
