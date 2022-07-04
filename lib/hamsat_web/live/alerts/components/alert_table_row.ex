@@ -1,4 +1,4 @@
-defmodule HamsatWeb.AlertTableRow do
+defmodule HamsatWeb.Alerts.Components.AlertTableRow do
   use HamsatWeb, :live_component
 
   alias Hamsat.Schemas.Alert

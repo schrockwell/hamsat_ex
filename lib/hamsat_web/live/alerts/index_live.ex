@@ -4,7 +4,7 @@ defmodule HamsatWeb.Alerts.IndexLive do
   import HamsatWeb.LayoutComponents
 
   alias Hamsat.Alerts
-  alias HamsatWeb.AlertTableRow
+  alias HamsatWeb.Alerts.Components.AlertTableRow
 
   def mount(_params, _session, socket) do
     Process.send_after(self(), :set_now, 1_000)

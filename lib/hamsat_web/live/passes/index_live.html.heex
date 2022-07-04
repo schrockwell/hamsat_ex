@@ -28,7 +28,7 @@
     </thead>
     <tbody>
       <%= for pass <- @passes do %>
-        <.live_component module={HamsatWeb.PassTableRow} id={Hamsat.Alerts.Pass.encode_hash(pass)} context={@context} pass={pass} now={@now} />
+        <.live_component module={PassTableRow} id={Pass.encode_hash(pass)} context={@context} pass={pass} now={@now} />
       <% end  %>
     </tbody>
   </table>

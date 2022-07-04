@@ -7,6 +7,7 @@ defmodule HamsatWeb.Passes.IndexLive do
   alias Hamsat.Alerts.Pass
   alias Hamsat.Satellites
   alias Hamsat.Util
+  alias HamsatWeb.Passes.Components.PassTableRow
 
   @set_now_interval :timer.seconds(1)
   @reload_passes_interval :timer.minutes(15)
