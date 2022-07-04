@@ -185,6 +185,14 @@ defmodule Hamsat.Alerts do
     where(query, [a], a.los_at >= ^DateTime.utc_now())
   end
 
+  defp apply_alert_filter({:after, datetime}, query) do
+    where(query, [a], a.los_at >= ^datetime)
+  end
+
+  defp apply_alert_filter({:before, datetime}, query) do
+    where(query, [a], a.los_at <= ^datetime)
+  end
+
   defp apply_alert_filter({:date, %Date{} = date}, query) do
     bod = date |> Timex.to_datetime() |> Timex.beginning_of_day()
     eod = date |> Timex.to_datetime() |> Timex.end_of_day()
@@ -194,6 +202,10 @@ defmodule Hamsat.Alerts do
       [a],
       (a.aos_at >= ^bod or a.los_at >= ^bod) and (a.aos_at <= ^eod or a.los_at <= ^eod)
     )
+  end
+
+  defp apply_alert_filter({:limit, limit}, query) do
+    limit(query, ^limit)
   end
 
   defp amend_visible_passes(alerts, context) do

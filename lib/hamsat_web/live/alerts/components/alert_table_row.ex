@@ -14,14 +14,6 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
     assign(socket, :class, alert_table_row_class(socket.assigns.alert, socket.assigns.now))
   end
 
-  defp next_workable_in(now, alert) do
-    case alert_next_event_in(now, alert) do
-      {:start, duration} -> duration
-      {:end, duration} -> "for #{duration}"
-      :never -> "–"
-    end
-  end
-
   defp alert_table_row_class(alert, now) do
     case Alert.progression(alert, now) do
       :upcoming -> ""

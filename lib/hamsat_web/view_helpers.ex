@@ -85,7 +85,7 @@ defmodule HamsatWeb.ViewHelpers do
     cardinal_direction(pass.info.los.azimuth_in_degrees)
   end
 
-  def duration_until(now, then) do
+  def hms_until(now, then) do
     then
     |> Timex.diff(now, :second)
     |> hms()
@@ -93,25 +93,9 @@ defmodule HamsatWeb.ViewHelpers do
 
   def pass_next_event_in(now, %Pass{} = pass) do
     if Timex.compare(now, pass.info.aos.datetime) < 1 do
-      {:aos, duration_until(now, pass.info.aos.datetime)}
+      {:aos, hms_until(now, pass.info.aos.datetime)}
     else
-      {:los, duration_until(now, pass.info.los.datetime)}
-    end
-  end
-
-  def alert_next_event_in(now, %Alert{} = alert) do
-    cond do
-      not alert.is_workable? ->
-        :never
-
-      Timex.compare(now, alert.workable_start_at) < 1 ->
-        {:start, duration_until(now, alert.workable_start_at)}
-
-      Timex.compare(now, alert.workable_end_at) < 1 ->
-        {:end, duration_until(now, alert.workable_end_at)}
-
-      true ->
-        :never
+      {:los, hms_until(now, pass.info.los.datetime)}
     end
   end
 
@@ -149,11 +133,19 @@ defmodule HamsatWeb.ViewHelpers do
     "#{start_string} – #{end_string} UTC"
   end
 
-  def mhz(float, precision \\ 3)
+  def mhz(float, precision \\ 3, default \\ "–")
 
-  def mhz(nil, _), do: "–"
+  def mhz(nil, _, default), do: default
 
-  def mhz(float, precision) do
+  def mhz(float, precision, _default) do
     :io_lib.format("~.#{precision}f", [float])
+  end
+
+  def alert_next_workable_in(now, alert) do
+    case Alert.next_event(alert, now) do
+      {:workable, :start, seconds} -> "in #{hms(seconds)}"
+      {:workable, :end, seconds} -> "for #{hms(seconds)}"
+      _ -> "–"
+    end
   end
 end

@@ -5,7 +5,7 @@
     </td>
     <td class="text-center"><%= @next_aos %></td>
     <td class="text-center whitespace-nowrap"><%= pass_sat_name(@pass) %></td>
-    <td class="text-center"><.sat_modulation_label sat={@pass.sat} /></td>
+    <td class="text-center"><SatComponents.sat_modulation_label sat={@pass.sat} /></td>
     <td class="text-center"><%= pass_duration(@pass) %></td>
     <td class="text-center"><%= pass_max_el(@pass) %></td>
     <td class="text-right"><%= pass_aos_direction(@pass) %></td>

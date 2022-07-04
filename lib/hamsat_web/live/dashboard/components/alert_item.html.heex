@@ -1,0 +1,35 @@
+<div class="border-b last:border-0 p-4">
+    <div class="text-gray-500 font-medium text-sm mb-1">
+        <SatComponents.alert_event_description alert={@alert} now={@now} />
+    </div>
+    <div class="flex w-full items-center justify-between">
+        <div class="text-lg">
+            <span>
+                <%= @alert.callsign %> on
+                <%= @alert.sat.name %>
+            </span>
+            <SatComponents.sat_modulation_label sat={@alert.sat} />
+        </div>
+        <div class="bg-gray-200 px-2 font-medium text-gray-600">
+            <%= mhz(@alert.downlink_mhz, 3, "") %>
+            <%= @alert.mode %>
+        </div>
+    </div>
+    <%= if @alert.comment do %>
+        <div class="italic text-gray-500">
+            “<%= @alert.comment %>”
+        </div>
+    <% end %>
+    <ul class="mt-1 flex space-x-6 text-sm">
+        <li><%= link "View Activation", to: Routes.alerts_path(@socket, :show, @alert.id), class: "link" %></li>
+
+        <%= cond do %>
+            <% Alert.owned?(@alert, @context.user) -> %>
+                <li><%= link "Edit Activation", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "link" %></li>
+            <% @alert.is_workable? -> %>
+                <li><%= link "Create Activation", to: Routes.alerts_path(@socket, :new, pass: "#todo"), class: "link" %></li>
+            <% true -> %>
+                <% nil %>
+        <% end %>
+    </ul>
+</div>

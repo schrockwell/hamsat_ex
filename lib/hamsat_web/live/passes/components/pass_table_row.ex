@@ -3,6 +3,7 @@ defmodule HamsatWeb.Passes.Components.PassTableRow do
 
   alias Hamsat.Alerts
   alias Hamsat.Alerts.Pass
+  alias HamsatWeb.SatComponents
 
   def update(assigns, socket) do
     socket = assign(socket, assigns)
@@ -20,23 +21,6 @@ defmodule HamsatWeb.Passes.Components.PassTableRow do
       :passed -> "text-gray-400"
     end
   end
-
-  def sat_modulation_label(%{sat: _sat} = assigns) do
-    ~H"""
-    <span title={sat_modulation_title(@sat)} class={[sat_modulation_class(@sat), "text-xs rounded-full px-2 py-0.5 font-semibold text-gray-600 uppercase"]}>
-      <%= sat_modulation_text(@sat) %>
-    </span>
-    """
-  end
-
-  defp sat_modulation_title(%{modulation: :fm}), do: "FM Modulation"
-  defp sat_modulation_title(%{modulation: :linear}), do: "Linear (SSB/CW) Modulation"
-
-  defp sat_modulation_text(%{modulation: :fm}), do: "FM"
-  defp sat_modulation_text(%{modulation: :linear}), do: "Lin"
-
-  defp sat_modulation_class(%{modulation: :fm}), do: "bg-amber-200 text-amber-600"
-  defp sat_modulation_class(%{modulation: :linear}), do: "bg-emerald-200 text-emerald-600"
 
   defp next_aos_or_los_in(now, pass) do
     case pass_next_event_in(now, pass) do

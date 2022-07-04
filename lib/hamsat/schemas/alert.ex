@@ -55,6 +55,7 @@ defmodule Hamsat.Schemas.Alert do
     |> format_callsign()
     |> validate_required([:callsign])
     |> validate_length(:callsign, min: 3)
+    |> validate_length(:comment, max: 100)
   end
 
   def mode_options(%Sat{modulation: :fm}), do: ["FM"]
@@ -86,4 +87,30 @@ defmodule Hamsat.Schemas.Alert do
       true -> :in_progress
     end
   end
+
+  defp seconds_until(now, then) do
+    Timex.diff(then, now, :second)
+  end
+
+  def next_event(%__MODULE__{} = alert, now) do
+    cond do
+      alert.is_workable? and Timex.compare(now, alert.workable_start_at) < 1 ->
+        {:workable, :start, seconds_until(now, alert.workable_start_at)}
+
+      alert.is_workable? and Timex.compare(now, alert.workable_end_at) < 1 ->
+        {:workable, :end, seconds_until(now, alert.workable_end_at)}
+
+      not alert.is_workable? and Timex.compare(now, alert.aos_at) < 1 ->
+        {:unworkable, :start, seconds_until(now, alert.aos_at)}
+
+      not alert.is_workable? and Timex.compare(now, alert.los_at) < 1 ->
+        {:unworkable, :end, seconds_until(now, alert.los_at)}
+
+      true ->
+        :never
+    end
+  end
+
+  def owned?(_alert, :guest), do: false
+  def owned?(%__MODULE__{} = alert, %User{} = user), do: alert.user_id == user.id
 end

@@ -4,7 +4,11 @@
 @tailwind utilities;
 
 a.link {
-  @apply font-medium text-sky-600;
+  @apply font-medium text-sky-600 transition-all;
+}
+
+a.link:hover {
+  @apply text-sky-700;
 }
 
 .table tbody tr {
