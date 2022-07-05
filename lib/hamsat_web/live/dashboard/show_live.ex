@@ -2,6 +2,7 @@ defmodule HamsatWeb.Dashboard.ShowLive do
   use HamsatWeb, :live_view
 
   alias HamsatWeb.Dashboard.Components.AlertsList
+  alias HamsatWeb.Dashboard.Components.PassesList
 
   def mount(_params, _session, socket) do
     Process.send_after(self(), :set_now, 1_000)

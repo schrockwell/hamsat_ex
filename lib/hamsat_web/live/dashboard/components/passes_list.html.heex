@@ -1,0 +1,12 @@
+<div class="border rounded-lg shadow-md">
+    <%= if @context.location do %>
+        pass list
+    <% else %>
+        <div class="p-6 text-center text-gray-500">
+            <%= link "Set Your Location", to: Routes.location_path(@socket, :edit), class: "link" %>
+            or
+            <%= link "Log In", to: Routes.user_session_path(@socket, :new), class: "link" %>
+            to see satellite pass predictions.
+        </div>
+    <% end %>
+</div>
