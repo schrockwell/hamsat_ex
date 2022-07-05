@@ -29,7 +29,6 @@ defmodule HamsatWeb.Router do
     live "/", Dashboard.ShowLive, :show, as: :dashboard
 
     live "/alerts", Alerts.IndexLive, :index, as: :alerts
-    live "/alerts/:id", Alerts.ShowLive, :show, as: :alerts
 
     live "/passes", Passes.IndexLive, :index, as: :passes
 

@@ -1,10 +1,15 @@
 <div class="border-b last:border-0 p-4">
-    <div class="text-gray-500 font-medium text-sm mb-1">
-        <SatComponents.alert_event_description alert={@alert} now={@now} />
+    <div class="flex items-start justify-between">
+        <div class="text-gray-500 font-medium text-sm mb-1">
+            <SatComponents.alert_event_description alert={@alert} now={@now} />
+        </div>
+        <%= if @sat_visible? do %>
+            <div class="uppercase text-xs bg-red-100 text-red-700 px-1.5 py-0.5 font-medium">Visible Now!</div>
+        <% end %>
     </div>
     <div class="flex w-full items-center justify-between">
         <div class="text-lg">
-            <span>
+            <span class="font-medium">
                 <%= @alert.callsign %> on
                 <%= @alert.sat.name %>
             </span>
@@ -21,8 +26,6 @@
         </div>
     <% end %>
     <ul class="mt-1 flex space-x-6 text-sm">
-        <li><%= link "View Activation", to: Routes.alerts_path(@socket, :show, @alert.id), class: "link" %></li>
-
         <%= cond do %>
             <% Alert.owned?(@alert, @context.user) -> %>
                 <li><%= link "Edit Activation", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "link" %></li>

@@ -83,6 +83,10 @@ defmodule HamsatWeb.ViewHelpers do
     cardinal_direction(pass.info.aos.azimuth_in_degrees)
   end
 
+  def pass_max_direction(%Pass{} = pass) do
+    cardinal_direction(pass.info.max.azimuth_in_degrees)
+  end
+
   def pass_los_direction(%Pass{} = pass) do
     cardinal_direction(pass.info.los.azimuth_in_degrees)
   end
@@ -150,4 +154,9 @@ defmodule HamsatWeb.ViewHelpers do
   end
 
   def grid(_), do: "–"
+
+  def pluralized_count([_], singular, _plural), do: "1 #{singular}"
+
+  def pluralized_count(list, _singular, plural) when is_list(list),
+    do: "#{length(list)} #{plural}"
 end

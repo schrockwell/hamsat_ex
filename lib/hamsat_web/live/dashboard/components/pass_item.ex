@@ -1,6 +1,7 @@
 defmodule HamsatWeb.Dashboard.Components.PassItem do
   use HamsatWeb, :live_component
 
+  alias Hamsat.Alerts
   alias Hamsat.Alerts.Pass
   alias HamsatWeb.SatComponents
 
@@ -8,21 +9,18 @@ defmodule HamsatWeb.Dashboard.Components.PassItem do
     socket =
       socket
       |> assign(assigns)
-      |> assign_root_class()
+      |> assign_sat_visible()
 
     {:ok, socket}
   end
 
-  defp assign_root_class(socket) do
+  defp assign_sat_visible(socket) do
     if changed?(socket, :now) do
-      root_class =
-        case Pass.progression(socket.assigns.pass, socket.assigns.now) do
-          :upcoming -> nil
-          :in_progress -> "bg-yellow-100"
-          :passed -> "text-gray-400"
-        end
-
-      assign(socket, :root_class, root_class)
+      assign(
+        socket,
+        :sat_visible?,
+        Pass.progression(socket.assigns.pass, socket.assigns.now) == :in_progress
+      )
     else
       socket
     end

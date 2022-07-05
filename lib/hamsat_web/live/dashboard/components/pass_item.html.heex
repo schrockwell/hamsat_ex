@@ -1,5 +1,41 @@
-<div class={[@root_class, "border-b last:border-0 p-4"]}>
-    <div class="text-gray-500 font-medium text-sm mb-1">
-        <SatComponents.pass_event_description pass={@pass} now={@now} />
+<div class="border-b last:border-0 p-4">
+    <div class="flex items-start justify-between">
+        <div class="text-gray-500 font-medium text-sm mb-1">
+            <SatComponents.pass_event_description pass={@pass} now={@now} />
+        </div>
+        <%= if @sat_visible? do %>
+            <div class="uppercase text-xs bg-red-100 text-red-700 px-1.5 py-0.5 font-medium">Visible Now!</div>
+        <% end %>
     </div>
+    <div class="flex w-full items-center justify-between">
+        <div class="text-lg">
+            <span class="font-medium"><%= pass_sat_name(@pass) %></span>
+            <SatComponents.sat_modulation_label sat={@pass.sat} />
+        </div>
+        <div class="bg-gray-200 px-2 font-medium text-gray-600">
+            <%= pass_max_el(@pass) %> @ <%= pass_max_direction(@pass) %>
+        </div>
+    </div>
+    <%= if @pass.alerts != [] do %>
+        <div class="border p-3 my-2">
+            <%= for alert <- @pass.alerts do %>
+                <div>
+                    <span class="font-medium text-lg"><%= alert.callsign %></span> on
+                    <%= mhz(alert.downlink_mhz, 3, "") %> <%= alert.mode %>
+                    <%= if alert.comment do %>
+                        – <span class="text-gray-500 italic">“<%= alert.comment %>”</span>
+                    <% end %>
+                </div>
+            <% end %>
+        </div>
+    <% end %>
+
+    <ul class="mt-1 flex space-x-6 text-sm">
+        <%= if Alerts.show_create_alert_button?(@context, @pass, @now) do %>
+            <li><%= link "Post an Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :new, pass: Pass.encode_hash(@pass)), class: "link" %></li>
+        <% end %>
+        <%= if Alerts.show_edit_alert_button?(@context, @pass, @now) do %>
+            <li><%= link "Modify Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :edit, Alerts.my_alert_during_pass(@context, @pass).id), class: "link" %></li>
+        <% end %>
+    </ul>
 </div>
