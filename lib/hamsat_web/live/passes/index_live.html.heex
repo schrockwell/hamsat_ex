@@ -45,10 +45,10 @@
   <div class="py-8 flex justify-center">
     <%= if @loading? or @can_load_more? do %>
       <button phx-click="load-more" class="btn btn-default" disabled={@loading?}>
-        Load more
+        Load next 6 hours
       </button>
     <% else %>
-      <div>
+      <div class="text-gray-500">
         <%= live_patch "Browse", to: browse_url(@socket), class: "link" %> to see more passes
       </div>
     <% end %>
