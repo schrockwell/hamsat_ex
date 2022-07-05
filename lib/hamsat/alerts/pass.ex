@@ -45,4 +45,17 @@ defmodule Hamsat.Alerts.Pass do
       max_datetime_erl: max_datetime_erl
     }
   end
+
+  def next_event(%__MODULE__{} = pass, now) do
+    cond do
+      Timex.compare(now, pass.info.aos.datetime) < 1 ->
+        {:aos, Timex.diff(pass.info.aos.datetime, now, :second)}
+
+      Timex.compare(now, pass.info.los.datetime) < 1 ->
+        {:los, Timex.diff(pass.info.los.datetime, now, :second)}
+
+      true ->
+        :never
+    end
+  end
 end

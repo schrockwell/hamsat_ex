@@ -1,6 +1,7 @@
 defmodule HamsatWeb.SatComponents do
   use HamsatWeb, :component
 
+  alias Hamsat.Alerts.Pass
   alias Hamsat.Schemas.Alert
 
   def sat_modulation_label(%{sat: _sat} = assigns) do
@@ -42,6 +43,14 @@ defmodule HamsatWeb.SatComponents do
 
       :never ->
         ~H"–"
+    end
+  end
+
+  def pass_event_description(%{pass: _, now: _} = assigns) do
+    case Pass.next_event(assigns.pass, assigns.now) do
+      {:aos, duration} -> ~H"AOS in <%= hms(duration) %>"
+      {:los, duration} -> ~H"LOS in <%= hms(duration) %>"
+      :never -> ~H"passed"
     end
   end
 end

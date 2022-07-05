@@ -6,7 +6,12 @@
     </div>
     <div class="flex-1">
         <h1 class="h1">Upcoming Satellite Passes</h1>
-        <div class="text-gray-500 mb-6">in the next 6 hours</div>
+        <div class="text-gray-500 mb-6">
+            <%= if @context.location do %>
+                at <%= grid(@context.location) %>
+            <% end  %>
+            in the next 6 hours
+        </div>
         <.live_component module={PassesList} id="passes-list" now={@now} context={@context} />
     </div>
 </div>

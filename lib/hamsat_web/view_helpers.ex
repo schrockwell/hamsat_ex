@@ -1,5 +1,7 @@
 defmodule HamsatWeb.ViewHelpers do
   alias Hamsat.Alerts.Pass
+  alias Hamsat.Coord
+  alias Hamsat.Grid
   alias Hamsat.Schemas.Alert
 
   @date_format "{YYYY}-{0M}-{0D}"
@@ -85,20 +87,6 @@ defmodule HamsatWeb.ViewHelpers do
     cardinal_direction(pass.info.los.azimuth_in_degrees)
   end
 
-  def hms_until(now, then) do
-    then
-    |> Timex.diff(now, :second)
-    |> hms()
-  end
-
-  def pass_next_event_in(now, %Pass{} = pass) do
-    if Timex.compare(now, pass.info.aos.datetime) < 1 do
-      {:aos, hms_until(now, pass.info.aos.datetime)}
-    else
-      {:los, hms_until(now, pass.info.los.datetime)}
-    end
-  end
-
   def date_span(start_datetime, end_datetime) do
     if Timex.to_date(start_datetime) == Timex.to_date(end_datetime) do
       Timex.format!(start_datetime, @date_format)
@@ -148,4 +136,18 @@ defmodule HamsatWeb.ViewHelpers do
       _ -> "–"
     end
   end
+
+  def pass_next_event_in(now, pass) do
+    case Pass.next_event(pass, now) do
+      {:aos, duration} -> "AOS in #{hms(duration)}"
+      {:los, duration} -> "LOS in #{hms(duration)}"
+      :never -> "–"
+    end
+  end
+
+  def grid(%Coord{lat: lat, lon: lon}) do
+    Grid.encode!(lat, lon, 4)
+  end
+
+  def grid(_), do: "–"
 end

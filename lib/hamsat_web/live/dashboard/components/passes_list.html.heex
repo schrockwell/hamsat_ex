@@ -1,11 +1,13 @@
 <div class="border rounded-lg shadow-md">
     <%= if @context.location do %>
-        pass list
+        <%= for pass <- @passes do %>
+            <.live_component module={PassItem} id={"pass-item-#{pass.id}"} pass={pass} now={@now} context={@context} />
+        <% end %>
     <% else %>
-        <div class="p-6 text-center text-gray-500">
-            <%= link "Set Your Location", to: Routes.location_path(@socket, :edit), class: "link" %>
+        <div class="p-6 text-center text-gray-400 italic">
+            <%= link "Set Your Location", to: Routes.location_path(@socket, :edit), class: "link not-italic" %>
             or
-            <%= link "Log In", to: Routes.user_session_path(@socket, :new), class: "link" %>
+            <%= link "Log In", to: Routes.user_session_path(@socket, :new), class: "link not-italic" %>
             to see satellite pass predictions.
         </div>
     <% end %>
