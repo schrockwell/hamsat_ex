@@ -159,4 +159,8 @@ defmodule HamsatWeb.ViewHelpers do
 
   def pluralized_count(list, _singular, plural) when is_list(list),
     do: "#{length(list)} #{plural}"
+
+  def password_requirements do
+    "Password must be between 8 and 72 characters."
+  end
 end

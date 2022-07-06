@@ -1,6 +1,8 @@
 defmodule HamsatWeb.Alerts.NewLive do
   use HamsatWeb, :live_view
 
+  import HamsatWeb.LayoutComponents
+
   alias Hamsat.Alerts
   alias Hamsat.Grid
 
@@ -83,19 +85,6 @@ defmodule HamsatWeb.Alerts.NewLive do
      socket
      |> put_flash(:info, "Alert deleted.")
      |> redirect(to: Routes.passes_path(socket, :index))}
-  end
-
-  defp form_row(%{label: _label} = assigns) do
-    extra_class = if assigns[:input?], do: "mt-1", else: ""
-
-    assigns = assign(assigns, :label_class, ["w-48 text-right font-medium", extra_class])
-
-    ~H"""
-    <fieldset class="flex space-x-8">
-      <div class={@label_class}><%= @label %></div>
-      <div><%= render_slot @inner_block %></div>
-    </fieldset>
-    """
   end
 
   defp assign_new_alert_changeset(socket, params \\ %{}) do

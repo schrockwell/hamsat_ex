@@ -39,6 +39,8 @@ defmodule HamsatWeb do
 
       # Include shared imports and aliases for views
       unquote(view_helpers())
+
+      import HamsatWeb.LayoutComponents
     end
   end
 
@@ -50,6 +52,8 @@ defmodule HamsatWeb do
       on_mount HamsatWeb.ContextHook
 
       unquote(view_helpers())
+
+      import HamsatWeb.LayoutComponents
     end
   end
 
@@ -58,6 +62,8 @@ defmodule HamsatWeb do
       use Phoenix.LiveComponent
 
       unquote(view_helpers())
+
+      import HamsatWeb.LayoutComponents
     end
   end
 

@@ -84,6 +84,14 @@ select {
   @apply text-xl;
 }
 
+.form-error {
+  @apply text-sm font-medium text-red-500;
+}
+
+.form-hint {
+  @apply text-sm mt-1 text-gray-500;
+}
+
 /* LEAFLET CSS */
 /* required styles */
 

@@ -8,7 +8,7 @@ defmodule Hamsat.Accounts.UserNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"Hamsat", "contact@example.com"})
+      |> from({"Hamsat", "hamsat@schrock.me"})
       |> subject(subject)
       |> text_body(body)
 

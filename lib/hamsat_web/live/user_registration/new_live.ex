@@ -28,16 +28,16 @@ defmodule HamsatWeb.UserRegistration.NewLive do
     |> Accounts.register_user()
     |> case do
       {:ok, user} ->
-        {:ok, _} =
-          Accounts.deliver_user_confirmation_instructions(
-            user,
-            &Routes.user_confirmation_url(socket, :edit, &1)
-          )
+        # {:ok, _} =
+        #   Accounts.deliver_user_confirmation_instructions(
+        #     user,
+        #     &Routes.user_confirmation_url(socket, :edit, &1)
+        #   )
 
         socket =
           socket
           |> put_flash(:info, "Registered! Please sign in.")
-          |> push_redirect(to: Routes.user_session_path(socket, :new))
+          |> redirect(to: Routes.user_session_path(socket, :new))
 
         {:noreply, socket}
 

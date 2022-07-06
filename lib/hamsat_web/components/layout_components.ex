@@ -1,6 +1,19 @@
 defmodule HamsatWeb.LayoutComponents do
   use HamsatWeb, :component
 
+  def form_row(%{label: _label} = assigns) do
+    extra_class = if assigns[:input?], do: "mt-1", else: ""
+
+    assigns = assign(assigns, :label_class, ["w-48 text-right font-medium", extra_class])
+
+    ~H"""
+    <fieldset class="flex space-x-8">
+      <div class={@label_class}><%= @label %></div>
+      <div><%= render_slot @inner_block %></div>
+    </fieldset>
+    """
+  end
+
   def filter_panel(assigns) do
     ~H"""
     <div class="w-full bg-gray-100 px-6 py-4 mx-auto border-b">

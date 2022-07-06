@@ -4,7 +4,7 @@
 
   <.form let={f} for={@changeset} phx-submit="submit" phx-change="form-changed">
     <%= if @changeset.action do %>
-      <div class="mb-4 font-medium text-red-500">
+      <div class="form-error mb-4">
         <p>Oops, something went wrong! Please check the errors below.</p>
       </div>
     <% end %>
@@ -19,6 +19,7 @@
       <%= label f, :password, class: "form-label" %>
       <%= password_input f, :password, required: true, class: "input-text", value: input_value(f, :password) %>
       <%= error_tag f, :password %>
+      <div class="form-hint"><%= password_requirements() %></div>
     </fieldset>
 
     <h2 class="h2 mt-8 mb-4">Station location</h2>
