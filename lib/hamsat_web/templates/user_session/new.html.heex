@@ -1,5 +1,9 @@
 <div class="p-6">
-  <h1 class="h1 mb-4">Log In</h1>
+  <h1 class="h1 mb-1">Log In</h1>
+
+  <div class="mb-6 text-gray-500">
+    Need an account? <%= link "Register now.", to: Routes.user_registration_path(@conn, :new), class: "link" %>
+  </div>
 
   <.form let={f} for={@conn} action={Routes.user_session_path(@conn, :create)} as={:user}>
     <%= if @error_message do %>
@@ -16,6 +20,9 @@
     <fieldset>
       <%= label f, :password, class: "form-label" %>
       <%= password_input f, :password, required: true, class: "input-text" %>
+      <div>
+        <%= link "Forgot your password?", to: Routes.user_reset_password_path(@conn, :new), class: "link text-sm" %>
+      </div>
     </fieldset>
 
     <fieldset class="flex items-center">
@@ -28,7 +35,4 @@
     </div>
   </.form>
 
-  <div class="mt-4">
-    <%= link "Forgot your password?", to: Routes.user_reset_password_path(@conn, :new), class: "link" %>
-  </div>
 </div>

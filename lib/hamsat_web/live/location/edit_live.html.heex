@@ -12,6 +12,9 @@
 
   <form method="post" action={Routes.session_location_path(@socket, :update)}>
     <%= csrf_input_tag(Routes.session_location_path(@socket, :update)) %>
+    <%= if @redirect_path do %>
+      <input type="hidden" name="redirect" value={@redirect_path}>
+    <% end %>
     
     <%= if @coord do %>
       <input type="hidden" name="lat" value={@coord.lat}>

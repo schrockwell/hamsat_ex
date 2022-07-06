@@ -1,12 +1,13 @@
-<div class="flex space-x-8 p-6">
+<div class="flex flex-col md:flex-row md:space-x-8 space-y-12 md:space-y-0 p-6">
     <div class="flex-1">
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h1 class="h1">Upcoming Satellite Activations</h1>
                 <div class="text-gray-500">in the next 24 hours</div>
             </div>
-            <div>
+            <div class="text-right">
                 <%= link "Post an Activation", to: Routes.passes_path(@socket, :index), class: "btn btn-link" %>
+                <%= link "Browse", to: Routes.alerts_path(@socket, :index), class: "btn btn-link" %>
             </div>
         </div>
         <.live_component module={AlertsList} id="alerts-list" now={@now} context={@context} />
@@ -23,7 +24,7 @@
                 </div>
             </div>
             <div>
-                <%= link "Browse Passes", to: Routes.passes_path(@socket, :index), class: "btn btn-link" %>
+                <%= link "Browse", to: Routes.passes_path(@socket, :index), class: "btn btn-link" %>
             </div>
         </div>
 

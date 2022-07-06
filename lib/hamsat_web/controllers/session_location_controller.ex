@@ -4,7 +4,7 @@ defmodule HamsatWeb.SessionLocationController do
   alias Hamsat.Accounts
   alias Hamsat.Accounts.User
 
-  def update(conn, %{"lat" => lat, "lon" => lon}) do
+  def update(conn, %{"lat" => lat, "lon" => lon} = params) do
     with {lat, _} <- Float.parse(lat),
          {lon, _} <- Float.parse(lon) do
       conn
@@ -12,7 +12,7 @@ defmodule HamsatWeb.SessionLocationController do
       |> put_session("lon", lon)
       |> maybe_update_user_home_location(%{home_lat: lat, home_lon: lon})
       |> put_flash(:info, "Location updated")
-      |> redirect(to: Routes.location_path(conn, :edit))
+      |> redirect(to: params["redirect"] || Routes.location_path(conn, :edit))
     else
       _ ->
         conn

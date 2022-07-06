@@ -3,11 +3,12 @@ defmodule HamsatWeb.Location.EditLive do
 
   alias HamsatWeb.LocationPicker
 
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
     socket =
       socket
       |> assign(:page_title, "Set Location")
       |> assign(:coord, socket.assigns.context.location)
+      |> assign(:redirect_path, params["redirect"])
 
     {:ok, socket}
   end
