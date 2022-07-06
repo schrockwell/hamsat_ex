@@ -55,7 +55,7 @@ defmodule Hamsat.Schemas.Alert do
     |> format_callsign()
     |> validate_required([:callsign])
     |> validate_length(:callsign, min: 3)
-    |> validate_length(:comment, max: 100)
+    |> validate_length(:comment, max: 50)
   end
 
   def mode_options(%Sat{modulation: :fm}), do: ["FM"]

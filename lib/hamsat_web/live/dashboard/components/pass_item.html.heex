@@ -32,10 +32,10 @@
 
     <ul class="mt-1 flex space-x-6 text-sm">
         <%= if Alerts.show_create_alert_button?(@context, @pass, @now) do %>
-            <li><%= link "Post an Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :new, pass: Pass.encode_hash(@pass)), class: "link" %></li>
+            <li><%= link "Post an Activation", to: Routes.alerts_path(HamsatWeb.Endpoint, :new, pass: Pass.encode_hash(@pass)), class: "link" %></li>
         <% end %>
         <%= if Alerts.show_edit_alert_button?(@context, @pass, @now) do %>
-            <li><%= link "Modify Alert", to: Routes.alerts_path(HamsatWeb.Endpoint, :edit, Alerts.my_alert_during_pass(@context, @pass).id), class: "link" %></li>
+            <li><%= link "Edit Activation", to: Routes.alerts_path(HamsatWeb.Endpoint, :edit, Alerts.my_alert_during_pass(@context, @pass).id), class: "link" %></li>
         <% end %>
     </ul>
 </div>

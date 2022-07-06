@@ -17,13 +17,13 @@
         <.nav_pill_button to={Routes.alerts_path(@conn, :index)} conn={@conn} active={~r/^(\/alerts)/}>Activations</.nav_pill_button>
         <.nav_pill_button to={Routes.passes_path(@conn, :index)} conn={@conn} active={~r/^\/passes/}>Passes</.nav_pill_button>
         <.nav_pill_button to={Routes.location_path(@conn, :edit)} conn={@conn} active={~r/^\/location/}>
-          <%= location_nav_button_text(@conn) %>
+          <%= location_nav_button_text(@context) %>
         </.nav_pill_button>
       </div>
       <%= render "_user_menu.html", assigns %>
     </div>
 
-    <div class="mx-4 bg-white shadow-md rounded-b-xl mb-4">
+    <div class="mx-4 bg-white shadow-md rounded-b-xl mb-4 overflow-hidden">
       <%= @inner_content %>
     </div>
   </body>

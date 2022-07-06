@@ -9,7 +9,7 @@ defmodule HamsatWeb.Alerts.NewLive do
     existing_alert = Alerts.my_alert_during_pass(socket.assigns.context, pass)
 
     if existing_alert do
-      {:ok, push_redirect(socket, to: Routes.alerts_path(socket, :edit, existing_alert.id))}
+      {:ok, redirect(socket, to: Routes.alerts_path(socket, :edit, existing_alert.id))}
     else
       socket =
         socket
@@ -52,7 +52,7 @@ defmodule HamsatWeb.Alerts.NewLive do
         {:noreply,
          socket
          |> put_flash(:info, "Created an alert.")
-         |> push_redirect(to: Routes.passes_path(socket, :index))}
+         |> redirect(to: Routes.passes_path(socket, :index))}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
@@ -69,7 +69,7 @@ defmodule HamsatWeb.Alerts.NewLive do
         {:noreply,
          socket
          |> put_flash(:info, "Updated an alert.")
-         |> push_redirect(to: Routes.passes_path(socket, :index))}
+         |> redirect(to: Routes.passes_path(socket, :index))}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
@@ -82,7 +82,7 @@ defmodule HamsatWeb.Alerts.NewLive do
     {:noreply,
      socket
      |> put_flash(:info, "Alert deleted.")
-     |> push_redirect(to: Routes.passes_path(socket, :index))}
+     |> redirect(to: Routes.passes_path(socket, :index))}
   end
 
   defp form_row(%{label: _label} = assigns) do

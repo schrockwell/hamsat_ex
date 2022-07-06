@@ -11,24 +11,11 @@ defmodule HamsatWeb.LayoutView do
   # so we instruct Elixir to not warn if the dashboard route is missing.
   @compile {:no_warn_undefined, {Routes, :live_dashboard_path, 2}}
 
-  def location_nav_button_text(conn) do
-    cond do
-      conn.assigns.current_user ->
-        grid =
-          %Coord{lat: conn.assigns.current_user.home_lat, lon: conn.assigns.current_user.home_lon}
-          |> Grid.encode!(4)
-
-        "@ #{grid}"
-
-      get_session(conn, :lat) && get_session(conn, :lon) ->
-        grid =
-          %Coord{lat: get_session(conn, :lat), lon: get_session(conn, :lon)}
-          |> Grid.encode!(4)
-
-        "@ #{grid}"
-
-      true ->
-        "⚠️ Set Location"
+  def location_nav_button_text(context) do
+    if location = context.location do
+      "@ #{Grid.encode!(location, 4)}"
+    else
+      "⚠️ Set Location"
     end
   end
 end

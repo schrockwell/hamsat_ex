@@ -51,10 +51,10 @@
     <% end %>
 
     <.form_row label="Comment" input?={true}>
-      <%= text_input f, :comment, class: "input-text", placeholder: "Optional" %>
-        <div class="mt-1 text-sm font-medium text-gray-500">
-          100 characters max
-        </div>
+      <%= text_input f, :comment, class: "input-text", placeholder: "Optional", maxlength: 50 %>
+      <div class="mt-1 text-sm font-medium text-gray-500">
+        Max 50 characters
+      </div>
       <%= error_tag f, :comment %>
     </.form_row>
 

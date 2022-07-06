@@ -5,6 +5,13 @@
     <td class="text-center"><%= @alert.sat.name %></td>
     <td class="text-center"><%= mhz(@alert.downlink_mhz) %></td>
     <td class="text-center"><%= @alert.mode %></td>
+    <td class="text-center">
+        <%= if @alert.comment do %>
+            “<%= @alert.comment %>”
+        <% else %>
+            –
+        <% end %>
+    </td>
     <td class="text-center text-green-600 font-medium">
     <%= if @alert.is_workable? do %>
         <%= time(@context, @alert.workable_start_at) %> &ndash;
@@ -12,6 +19,11 @@
     <% end %>
     </td>
     <td class="text-center text-green-600 font-medium">
-    <%= alert_next_workable_in(@now, @alert) %>
+        <%= alert_next_workable_in(@now, @alert) %>
+    </td>
+    <td class="text-center">
+        <%= if Alert.owned?(@alert, @context.user) do %>
+            <%= link "Edit Activation", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "link" %>
+        <% end %>
     </td>
 </tr>
