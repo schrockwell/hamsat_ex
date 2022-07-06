@@ -35,7 +35,7 @@ defmodule HamsatWeb.Dashboard.Components.PassesList do
   end
 
   defp assign_passes(socket) do
-    if changed?(socket, :pass_opts) do
+    if changed?(socket, :pass_opts) and socket.assigns.context.location do
       passes =
         Alerts.list_all_passes(
           socket.assigns.context,

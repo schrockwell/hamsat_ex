@@ -12,6 +12,16 @@ defmodule HamsatWeb.Passes.IndexLive do
   @set_now_interval :timer.seconds(1)
   @reload_passes_interval :timer.minutes(15)
 
+  def mount(_params, _session, %{assigns: %{context: %{location: nil}}} = socket) do
+    {:ok,
+     socket
+     |> put_flash(
+       :error,
+       "Please specify your operation location in order to view satellite pass predictions."
+     )
+     |> redirect(to: Routes.location_path(socket, :edit))}
+  end
+
   def mount(_params, _session, socket) do
     socket =
       socket

@@ -40,6 +40,14 @@ a.link:hover {
   @apply bg-gray-100 text-gray-300;
 }
 
+.btn-link {
+  @apply text-sky-600;
+}
+
+.btn-link:hover {
+  @apply text-sky-700;
+}
+
 .btn-text-danger {
   @apply text-red-500;
 }
