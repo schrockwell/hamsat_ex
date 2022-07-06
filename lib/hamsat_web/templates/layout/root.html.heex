@@ -12,7 +12,10 @@
   <body class="text-gray-900 bg-gray-200">
     <div class="mt-4 mx-4 px-6 py-2 flex items-center justify-between rounded-t-xl bg-gray-700 text-white shadow-md">
       <div class="flex items-center">
-        <div class="text-lg font-medium mr-8">Hams.at</div>
+        <div class="text-lg font-medium mr-8">
+          Hams.at
+          <span class="uppercase rounded bg-orange-600 text-white text-sm px-2 py-1 ml-1 font-semibold">Beta</span>
+        </div>
         <.nav_pill_button to={Routes.dashboard_path(@conn, :show)} conn={@conn} active={~r/^(\/$)/}>Home</.nav_pill_button>
         <.nav_pill_button to={Routes.alerts_path(@conn, :index)} conn={@conn} active={~r/^(\/alerts)/}>Activations</.nav_pill_button>
         <.nav_pill_button to={Routes.passes_path(@conn, :index)} conn={@conn} active={~r/^\/passes/}>Passes</.nav_pill_button>

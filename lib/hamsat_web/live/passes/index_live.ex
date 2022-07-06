@@ -17,7 +17,7 @@ defmodule HamsatWeb.Passes.IndexLive do
      socket
      |> put_flash(
        :error,
-       "Please specify your operation location in order to view satellite pass predictions."
+       "Please specify your operating location in order to view satellite pass predictions."
      )
      |> redirect(
        to: Routes.location_path(socket, :edit, redirect: Routes.passes_path(socket, :index))
