@@ -4,11 +4,8 @@
             <.live_component module={PassItem} id={"pass-item-#{pass.id}"} pass={pass} now={@now} context={@context} />
         <% end %>
     <% else %>
-        <div class="p-6 text-center text-gray-400 italic">
-            <%= link "Set Your Location", to: Routes.location_path(@socket, :edit, redirect: Routes.dashboard_path(@socket, :show)), class: "link not-italic" %>
-            or
-            <%= link "Log In", to: Routes.user_session_path(@socket, :new), class: "link not-italic" %>
-            to see satellite pass predictions.
+        <div class="p-6">
+            <%= live_component LocationSetter, id: "location-setter", context: @context, redirect: Routes.dashboard_path(@socket, :show), show_log_in_link?: true %>
         </div>
     <% end %>
 </div>

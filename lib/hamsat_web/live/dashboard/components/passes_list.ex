@@ -4,6 +4,7 @@ defmodule HamsatWeb.Dashboard.Components.PassesList do
   alias Hamsat.Alerts
   alias Hamsat.Satellites
   alias HamsatWeb.Dashboard.Components.PassItem
+  alias HamsatWeb.LocationSetter
 
   def mount(socket) do
     socket =

@@ -8,27 +8,17 @@ defmodule HamsatWeb.Passes.IndexLive do
   alias Hamsat.Satellites
   alias Hamsat.Util
   alias HamsatWeb.Passes.Components.PassTableRow
+  alias HamsatWeb.LocationSetter
 
   @set_now_interval :timer.seconds(1)
   @reload_passes_interval :timer.minutes(15)
-
-  def mount(_params, _session, %{assigns: %{context: %{location: nil}}} = socket) do
-    {:ok,
-     socket
-     |> put_flash(
-       :error,
-       "Please specify your operating location in order to view satellite pass predictions."
-     )
-     |> redirect(
-       to: Routes.location_path(socket, :edit, redirect: Routes.passes_path(socket, :index))
-     )}
-  end
 
   def mount(_params, _session, socket) do
     socket =
       socket
       |> assign(:page_title, "Passes")
       |> assign(:loading?, true)
+      |> assign(:needs_location?, false)
       |> assign_sats()
       |> assign_results_description()
 
@@ -78,6 +68,13 @@ defmodule HamsatWeb.Passes.IndexLive do
     else
       socket
     end
+  end
+
+  defp append_upcoming_passes(%{assigns: %{context: %{location: nil}}} = socket) do
+    socket
+    |> assign(:needs_location?, true)
+    |> assign(:loading?, false)
+    |> assign_results_description()
   end
 
   defp append_upcoming_passes(%{assigns: %{date: nil}} = socket) do
@@ -225,6 +222,10 @@ defmodule HamsatWeb.Passes.IndexLive do
   defp browse_url(socket) do
     default_date = Date.utc_today() |> Date.to_iso8601()
     Routes.passes_path(socket, :index, date: default_date)
+  end
+
+  defp assign_results_description(%{assigns: %{needs_location?: true}} = socket) do
+    assign(socket, :results_description, nil)
   end
 
   defp assign_results_description(%{assigns: %{loading?: true}} = socket) do

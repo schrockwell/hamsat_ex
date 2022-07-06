@@ -11,7 +11,7 @@ defmodule HamsatWeb.SessionLocationController do
       |> put_session("lat", lat)
       |> put_session("lon", lon)
       |> maybe_update_user_home_location(%{home_lat: lat, home_lon: lon})
-      |> put_flash(:info, "Location updated")
+      |> put_flash(:info, "Location updated to #{Hamsat.Grid.encode!({lat, lon}, 6)}.")
       |> redirect(to: params["redirect"] || Routes.location_path(conn, :edit))
     else
       _ ->

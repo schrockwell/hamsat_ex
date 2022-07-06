@@ -1,0 +1,29 @@
+<div>  
+  <div class="mb-8">
+    <%= if @show_log_in_link? do %>
+      To view satellite passes, you must
+      <%= link "log in to your account", to: Routes.user_session_path(@socket, :new), class: "link not-italic" %>,
+      or select your station location by entering a grid square, coordinates, or by clicking the map.
+    <% else %>
+      Select your station location by entering a grid square, coordinates, or by clicking the map.
+    <% end %>
+  </div>
+  
+  <div class="w-full">
+    <%= live_component LocationPicker, id: "location-picker", coord: @coord, target: {__MODULE__, @id} %>
+  </div>
+
+  <form method="post" action={Routes.session_location_path(@socket, :update)}>
+    <%= csrf_input_tag(Routes.session_location_path(@socket, :update)) %>
+    <%= if @redirect do %>
+      <input type="hidden" name="redirect" value={@redirect}>
+    <% end %>
+    
+    <%= if @coord do %>
+      <input type="hidden" name="lat" value={@coord.lat}>
+      <input type="hidden" name="lon" value={@coord.lon}>
+    <% end %>
+    
+    <input type="submit" value="Set Location" class="btn btn-default mt-6">
+  </form>
+</div>
