@@ -30,10 +30,6 @@ config :hamsat, HamsatWeb.Endpoint,
 
 config :swoosh, :api_client, Swoosh.ApiClient.Hackney
 
-config :hamsat, Hamsat.Mailer,
-  adapter: Swoosh.Adapters.Postmark,
-  api_key: System.get_env("POSTMARK_API_KEY")
-
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.14.29",

@@ -75,4 +75,8 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
+config :hamsat, Hamsat.Mailer,
+  adapter: Swoosh.Adapters.Postmark,
+  api_key: System.fetch_env!("POSTMARK_API_KEY")
+
 config :hamsat, mapbox_access_token: System.fetch_env!("MAPBOX_ACCESS_TOKEN")

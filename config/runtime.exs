@@ -72,7 +72,9 @@ if config_env() == :prod do
 
   config :hamsat, Hamsat.Mailer,
     adapter: Swoosh.Adapters.Postmark,
-    api_key: System.get_env("POSTMARK_API_KEY")
+    api_key: System.fetch_env!("POSTMARK_API_KEY")
+
+  config :hamsat, mapbox_access_token: System.fetch_env!("MAPBOX_ACCESS_TOKEN")
 
   #       adapter: Swoosh.Adapters.Mailgun,
   #       api_key: System.get_env("MAILGUN_API_KEY"),

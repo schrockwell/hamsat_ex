@@ -1,7 +1,6 @@
 defmodule HamsatWeb.Location.EditLive do
   use HamsatWeb, :live_view
 
-  alias HamsatWeb.LocationPicker
   alias HamsatWeb.LocationSetter
 
   def mount(params, _session, socket) do

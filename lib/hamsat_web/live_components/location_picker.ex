@@ -113,18 +113,12 @@ defmodule HamsatWeb.LocationPicker do
 
   defp clear_coord(socket, opts) do
     event? = Keyword.get(opts, :event?, true)
-    target = socket.assigns[:target]
 
     form = %Form{}
     changeset = Form.changeset(form)
 
-    case target do
-      nil -> send(self(), {__MODULE__, :coord_selected, nil})
-      {module, id} -> send_update(module, id: id, __location_picker_coord_selected__: nil)
-    end
-
-    with {module, id} <- target do
-      send_update(module, id: id, __location_picker_coord_selected__: nil)
+    if event? do
+      emit_coord_selected(socket, nil)
     end
 
     socket
@@ -134,7 +128,6 @@ defmodule HamsatWeb.LocationPicker do
 
   defp try_updating_coord(socket, params, opts \\ []) do
     event? = Keyword.get(opts, :event?, true)
-    target = socket.assigns[:target]
 
     changeset = Form.changeset(socket.assigns.form, params)
 
@@ -143,10 +136,7 @@ defmodule HamsatWeb.LocationPicker do
       coord = Form.to_coord(form)
 
       if event? do
-        case target do
-          nil -> send(self(), {__MODULE__, :coord_selected, coord})
-          {module, id} -> send_update(module, id: id, __location_picker_coord_selected__: coord)
-        end
+        emit_coord_selected(socket, coord)
       end
 
       socket
@@ -155,5 +145,14 @@ defmodule HamsatWeb.LocationPicker do
     else
       assign(socket, changeset: changeset)
     end
+  end
+
+  defp emit_coord_selected(socket, coord) do
+    case socket.assigns[:target] do
+      nil -> send(self(), {__MODULE__, :coord_selected, coord})
+      {module, id} -> send_update(module, id: id, __location_picker_coord_selected__: coord)
+    end
+
+    socket
   end
 end
