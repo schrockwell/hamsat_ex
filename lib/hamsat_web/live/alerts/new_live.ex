@@ -15,6 +15,7 @@ defmodule HamsatWeb.Alerts.NewLive do
     else
       socket =
         socket
+        |> assign(:page_title, "New Activation")
         |> assign(:pass, pass)
         |> assign(:sat, pass.sat)
         |> assign(:grid, Grid.encode!(pass.observer.latitude_deg, pass.observer.longitude_deg, 6))
@@ -34,6 +35,7 @@ defmodule HamsatWeb.Alerts.NewLive do
 
     socket =
       socket
+      |> assign(:page_title, "Edit Activation")
       |> assign(:alert, alert)
       |> assign(:pass, pass)
       |> assign(:sat, alert.sat)
@@ -83,7 +85,7 @@ defmodule HamsatWeb.Alerts.NewLive do
 
     {:noreply,
      socket
-     |> put_flash(:info, "Alert deleted.")
+     |> put_flash(:info, "Activation deleted.")
      |> redirect(to: Routes.passes_path(socket, :index))}
   end
 

@@ -4,6 +4,8 @@ defmodule HamsatWeb.UserSessionController do
   alias Hamsat.Accounts
   alias HamsatWeb.UserAuth
 
+  plug :set_page_title
+
   def new(conn, _params) do
     render(conn, "new.html", error_message: nil)
   end
@@ -23,5 +25,9 @@ defmodule HamsatWeb.UserSessionController do
     conn
     |> put_flash(:info, "Logged out successfully.")
     |> UserAuth.log_out_user()
+  end
+
+  defp set_page_title(conn, _) do
+    assign(conn, :page_title, "Log In")
   end
 end

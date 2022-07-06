@@ -10,6 +10,7 @@ defmodule HamsatWeb.UserRegistration.NewLive do
   def mount(_, _, socket) do
     socket =
       socket
+      |> assign(:page_title, "Register")
       |> assign(:changeset, Accounts.change_user_registration(%User{}))
       |> assign(:coord, socket.assigns.context.location || %Coord{lat: 0, lon: 0})
 

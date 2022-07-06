@@ -15,6 +15,7 @@ defmodule HamsatWeb.Passes.IndexLive do
   def mount(_params, _session, socket) do
     socket =
       socket
+      |> assign(:page_title, "Passes")
       |> assign(:loading?, true)
       |> assign_sats()
       |> assign_results_description()

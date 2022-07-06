@@ -8,7 +8,11 @@ defmodule HamsatWeb.Alerts.IndexLive do
 
   def mount(_params, _session, socket) do
     Process.send_after(self(), :set_now, 1_000)
-    {:ok, assign(socket, :now, DateTime.utc_now())}
+
+    {:ok,
+     socket
+     |> assign(:page_title, "Activations")
+     |> assign(:now, DateTime.utc_now())}
   end
 
   def handle_params(params, _uri, socket) do

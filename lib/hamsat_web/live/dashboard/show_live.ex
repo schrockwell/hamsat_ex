@@ -6,7 +6,11 @@ defmodule HamsatWeb.Dashboard.ShowLive do
 
   def mount(_params, _session, socket) do
     Process.send_after(self(), :set_now, 1_000)
-    {:ok, assign_now(socket)}
+
+    {:ok,
+     socket
+     |> assign(:page_title, "Home")
+     |> assign_now()}
   end
 
   def handle_info(:set_now, socket) do

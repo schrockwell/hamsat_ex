@@ -1,6 +1,6 @@
 <div class="p-6">
   <h1 class="h1 mb-6">
-    <%= action_verb(@live_action) %> an Alert For <%= @sat.name %>
+    <%= action_verb(@live_action) %> an Activation For <%= @sat.name %>
   </h1>
 
   <.form let={f} for={@changeset} phx-submit="submit">
@@ -59,10 +59,10 @@
     </.form_row>
 
     <.form_row label="">
-      <%= submit "#{action_verb(@live_action)} Alert", class: "btn btn-default" %>
+      <%= submit "#{action_verb(@live_action)} Activation", class: "btn btn-default" %>
 
       <%= if @live_action == :edit do %>
-        <button type="button" phx-click="delete" data-confirm="Are you sure you want to delete this alert?" class="btn btn-default btn-text-danger">Delete Alert</button>
+        <button type="button" phx-click="delete" data-confirm="Are you sure you want to delete this alert?" class="btn btn-default btn-text-danger">Delete Activation</button>
       <% end %>
     </.form_row>
 

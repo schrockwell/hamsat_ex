@@ -3,6 +3,7 @@ defmodule HamsatWeb.UserResetPasswordController do
 
   alias Hamsat.Accounts
 
+  plug :set_page_title
   plug :get_user_by_reset_password_token when action in [:edit, :update]
 
   def new(conn, _params) do
@@ -54,5 +55,9 @@ defmodule HamsatWeb.UserResetPasswordController do
       |> redirect(to: "/")
       |> halt()
     end
+  end
+
+  defp set_page_title(conn, _) do
+    assign(conn, :page_title, "Reset Password")
   end
 end

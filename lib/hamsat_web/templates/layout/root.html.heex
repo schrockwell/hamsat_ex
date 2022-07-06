@@ -5,14 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <%= csrf_meta_tag() %>
-    <%= live_title_tag assigns[:page_title] || "Hamsat", suffix: " · Phoenix Framework" %>
+    <%= live_title_tag assigns[:page_title] || "Hamsat", suffix: " · Hamsat" %>
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/>
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
   <body class="text-gray-900 bg-gray-200">
     <div class="mt-4 mx-4 px-6 py-2 flex items-center justify-between rounded-t-xl bg-gray-700 text-white shadow-md">
       <div class="flex items-center">
-        <div class="text-lg font-medium mr-8">SatSpot</div>
+        <div class="text-lg font-medium mr-8">Hams.at</div>
         <.nav_pill_button to={Routes.dashboard_path(@conn, :show)} conn={@conn} active={~r/^(\/$)/}>Home</.nav_pill_button>
         <.nav_pill_button to={Routes.alerts_path(@conn, :index)} conn={@conn} active={~r/^(\/alerts)/}>Activations</.nav_pill_button>
         <.nav_pill_button to={Routes.passes_path(@conn, :index)} conn={@conn} active={~r/^\/passes/}>Passes</.nav_pill_button>
