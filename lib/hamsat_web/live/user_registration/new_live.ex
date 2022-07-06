@@ -27,7 +27,7 @@ defmodule HamsatWeb.UserRegistration.NewLive do
     |> merge_home_coord_params(socket.assigns.coord)
     |> Accounts.register_user()
     |> case do
-      {:ok, user} ->
+      {:ok, _user} ->
         # {:ok, _} =
         #   Accounts.deliver_user_confirmation_instructions(
         #     user,

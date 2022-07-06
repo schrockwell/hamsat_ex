@@ -25,10 +25,14 @@ config :hamsat, HamsatWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :hamsat, Hamsat.Mailer, adapter: Swoosh.Adapters.Local
+# adapter: Swoosh.Adapters.Local
+# config :swoosh, :api_client, Swoosh.ApiClient.Hackney
 
-# Swoosh API client is needed for adapters other than SMTP.
-config :swoosh, :api_client, false
+config :swoosh, :api_client, Swoosh.ApiClient.Hackney
+
+config :hamsat, Hamsat.Mailer,
+  adapter: Swoosh.Adapters.Postmark,
+  api_key: System.get_env("POSTMARK_API_KEY")
 
 # Configure esbuild (the version is required)
 config :esbuild,

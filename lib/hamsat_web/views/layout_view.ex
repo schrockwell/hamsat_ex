@@ -2,9 +2,7 @@ defmodule HamsatWeb.LayoutView do
   use HamsatWeb, :view
 
   import HamsatWeb.Buttons
-  import Plug.Conn
 
-  alias Hamsat.Coord
   alias Hamsat.Grid
 
   # Phoenix LiveDashboard is available only in development by default,

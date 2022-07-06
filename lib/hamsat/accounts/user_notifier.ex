@@ -1,6 +1,8 @@
 defmodule Hamsat.Accounts.UserNotifier do
   import Swoosh.Email
 
+  require Logger
+
   alias Hamsat.Mailer
 
   # Delivers the email using the application mailer.
@@ -8,12 +10,14 @@ defmodule Hamsat.Accounts.UserNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"Hamsat", "hamsat@schrock.me"})
+      |> from({"Hamsat", "no-reply@hams.at"})
       |> subject(subject)
       |> text_body(body)
+      |> put_provider_option(:message_stream, "outbound")
 
-    with {:ok, _metadata} <- Mailer.deliver(email) do
-      {:ok, email}
+    case Mailer.deliver(email) do
+      {:ok, _metadata} -> {:ok, email}
+      error -> Logger.error("Error delivering mail: #{inspect(error)}")
     end
   end
 

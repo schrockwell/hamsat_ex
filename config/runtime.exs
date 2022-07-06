@@ -69,8 +69,11 @@ if config_env() == :prod do
   # In production you need to configure the mailer to use a different adapter.
   # Also, you may need to configure the Swoosh API client of your choice if you
   # are not using SMTP. Here is an example of the configuration:
-  #
-  #     config :hamsat, Hamsat.Mailer,
+
+  config :hamsat, Hamsat.Mailer,
+    adapter: Swoosh.Adapters.Postmark,
+    api_key: System.get_env("POSTMARK_API_KEY")
+
   #       adapter: Swoosh.Adapters.Mailgun,
   #       api_key: System.get_env("MAILGUN_API_KEY"),
   #       domain: System.get_env("MAILGUN_DOMAIN")
