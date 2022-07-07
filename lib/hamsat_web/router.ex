@@ -97,6 +97,8 @@ defmodule HamsatWeb.Router do
   scope "/", HamsatWeb do
     pipe_through [:browser]
 
+    get "/about", PageController, :about
+
     delete "/users/log_out", UserSessionController, :delete
     get "/users/confirm", UserConfirmationController, :new
     post "/users/confirm", UserConfirmationController, :create

@@ -29,5 +29,9 @@
     <div class="mx-4 bg-white shadow-md rounded-b-xl mb-4 overflow-hidden">
       <%= @inner_content %>
     </div>
+
+    <div class="my-6 text-center text-sm text-gray-500">
+      by WW1X · <%= link "About", to: Routes.page_path(@conn, :about), class: "hover:underline hover:text-gray-700" %>
+    </div>
   </body>
 </html>
