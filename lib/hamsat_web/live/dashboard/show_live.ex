@@ -18,6 +18,8 @@ defmodule HamsatWeb.Dashboard.ShowLive do
     {:noreply, assign_now(socket)}
   end
 
+  def handle_info(_, socket), do: {:noreply, socket}
+
   defp assign_now(socket) do
     assign(socket, :now, DateTime.utc_now())
   end

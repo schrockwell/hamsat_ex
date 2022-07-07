@@ -9,6 +9,8 @@ defmodule HamsatWeb.Dashboard.Components.PassesList do
   def mount(socket) do
     socket =
       socket
+      |> assign(:loading?, true)
+      |> assign(:passes, [])
       |> assign_sats()
       |> assign_pass_opts()
 
@@ -19,7 +21,7 @@ defmodule HamsatWeb.Dashboard.Components.PassesList do
     socket =
       socket
       |> assign(assigns)
-      |> assign_passes()
+      |> fetch_passes_async()
 
     {:ok, socket}
   end
@@ -35,18 +37,22 @@ defmodule HamsatWeb.Dashboard.Components.PassesList do
     )
   end
 
-  defp assign_passes(socket) do
-    if changed?(socket, :pass_opts) and socket.assigns.context.location do
-      passes =
-        Alerts.list_all_passes(
-          socket.assigns.context,
-          socket.assigns.sats,
-          socket.assigns.pass_opts
-        )
+  defp fetch_passes_async(socket) do
+    if connected?(socket) and changed?(socket, :pass_opts) and socket.assigns.context.location do
+      pid = self()
 
-      assign(socket, :passes, passes)
-    else
-      socket
+      Task.async(fn ->
+        passes =
+          Alerts.list_all_passes(
+            socket.assigns.context,
+            socket.assigns.sats,
+            socket.assigns.pass_opts
+          )
+
+        send_update(pid, __MODULE__, id: socket.assigns.id, passes: passes, loading?: false)
+      end)
     end
+
+    socket
   end
 end

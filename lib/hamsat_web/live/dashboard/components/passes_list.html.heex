@@ -1,4 +1,10 @@
 <div class="border rounded-lg shadow-md">
+    <%= if @loading? do %>
+        <div class="text-gray-400 p-6 text-center italic">
+            Calculating…
+        </div>
+    <% end %>
+
     <%= if @context.location do %>
         <%= for pass <- @passes do %>
             <.live_component module={PassItem} id={"pass-item-#{pass.id}"} pass={pass} now={@now} context={@context} />
