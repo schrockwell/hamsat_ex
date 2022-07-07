@@ -14,6 +14,7 @@ defmodule Hamsat.Application do
       HamsatWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: Hamsat.PubSub},
+      Hamsat.Scheduler,
       # Start the Endpoint (http/https)
       HamsatWeb.Endpoint
       # Start a worker by calling: Hamsat.Worker.start_link(arg)
@@ -23,7 +24,11 @@ defmodule Hamsat.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Hamsat.Supervisor]
-    Supervisor.start_link(children, opts)
+
+    with {:ok, pid} <- Supervisor.start_link(children, opts) do
+      Hamsat.Alerts.PassCache.initialize()
+      {:ok, pid}
+    end
   end
 
   # Tell Phoenix to update the endpoint configuration

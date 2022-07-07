@@ -3,6 +3,7 @@ defmodule Hamsat.Alerts do
 
   alias Hamsat.Accounts
   alias Hamsat.Alerts.Pass
+  alias Hamsat.Alerts.PassCache
   alias Hamsat.Context
   alias Hamsat.Coord
   alias Hamsat.Schemas.Alert
@@ -58,17 +59,10 @@ defmodule Hamsat.Alerts do
   end
 
   defp list_pass_infos(coord, sat, opts) do
-    observer = Coord.to_observer(coord)
-    satrec = Sat.get_satrec(sat)
     starting = opts[:starting] || DateTime.utc_now()
     ending = opts[:ending] || Timex.shift(starting, hours: 6)
 
-    Satellite.list_passes_until(
-      satrec,
-      observer,
-      Util.utc_datetime_to_erl(starting),
-      Util.utc_datetime_to_erl(ending)
-    )
+    PassCache.list_passes_until(sat, coord, starting, ending)
   end
 
   defp convert_pass_infos_to_passes(infos, coord) do
@@ -221,15 +215,7 @@ defmodule Hamsat.Alerts do
   end
 
   defp visible_attrs(alert, coord) do
-    satrec = Sat.get_satrec(alert.sat)
-    observer = Coord.to_observer(coord)
-
-    case Satellite.Passes.list_passes_until(
-           satrec,
-           observer,
-           Util.utc_datetime_to_erl(alert.aos_at),
-           Util.utc_datetime_to_erl(alert.los_at)
-         ) do
+    case PassCache.list_passes_until(alert.sat, coord, alert.aos_at, alert.los_at) do
       [pass_info | _] ->
         pass_aos = Util.erl_to_utc_datetime(pass_info.aos.datetime)
         pass_los = Util.erl_to_utc_datetime(pass_info.los.datetime)
