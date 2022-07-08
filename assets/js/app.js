@@ -21,10 +21,13 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
-import Leaflet from "./leaflet-hook";
+import "../vendor/leaflet-great-circle";
+import LeafletPicker from "./leaflet-picker-hook";
+import LeafletTracker from "./leaflet-tracker-hook";
 
 const Hooks = {
-  Leaflet,
+  LeafletPicker,
+  LeafletTracker,
 };
 
 let csrfToken = document

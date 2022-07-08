@@ -2,7 +2,11 @@ defmodule HamsatWeb.Alerts.ShowLive do
   use HamsatWeb, :live_view
 
   alias Hamsat.Alerts
+  alias Hamsat.Coord
   alias Hamsat.Schemas.Alert
+  alias Hamsat.Schemas.Sat
+  alias HamsatWeb.LocationSetter
+  alias HamsatWeb.SatTracker
 
   def mount(%{"id" => alert_id}, _session, socket) do
     alert = Alerts.get_alert!(socket.assigns.context, alert_id)
@@ -10,6 +14,7 @@ defmodule HamsatWeb.Alerts.ShowLive do
     socket =
       socket
       |> assign(:alert, alert)
+      |> assign(:activator_coord, %Coord{lat: alert.observer_lat, lon: alert.observer_lon})
       |> assign_markers()
       |> assign_tick()
       |> schedule_tick()
@@ -69,10 +74,28 @@ defmodule HamsatWeb.Alerts.ShowLive do
         :workable -> "bg-emerald-500"
       end
 
+    my_sat_position =
+      if socket.assigns.context.location do
+        alert.sat
+        |> Sat.get_satrec()
+        |> Satellite.current_position(Coord.to_observer(socket.assigns.context.location))
+      end
+
+    activator_sat_position =
+      if socket.assigns.context.location do
+        alert.sat
+        |> Sat.get_satrec()
+        |> Satellite.current_position(
+          Coord.to_observer(%Coord{lat: alert.observer_lat, lon: alert.observer_lon})
+        )
+      end
+
     socket
     |> assign(:cursor_style, "left: #{progress * 100}%")
     |> assign(:cursor_class, cursor_class)
     |> assign(:progression, progression)
+    |> assign(:my_sat_position, my_sat_position)
+    |> assign(:activator_sat_position, activator_sat_position)
   end
 
   defp progress(alert, now) do
@@ -90,4 +113,7 @@ defmodule HamsatWeb.Alerts.ShowLive do
 
   defp progression_class(_, _),
     do: "uppercase px-4 py-2 border text-gray-400"
+
+  defp elevation_class(elevation) when elevation <= 0, do: "text-red-600"
+  defp elevation_class(_), do: nil
 end

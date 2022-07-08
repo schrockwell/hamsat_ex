@@ -12,13 +12,13 @@
             –
         <% end %>
     </td>
-    <td class="text-center text-emerald-600 font-medium">
+    <td class="text-center text-emerald-700">
     <%= if @alert.is_workable? do %>
         <%= time(@context, @alert.workable_start_at) %> &ndash;
         <%= time(@context, @alert.workable_end_at) %>
     <% end %>
     </td>
-    <td class="text-center text-green-600 font-medium">
+    <td class="text-center text-emerald-700">
         <%= alert_next_workable_in(@now, @alert) %>
     </td>
     <td class="text-right pr-6">

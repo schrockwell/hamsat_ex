@@ -20,10 +20,10 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
         ""
 
       :workable ->
-        "bg-green-100 text-emerald-600 font-medium"
+        "bg-green-100 text-emerald-700 font-semibold"
 
       p when p in [:in_progress, :before_workable, :after_workable] ->
-        "bg-yellow-100 text-yellow-800 font-medium"
+        "bg-yellow-100 text-yellow-800 font-semibold"
 
       :passed ->
         "text-gray-400"

@@ -1,7 +1,7 @@
 <div>  
   <div class="mb-8">
     <%= if @show_log_in_link? do %>
-      To view satellite passes, you must
+      To view satellite predictions at your current location, you must
       <%= link "log in to your account", to: Routes.user_session_path(@socket, :new), class: "link not-italic" %>,
       or select your station location by entering a grid square, coordinates, or by clicking the map.
     <% else %>

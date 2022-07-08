@@ -163,4 +163,8 @@ defmodule HamsatWeb.ViewHelpers do
   def password_requirements do
     "Password must be between 8 and 72 characters."
   end
+
+  def deg(float, decimals \\ 0) do
+    :erlang.float_to_binary(float, decimals: decimals) <> "°"
+  end
 end
