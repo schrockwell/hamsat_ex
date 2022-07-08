@@ -81,9 +81,10 @@ defmodule Hamsat.Schemas.Alert do
   def progression(alert, now) do
     cond do
       Timex.compare(now, alert.aos_at) == -1 -> :upcoming
-      Timex.compare(now, alert.workable_start_at) == -1 -> :upcoming
-      Timex.compare(now, alert.workable_end_at) == 1 -> :passed
       Timex.compare(now, alert.los_at) == 1 -> :passed
+      alert.is_workable? and Timex.compare(now, alert.workable_start_at) == -1 -> :before_workable
+      alert.is_workable? and Timex.compare(now, alert.workable_end_at) == 1 -> :after_workable
+      alert.is_workable? -> :workable
       true -> :in_progress
     end
   end

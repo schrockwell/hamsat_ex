@@ -12,7 +12,7 @@
             –
         <% end %>
     </td>
-    <td class="text-center text-green-600 font-medium">
+    <td class="text-center text-emerald-600 font-medium">
     <%= if @alert.is_workable? do %>
         <%= time(@context, @alert.workable_start_at) %> &ndash;
         <%= time(@context, @alert.workable_end_at) %>
@@ -21,9 +21,11 @@
     <td class="text-center text-green-600 font-medium">
         <%= alert_next_workable_in(@now, @alert) %>
     </td>
-    <td class="text-center">
+    <td class="text-right pr-6">
         <%= if Alert.owned?(@alert, @context.user) do %>
-            <%= link "Edit Activation", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "link" %>
+            <%= link "Edit", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "link mr-4" %>
         <% end %>
+
+        <%= link "Track", to: Routes.alerts_path(@socket, :show, @alert.id), class: "link" %>
     </td>
 </tr>

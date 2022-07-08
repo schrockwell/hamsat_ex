@@ -18,8 +18,7 @@ defmodule HamsatWeb.Dashboard.Components.AlertItem do
       assign(
         socket,
         :sat_visible?,
-        socket.assigns.alert.is_workable? and
-          Alert.progression(socket.assigns.alert, socket.assigns.now) == :in_progress
+        Alert.progression(socket.assigns.alert, socket.assigns.now) == :workable
       )
     else
       assign(socket, :sat_visible?, false)

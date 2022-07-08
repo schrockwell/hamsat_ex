@@ -52,11 +52,11 @@ defmodule HamsatWeb.Alerts.NewLive do
         %{assigns: %{live_action: :new}} = socket
       ) do
     case Alerts.create_alert(socket.assigns.context, socket.assigns.pass, alert_params) do
-      {:ok, _alert} ->
+      {:ok, alert} ->
         {:noreply,
          socket
          |> put_flash(:info, "Created an alert.")
-         |> redirect(to: Routes.passes_path(socket, :index))}
+         |> redirect(to: Routes.alerts_path(socket, :show, alert.id))}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}
@@ -69,11 +69,11 @@ defmodule HamsatWeb.Alerts.NewLive do
         %{assigns: %{live_action: :edit}} = socket
       ) do
     case Alerts.update_alert(socket.assigns.alert, alert_params) do
-      {:ok, _alert} ->
+      {:ok, alert} ->
         {:noreply,
          socket
          |> put_flash(:info, "Updated an alert.")
-         |> redirect(to: Routes.passes_path(socket, :index))}
+         |> redirect(to: Routes.alerts_path(socket, :show, alert.id))}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :changeset, changeset)}

@@ -16,9 +16,17 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
 
   defp alert_table_row_class(alert, now) do
     case Alert.progression(alert, now) do
-      :upcoming -> ""
-      :in_progress -> "bg-yellow-100 text-yellow-800 font-semibold"
-      :passed -> "text-gray-400"
+      :upcoming ->
+        ""
+
+      :workable ->
+        "bg-green-100 text-emerald-600 font-medium"
+
+      p when p in [:in_progress, :before_workable, :after_workable] ->
+        "bg-yellow-100 text-yellow-800 font-medium"
+
+      :passed ->
+        "text-gray-400"
     end
   end
 end

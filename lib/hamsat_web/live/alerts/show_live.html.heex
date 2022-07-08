@@ -1,9 +1,41 @@
 <div class="p-6">
-    <h1 class="h1"><%= @alert.callsign %> on <%= @alert.sat.name %></h1>
-    <div class="text-gray-500">
-        on <%= date(@context, @alert.aos_at) %>
-        at <%= time(@context, @alert.aos_at) %>
-        for <%= duration(@alert.aos_at, @alert.los_at) %>
+    <div class="flex items-start justify-between">
+        <div>
+            <h1 class="h1"><%= @alert.callsign %> on <%= @alert.sat.name %></h1>
+            <div class="text-gray-500 text-lg">
+                <%= mhz(@alert.downlink_mhz, 3, "") %>
+                <%= @alert.mode %>
+            </div>
+            <%= if @alert.comment do %>
+                <div class="text-gray-500 text-lg">
+                    “<%= @alert.comment %>”
+                </div>
+            <% end %>
+        </div>
+        <%= if Alert.owned?(@alert, @context.user) do %>
+            <%= link "Edit Activation", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "btn btn-link" %>
+        <% end %>
+    </div>
+
+    <div class="flex space-x-2 items-center justify-center mt-6 mb-12 flex-wrap">
+        <div class={progression_class(@progression, :upcoming)}>Upcoming</div>
+        <div class="text-xl">→</div>
+        <%= if @alert.is_workable? do %>
+            <%= if @alert.workable_start_at != @alert.aos_at do %>
+                <div class={progression_class(@progression, :before_workable)}>Before Workable</div>
+                <div class="text-xl">→</div>
+            <% end %>
+            <div class={progression_class(@progression, :workable)}>Workable</div>
+            <div class="text-xl">→</div>
+            <%= if @alert.workable_end_at != @alert.los_at do %>
+                <div class={progression_class(@progression, :after_workable)}>After Workable</div>
+                <div class="text-xl">→</div>
+            <% end %>
+        <% else %>
+            <div class={progression_class(@progression, :in_progress)}>In Progress</div>
+            <div class="text-xl">→</div>
+        <% end %>
+        <div class={progression_class(@progression, :passed)}>Passed</div>
     </div>
 
     <div class="w-full relative h-8 overflow-hidden flex items-center mt-4">
@@ -16,14 +48,23 @@
             </div>
         </div>
 
-        <div class="w-full absolute top-0 pl-16 pr-32">
+        <div class="w-full absolute top-0 pl-16 pr-24">
+            <%= if @alert.is_workable? do %>
+                <div class="relative">
+                    <div class="absolute h-8 flex items-center ml-4 -mr-4" style={"#{@workable_start_marker_style}; #{@workable_end_marker_style}"}>
+                        <div class="w-full h-1 bg-emerald-500"></div>
+                        <div class="absolute w-8 h-8 rounded-full border-4 border-emerald-500 left-0 bg-white -ml-4"></div>
+                        <div class="absolute w-8 h-8 rounded-full border-4 border-emerald-500 right-0 bg-white -mr-4"></div>
+                    </div>
+                </div>
+            <% end %>
             <div class="relative h-8 top-0">
-                <div class="absolute w-8 h-8 rounded-full bg-gray-400" style={@cursor_style}></div>
+                <div class={[@cursor_class, "absolute w-8 h-8 rounded-full"]} style={@cursor_style}></div>
             </div>
         </div>
     </div>
     <div class="flex px-16 justify-between mt-1">
-        <div class="text-left">AOS<br /><%= time(@context, @alert.aos_at) %></div>
-        <div class="text-right">LOS<br /><%= time(@context, @alert.los_at) %></div>
+        <div class="text-left">Starts<br /><%= time(@context, @alert.aos_at) %></div>
+        <div class="text-right">Ends<br /><%= time(@context, @alert.los_at) %></div>
     </div>
 </div>
