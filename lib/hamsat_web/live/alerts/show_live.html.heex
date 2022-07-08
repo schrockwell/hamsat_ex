@@ -1,10 +1,15 @@
 <div class="p-6">
     <div class="flex items-start justify-between">
         <div>
-            <h1 class="h1"><%= @alert.callsign %> on <%= @alert.sat.name %></h1>
-            <div class="text-gray-500 text-lg">
-                <%= mhz(@alert.downlink_mhz, 3, "") %>
-                <%= @alert.mode %>
+            <h1 class="h1 mb-1"><%= @alert.callsign %> on <%= @alert.sat.name %></h1>
+            <div class="text-gray-500 text-lg flex space-x-2 mb-1">
+                <div class="bg-gray-200 px-3 py-0.5">
+                    <%= Grid.encode!({@alert.observer_lat, @alert.observer_lon}, 6) %>
+                </div>
+                <div class="bg-gray-200 px-3 py-0.5">
+                    <%= mhz(@alert.downlink_mhz, 3, "") %>
+                    <%= @alert.mode %>
+                </div>
             </div>
             <%= if @alert.comment do %>
                 <div class="text-gray-500 text-lg">
@@ -81,7 +86,7 @@
         <%= if @my_sat_position do %>
             <div class="flex">
                 <div class="w-1/4 flex flex-col justify-center space-y-12">
-                    <div class="text-center">From My Location</div>
+                    <div class="text-center">From My Location (<%= Grid.encode!(@context.location, 6) %>)</div>
                     <div class="text-center">
                         <div class="text-3xl"><%= deg(@my_sat_position.azimuth_in_degrees) %> (<%= cardinal_direction(@my_sat_position.azimuth_in_degrees) %>)</div>
                         <div class="text-gray-500">Azimuth</div>
@@ -93,7 +98,7 @@
                 </div>
 
                 <div class="w-1/4 flex flex-col justify-center space-y-12">
-                    <div class="text-center">From <%= @alert.callsign %> Location</div>
+                    <div class="text-center">From <%= @alert.callsign %> Location (<%= Grid.encode!(@alert.observer_lat, @alert.observer_lon, 6) %>)</div>
                     <div class="text-center">
                         <div class="text-3xl"><%= deg(@activator_sat_position.azimuth_in_degrees) %> (<%= cardinal_direction(@activator_sat_position.azimuth_in_degrees) %>)</div>
                         <div class="text-gray-500">Azimuth</div>
