@@ -1,6 +1,7 @@
 defmodule HamsatWeb.Alerts.Components.AlertTableRow do
   use HamsatWeb, :live_component
 
+  alias Hamsat.Grid
   alias Hamsat.Schemas.Alert
 
   def update(assigns, socket) do

@@ -3,6 +3,7 @@ defmodule HamsatWeb.Alerts.ShowLive do
 
   alias Hamsat.Alerts
   alias Hamsat.Coord
+  alias Hamsat.Grid
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.Sat
   alias HamsatWeb.LocationSetter
@@ -18,7 +19,8 @@ defmodule HamsatWeb.Alerts.ShowLive do
       |> assign_markers()
       |> assign_tick()
       |> schedule_tick()
-      |> assign_tweet_link()
+      |> assign_tweet_url()
+      |> assign_satmatch_url()
 
     {:ok, socket}
   end
@@ -118,7 +120,7 @@ defmodule HamsatWeb.Alerts.ShowLive do
   defp elevation_class(elevation) when elevation <= 0, do: "text-red-600"
   defp elevation_class(_), do: nil
 
-  defp assign_tweet_link(socket) do
+  defp assign_tweet_url(socket) do
     alert = socket.assigns.alert
     url = URI.encode(Routes.alerts_url(socket, :show, alert.id))
 
@@ -148,5 +150,27 @@ defmodule HamsatWeb.Alerts.ShowLive do
       |> URI.encode()
 
     assign(socket, :tweet_url, "https://twitter.com/intent/tweet?text=#{text}")
+  end
+
+  defp assign_satmatch_url(socket) do
+    satname = socket.assigns.alert.sat.nasa_name
+    obs1 = Grid.encode!({socket.assigns.alert.observer_lat, socket.assigns.alert.observer_lon}, 6)
+
+    obs2 =
+      if socket.assigns.context.location,
+        do: Grid.encode!(socket.assigns.context.location, 6)
+
+    # SatMatch searches for passes AFTER the specified datetime, so give it a one-minute grace
+    # period to ensure that it finds the desired pass
+    timestamp = socket.assigns.alert.aos_at |> Timex.shift(minutes: -1) |> DateTime.to_iso8601()
+
+    url =
+      if obs1 != obs2 and obs2 != nil do
+        "https://www.satmatch.com/satellite/#{satname}/obs1/#{obs1}/obs2/#{obs2}/pass/#{timestamp}"
+      else
+        "https://satmatch.com/satellite/#{satname}/obs1/#{obs1}/pass/#{timestamp}"
+      end
+
+    assign(socket, :satmatch_url, url)
   end
 end

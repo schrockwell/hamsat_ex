@@ -33,6 +33,7 @@ defmodule Hamsat.Satellites do
     [
       %{
         name: "AO-7",
+        nasa_name: "AO-07",
         number: 7530,
         modulation: :linear,
         downlinks: [
@@ -90,6 +91,7 @@ defmodule Hamsat.Satellites do
       },
       %{
         name: "LilacSat-2",
+        nasa_name: "LILACSAT-2",
         number: 40908,
         modulation: :fm,
         downlinks: [%{lower_mhz: 437.2, upper_mhz: 437.2}]

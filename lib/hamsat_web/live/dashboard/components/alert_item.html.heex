@@ -15,9 +15,14 @@
             </span>
             <SatComponents.sat_modulation_label sat={@alert.sat} />
         </div>
-        <div class="bg-gray-200 px-2 font-medium text-gray-600">
-            <%= mhz(@alert.downlink_mhz, 3, "") %>
-            <%= @alert.mode %>
+        <div class="flex space-x-2">
+            <div class="bg-gray-200 px-2 font-medium text-gray-600">
+                <%= Grid.encode!({@alert.observer_lat, @alert.observer_lon}, 4) %>
+            </div>
+            <div class="bg-gray-200 px-2 font-medium text-gray-600">
+                <%= mhz(@alert.downlink_mhz, 3, "") %>
+                <%= @alert.mode %>
+            </div>
         </div>
     </div>
     <%= if @alert.comment do %>
