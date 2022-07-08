@@ -6,28 +6,38 @@
                 <div class="text-gray-500">in the next 24 hours</div>
             </div>
             <div class="text-right">
-                <%= link "Post an Activation", to: Routes.passes_path(@socket, :index), class: "btn btn-link" %>
                 <%= link "Browse", to: Routes.alerts_path(@socket, :index), class: "btn btn-link" %>
             </div>
         </div>
-        <.live_component module={AlertsList} id="alerts-list" now={@now} context={@context} />
+        <.live_component module={AlertsList} id="upcoming-alerts-list" now={@now} context={@context} alerts_filter={@upcoming_alerts_filter}>
+            <:empty>
+                <div class="p-6 text-gray-400 italic text-center">No upcoming activations have been posted.</div>
+            </:empty>
+        </.live_component>
     </div>
+
     <div class="flex-1">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="h1">Upcoming Satellite Passes</h1>
-                <div class="text-gray-500">
-                    <%= if @context.location do %>
-                        at <%= grid(@context.location) %>
-                    <% end  %>
-                    in the next 6 hours
-                </div>
+                <h1 class="h1">My Satellite Activations</h1>
+                <div class="text-gray-500">&nbsp;</div>
             </div>
-            <div>
-                <%= link "Browse", to: Routes.passes_path(@socket, :index), class: "btn btn-link" %>
+            <div class="text-right">
+                <%= link "Post an Activation", to: Routes.passes_path(@socket, :index), class: "btn btn-link" %>
             </div>
         </div>
-
-        <.live_component module={PassesList} id="passes-list" now={@now} context={@context} />
+        <%= if @my_alerts_filter do %>
+            <.live_component module={AlertsList} id="my-alerts-list" now={@now} context={@context} alerts_filter={@my_alerts_filter} mine?={true}>
+                <:empty>
+                    <div class="p-6 text-gray-400 italic text-center">You haven't posted any activations yet.</div>
+                </:empty>
+            </.live_component>
+        <% else %>
+            <div class="panel p-6 text-center text-gray-400 italic">
+                <%= link "Log in", to: Routes.user_session_path(@socket, :new), class: "link not-italic" %> or
+                <%= link "Register", to: Routes.user_registration_path(@socket, :new), class: "link not-italic" %>
+                to post your own activation alerts.
+            </div>
+        <% end %>
     </div>
 </div>

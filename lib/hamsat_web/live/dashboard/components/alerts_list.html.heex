@@ -1,8 +1,8 @@
-<div class="border rounded-lg shadow-md">
+<div class="panel">
     <%= if @alerts == [] do %>
-        <div class="p-6 text-gray-400 italic text-center">No upcoming activations have been posted.</div>
+        <%= render_slot @empty %>
     <% end %>
     <%= for alert <- @alerts do %>
-        <.live_component module={AlertItem} id={"alert-item-#{alert.id}"} alert={alert} now={@now} context={@context} />
+        <.live_component module={AlertItem} id={"#{@id}-#{alert.id}"} alert={alert} now={@now} context={@context} mine?={@mine?} />
     <% end %>
 </div>

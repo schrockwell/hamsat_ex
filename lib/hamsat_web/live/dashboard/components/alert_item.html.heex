@@ -1,7 +1,7 @@
 <div class="border-b last:border-0 p-4">
     <div class="flex items-start justify-between">
         <div class="text-gray-500 font-medium text-sm mb-1">
-            <SatComponents.alert_event_description alert={@alert} now={@now} />
+        <SatComponents.alert_event_description alert={@alert} now={@now} mine?={@mine?} />
         </div>
         <%= if @sat_visible? do %>
             <div class="uppercase text-xs bg-red-100 text-red-700 px-1.5 py-0.5 font-medium">Visible Now!</div>

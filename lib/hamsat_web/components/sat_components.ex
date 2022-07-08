@@ -32,7 +32,7 @@ defmodule HamsatWeb.SatComponents do
           )
 
         ~H"""
-        <%= if @workability == :workable do %>
+        <%= if @workability == :workable and not @mine? do %>
           <span class="text-xs font-medium bg-emerald-100 text-emerald-600 px-1.5 py-0.5 uppercase">Workable</span>
         <% end %>
 
@@ -42,7 +42,7 @@ defmodule HamsatWeb.SatComponents do
         """
 
       :never ->
-        ~H"–"
+        ~H"passed"
     end
   end
 

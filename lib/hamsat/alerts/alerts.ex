@@ -202,6 +202,10 @@ defmodule Hamsat.Alerts do
     limit(query, ^limit)
   end
 
+  defp apply_alert_filter({:user_id, user_id}, query) do
+    where(query, [a], a.user_id == ^user_id)
+  end
+
   defp amend_visible_passes(alerts, context) do
     case context.location do
       nil ->
