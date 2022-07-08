@@ -1,26 +1,38 @@
 defmodule HamsatWeb.ViewHelpers do
   alias Hamsat.Alerts.Pass
+  alias Hamsat.Context
   alias Hamsat.Coord
   alias Hamsat.Grid
   alias Hamsat.Schemas.Alert
 
   @date_format "{YYYY}-{0M}-{0D}"
   @time_format "{h24}:{m}:{s}"
+  @short_time_format "{h24}:{m}"
   @datetime_format @date_format <> " " <> @time_format
 
-  def date(context, utc_datetime) do
+  def date(context_or_timezone, utc_datetime) do
     utc_datetime
     |> normalize_datetime()
-    |> Timex.to_datetime(context.timezone)
+    |> Timex.to_datetime(timezone(context_or_timezone))
     |> Timex.format!(@date_format)
   end
 
-  def time(context, utc_datetime) do
+  def time(context_or_timezone, utc_datetime) do
     utc_datetime
     |> normalize_datetime()
-    |> Timex.to_datetime(context.timezone)
+    |> Timex.to_datetime(timezone(context_or_timezone))
     |> Timex.format!(@time_format)
   end
+
+  def short_time(context_or_timezone, utc_datetime) do
+    utc_datetime
+    |> normalize_datetime()
+    |> Timex.to_datetime(timezone(context_or_timezone))
+    |> Timex.format!(@short_time_format)
+  end
+
+  defp timezone(:utc), do: "Etc/UTC"
+  defp timezone(%Context{timezone: timezone}), do: timezone
 
   defp normalize_datetime(%DateTime{} = datetime), do: datetime
   defp normalize_datetime(erl_datetime), do: Hamsat.Util.erl_to_utc_datetime(erl_datetime)

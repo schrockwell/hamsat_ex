@@ -18,6 +18,7 @@ defmodule HamsatWeb.Alerts.ShowLive do
       |> assign_markers()
       |> assign_tick()
       |> schedule_tick()
+      |> assign_tweet_link()
 
     {:ok, socket}
   end
@@ -116,4 +117,36 @@ defmodule HamsatWeb.Alerts.ShowLive do
 
   defp elevation_class(elevation) when elevation <= 0, do: "text-red-600"
   defp elevation_class(_), do: nil
+
+  defp assign_tweet_link(socket) do
+    alert = socket.assigns.alert
+    url = URI.encode(Routes.alerts_url(socket, :show, alert.id))
+
+    freq =
+      case {alert.downlink_mhz, alert.mode} do
+        {nil, nil} -> nil
+        {mhz, nil} -> "📻 #{mhz(mhz)}"
+        {nil, mode} -> "📻 #{mode}"
+        {mhz, mode} -> "📻 #{mhz(mhz)} #{mode}"
+      end
+
+    comment =
+      if alert.comment do
+        "📢 #{alert.comment}"
+      end
+
+    text =
+      [
+        "🛰 #{alert.callsign} on #{alert.sat.name}",
+        "⏰ #{date(:utc, alert.aos_at)} from #{short_time(:utc, alert.aos_at)}Z to #{short_time(:utc, alert.los_at)}Z",
+        freq,
+        comment,
+        "👀 #{url}"
+      ]
+      |> Enum.reject(&is_nil/1)
+      |> Enum.join("\n")
+      |> URI.encode()
+
+    assign(socket, :tweet_url, "https://twitter.com/intent/tweet?text=#{text}")
+  end
 end

@@ -12,9 +12,14 @@
                 </div>
             <% end %>
         </div>
-        <%= if Alert.owned?(@alert, @context.user) do %>
-            <%= link "Edit Activation", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "btn btn-link" %>
-        <% end %>
+        <div class="flex items-center space-x-4">
+            <a href={@tweet_url} class="btn btn-link">
+                Post a Tweet
+            </a>
+            <%= if Alert.owned?(@alert, @context.user) do %>
+                <%= link "Edit Activation", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "btn btn-link" %>
+            <% end %>
+        </div>
     </div>
 
     <div class="flex space-x-2 items-center justify-center mt-6 mb-12 flex-wrap">
