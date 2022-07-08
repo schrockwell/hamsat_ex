@@ -164,6 +164,16 @@ defmodule Hamsat.Alerts do
     |> amend_visible_passes(context)
   end
 
+  def get_alert!(context, id) do
+    alert =
+      Alert
+      |> Repo.get!(id)
+      |> Repo.preload(:sat)
+
+    [alert] = amend_visible_passes([alert], context)
+    alert
+  end
+
   def get_my_alert!(context, id) do
     Alert
     |> user_alert_query(context.user)

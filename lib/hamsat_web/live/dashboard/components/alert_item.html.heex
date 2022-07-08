@@ -25,14 +25,11 @@
             “<%= @alert.comment %>”
         </div>
     <% end %>
-    <ul class="mt-1 flex space-x-6 text-sm">
-        <%= cond do %>
-            <% Alert.owned?(@alert, @context.user) -> %>
-                <li><%= link "Edit Activation", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "link" %></li>
-            <% @alert.is_workable? -> %>
-                <li><%= link "Create Activation", to: Routes.alerts_path(@socket, :new, pass: "#todo"), class: "link" %></li>
-            <% true -> %>
-                <% nil %>
+    <div class="text-sm flex space-x-6">
+        <%= link "Track", to: Routes.alerts_path(@socket, :show, @alert.id), class: "link" %>
+
+        <%= if @mine? and Alert.owned?(@alert, @context.user) do %>
+            <%= link "Edit Activation", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "link" %>
         <% end %>
-    </ul>
+    </div>
 </div>

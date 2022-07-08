@@ -29,7 +29,7 @@
         <%= if @my_alerts_filter do %>
             <.live_component module={AlertsList} id="my-alerts-list" now={@now} context={@context} alerts_filter={@my_alerts_filter} mine?={true}>
                 <:empty>
-                    <div class="p-6 text-gray-400 italic text-center">You haven't posted any activations yet.</div>
+                    <div class="p-6 text-gray-400 italic text-center">You haven't posted any upcoming activations.</div>
                 </:empty>
             </.live_component>
         <% else %>
