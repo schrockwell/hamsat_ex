@@ -10,7 +10,7 @@
   </div>
   
   <div class="w-full">
-    <%= live_component LocationPicker, id: "location-picker", coord: @coord, target: {__MODULE__, @id} %>
+    <.live_component module={LocationPicker} id="location-picker" coord={@coord} target={{__MODULE__, @id}} />
   </div>
 
   <form method="post" action={Routes.session_location_path(@socket, :update)}>

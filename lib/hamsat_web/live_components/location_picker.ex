@@ -91,7 +91,7 @@ defmodule HamsatWeb.LocationPicker do
     end
   end
 
-  def handle_event("form-changed", %{"form" => params}, socket) do
+  def handle_event("location-form-changed", %{"form" => params}, socket) do
     socket = try_updating_coord(socket, params)
     {:noreply, socket}
   end
