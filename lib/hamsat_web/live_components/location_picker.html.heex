@@ -1,20 +1,20 @@
 <div>
-  <.form let={f} for={@changeset} phx-change="location-form-changed" phx-target={@myself} autocomplete="off">
-    <div class="flex space-x-4 mb-4">
-      <div>
-        <%= label f, :grid, class: "form-label" %>
-        <%= text_input f, :grid, placeholder: "Grid", class: "w-24 input-text font-mono" %>
-      </div>
-      <div class="flex-1">
-        <%= label f, :lat, "Latitude (°N)", class: "form-label" %>
-        <%= text_input f, :lat, placeholder: "Latitude", class: "input-text w-full" %>
-      </div>
-      <div class="flex-1">
-        <%= label f, :lon, "Longitude (°E)", class: "form-label" %>
-        <%= text_input f, :lon, placeholder: "Longitude", class: "input-text w-full" %>
-      </div>
+  <div class="flex space-x-4 mb-4">
+    <div>
+      <%= label @form, @fields.grid, class: "form-label" %>
+      <%= text_input @form, @fields.grid, placeholder: "Grid", class: "w-24 input-text font-mono", maxlength: 6 %>
     </div>
-  </.form>
+    <div class="flex-1">
+      <%= label @form, @fields.lat, "Latitude (°N)", class: "form-label" %>
+      <%= text_input @form, @fields.lat, placeholder: "Latitude", class: "input-text w-full" %>
+      <%= error_tag @form, @fields.lat %>
+    </div>
+    <div class="flex-1">
+      <%= label @form, @fields.lon, "Longitude (°E)", class: "form-label" %>
+      <%= text_input @form, @fields.lon, placeholder: "Longitude", class: "input-text w-full" %>
+      <%= error_tag @form, @fields.lon %>
+    </div>
+  </div>
   
   <div phx-update="ignore" id="location-picker-map-container">
     <div id="location-picker-map" style="height: 400px" phx-hook="LeafletPicker" data-mapbox-access-token={@mapbox_access_token}></div>

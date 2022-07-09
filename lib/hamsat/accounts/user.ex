@@ -18,6 +18,9 @@ defmodule Hamsat.Accounts.User do
 
     has_many :alerts, Hamsat.Schemas.Alert
 
+    # Needed for the LocationPicker on the user registration form
+    field :grid, :string, virtual: true
+
     timestamps()
   end
 

@@ -9,21 +9,17 @@
     <% end %>
   </div>
   
-  <div class="w-full">
-    <.live_component module={LocationPicker} id="location-picker" coord={@coord} target={{__MODULE__, @id}} />
-  </div>
 
-  <form method="post" action={Routes.session_location_path(@socket, :update)}>
+  <.form let={f} for={@changeset} action={Routes.session_location_path(@socket, :update)} phx-change="form-changed" phx-target={@myself} autocomplete="off">
     <%= csrf_input_tag(Routes.session_location_path(@socket, :update)) %>
     <%= if @redirect do %>
       <input type="hidden" name="redirect" value={@redirect}>
     <% end %>
     
-    <%= if @coord do %>
-      <input type="hidden" name="lat" value={@coord.lat}>
-      <input type="hidden" name="lon" value={@coord.lon}>
-    <% end %>
+    <div class="w-full">
+      <.live_component module={LocationPicker} id="location-picker" form={f} target={{__MODULE__, @id}} />
+    </div>
     
     <input type="submit" value="Set Location" class="btn btn-default mt-6">
-  </form>
+  </.form>
 </div>

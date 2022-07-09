@@ -4,7 +4,7 @@ defmodule HamsatWeb.SessionLocationController do
   alias Hamsat.Accounts
   alias Hamsat.Accounts.User
 
-  def update(conn, %{"lat" => lat, "lon" => lon} = params) do
+  def update(conn, %{"form" => %{"lat" => lat, "lon" => lon}} = params) do
     with {lat, _} <- Float.parse(lat),
          {lon, _} <- Float.parse(lon) do
       conn
