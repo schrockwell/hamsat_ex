@@ -24,10 +24,12 @@ import topbar from "../vendor/topbar";
 import "../vendor/leaflet-great-circle";
 import LeafletPicker from "./leaflet-picker-hook";
 import LeafletTracker from "./leaflet-tracker-hook";
+import Registration from "./registration-hook";
 
 const Hooks = {
   LeafletPicker,
   LeafletTracker,
+  Registration,
 };
 
 let csrfToken = document

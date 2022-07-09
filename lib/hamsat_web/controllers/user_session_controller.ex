@@ -2,12 +2,27 @@ defmodule HamsatWeb.UserSessionController do
   use HamsatWeb, :controller
 
   alias Hamsat.Accounts
+  alias Hamsat.Accounts.User
   alias HamsatWeb.UserAuth
 
   plug :set_page_title
 
   def new(conn, _params) do
     render(conn, "new.html", error_message: nil)
+  end
+
+  def create(conn, %{"token" => token}) do
+    with {:ok, user_email} <- UserAuth.verify_sign_in_token(token),
+         user = %User{} <- Accounts.get_user_by_email(user_email) do
+      conn
+      |> put_flash(:info, "Welcome! You are now registered and logged in.")
+      |> UserAuth.log_in_user(user)
+    else
+      _ ->
+        conn
+        |> put_flash(:error, "There was a problem signing in. Please try again.")
+        |> redirect(to: Routes.user_session_path(conn, :new))
+    end
   end
 
   def create(conn, %{"user" => user_params}) do

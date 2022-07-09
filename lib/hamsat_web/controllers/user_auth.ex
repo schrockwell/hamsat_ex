@@ -152,4 +152,12 @@ defmodule HamsatWeb.UserAuth do
   defp maybe_store_return_to(conn), do: conn
 
   defp signed_in_path(_conn), do: "/"
+
+  def generate_sign_in_token(user) do
+    Phoenix.Token.sign(HamsatWeb.Endpoint, "user auth", user.email)
+  end
+
+  def verify_sign_in_token(token) do
+    Phoenix.Token.verify(HamsatWeb.Endpoint, "user auth", token, max_age: 10)
+  end
 end

@@ -6,11 +6,13 @@ defmodule HamsatWeb.UserRegistration.NewLive do
   alias Hamsat.Coord
 
   alias HamsatWeb.LocationPicker
+  alias HamsatWeb.UserAuth
 
   def mount(_, _, socket) do
     socket =
       socket
       |> assign(:page_title, "Register")
+      |> assign(:sign_in_token, nil)
       |> assign_changeset(%{})
 
     {:ok, socket}
@@ -24,17 +26,11 @@ defmodule HamsatWeb.UserRegistration.NewLive do
     user_params
     |> Accounts.register_user()
     |> case do
-      {:ok, _user} ->
-        # {:ok, _} =
-        #   Accounts.deliver_user_confirmation_instructions(
-        #     user,
-        #     &Routes.user_confirmation_url(socket, :edit, &1)
-        #   )
-
+      {:ok, user} ->
         socket =
           socket
-          |> put_flash(:info, "Registered! Please sign in.")
-          |> redirect(to: Routes.user_session_path(socket, :new))
+          |> assign(:sign_in_token, UserAuth.generate_sign_in_token(user))
+          |> push_event("sumbit-registration-form", %{})
 
         {:noreply, socket}
 
