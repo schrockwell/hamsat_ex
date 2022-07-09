@@ -107,7 +107,13 @@ defmodule Hamsat.Alerts.PassCache do
             Sat.get_satrec(sat),
             Coord.to_observer(coord),
             Util.utc_datetime_to_erl(bucket.starting),
-            Util.utc_datetime_to_erl(bucket.ending)
+            Util.utc_datetime_to_erl(bucket.ending),
+            # These are the pass_opts that I added to satellite_ex to improve the performance
+            # of these pass calculations
+            magnitude?: false,
+            geodetic?: false,
+            coarse_increment: 60,
+            fine_increment: 5
           )
 
         :ets.insert(@table, {bucket.key, System.monotonic_time(:millisecond), passes})

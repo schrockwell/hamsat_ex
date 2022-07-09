@@ -52,6 +52,7 @@ defmodule Hamsat.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
       {:satellite_ex, git: "https://github.com/schrockwell/satelliteEx.git", branch: "hamsat"},
+      # {:satellite_ex, path: "../satelliteEx"},
       {:timex, "~> 3.7"},
       {:hackney, "~> 1.18"}
     ]
