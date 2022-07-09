@@ -11,21 +11,17 @@ defmodule HamsatWeb.UserRegistration.NewLive do
     socket =
       socket
       |> assign(:page_title, "Register")
-      |> assign(:changeset, Accounts.change_user_registration(%User{}))
-      |> assign(:coord, socket.assigns.context.location || %Coord{lat: 0, lon: 0})
+      |> assign_changeset(%{})
 
     {:ok, socket}
   end
 
   def handle_event("form-changed", %{"user" => user_params}, socket) do
-    changeset = Accounts.change_user_registration(%User{}, user_params)
-
-    {:noreply, assign(socket, :changeset, changeset)}
+    {:noreply, assign_changeset(socket, user_params)}
   end
 
   def handle_event("submit", %{"user" => user_params}, socket) do
     user_params
-    |> merge_home_coord_params(socket.assigns.coord)
     |> Accounts.register_user()
     |> case do
       {:ok, _user} ->
@@ -47,11 +43,32 @@ defmodule HamsatWeb.UserRegistration.NewLive do
     end
   end
 
-  defp merge_home_coord_params(user_params, coord) do
-    Map.merge(user_params, %{"home_lat" => coord.lat, "home_lon" => coord.lon})
+  def handle_info({LocationPicker, :map_clicked, {lat, lon}}, socket) do
+    {:noreply, assign_changeset(socket, %{home_lat: lat, home_lon: lon})}
   end
 
-  def handle_info({LocationPicker, :coord_selected, coord}, socket) do
-    {:noreply, assign(socket, :coord, coord)}
+  defp assign_changeset(socket, params) do
+    # We need to keep track of the User being built so that the LocationPicker
+    # can detect lat/lon changes on every form change, and update its UI accordingly
+    if socket.assigns[:user] do
+      changeset = Accounts.change_user_registration(socket.assigns.user, params)
+      user = Ecto.Changeset.apply_changes(changeset)
+
+      assign(socket, changeset: changeset, user: user)
+    else
+      initial_attrs =
+        if socket.assigns.context.location do
+          %{
+            home_lat: socket.assigns.context.location.lat,
+            home_lon: socket.assigns.context.location.lon
+          }
+        else
+          %{}
+        end
+
+      changeset = Accounts.change_user_registration(%User{}, initial_attrs)
+      user = Ecto.Changeset.apply_changes(changeset)
+      assign(socket, changeset: changeset, user: user)
+    end
   end
 end

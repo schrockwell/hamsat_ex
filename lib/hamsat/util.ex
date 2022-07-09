@@ -25,7 +25,6 @@ defmodule Hamsat.Util do
     |> maybe_update_coord_from_grid(fields)
     |> maybe_update_grid_from_coord(fields)
     |> validate_required([fields.lat, fields.lon])
-    |> Map.put(:action, :update)
   end
 
   # When the grid field changes to a valid value, automatically set new coords
@@ -33,8 +32,8 @@ defmodule Hamsat.Util do
     with {:ok, new_grid} <- fetch_change(changeset, fields.grid),
          {:ok, {lat, lon}} <- Grid.decode(new_grid) do
       changeset
-      |> force_change(fields.lat, lat)
-      |> force_change(fields.lon, lon)
+      |> put_change(fields.lat, lat)
+      |> put_change(fields.lon, lon)
     else
       _ -> changeset
     end
@@ -47,7 +46,8 @@ defmodule Hamsat.Util do
 
     case Grid.encode(new_lat, new_lon, 6) do
       {:ok, new_grid} ->
-        force_change(changeset, fields.grid, new_grid)
+        changeset
+        |> force_change(fields.grid, new_grid)
 
       :error ->
         changeset

@@ -19,7 +19,7 @@ defmodule Hamsat.Accounts.User do
     has_many :alerts, Hamsat.Schemas.Alert
 
     # Needed for the LocationPicker on the user registration form
-    field :grid, :string, virtual: true
+    field :home_grid, :string, virtual: true
 
     timestamps()
   end
@@ -44,18 +44,26 @@ defmodule Hamsat.Accounts.User do
   def registration_changeset(user, attrs, opts \\ []) do
     user
     |> cast(attrs, [:email, :password, :home_lat, :home_lon])
-    |> validate_email()
+    |> validate_email(opts)
     |> validate_password(opts)
     |> validate_home_location()
   end
 
-  defp validate_email(changeset) do
+  defp validate_email(changeset, opts \\ []) do
     changeset
     |> validate_required([:email])
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
     |> validate_length(:email, max: 160)
-    |> unsafe_validate_unique(:email, Hamsat.Repo)
+    |> maybe_validate_email_uniqueness(opts)
     |> unique_constraint(:email)
+  end
+
+  defp maybe_validate_email_uniqueness(changeset, opts) do
+    if opts[:repo] do
+      unsafe_validate_unique(changeset, :email, opts[:repo])
+    else
+      changeset
+    end
   end
 
   defp validate_password(changeset, opts) do

@@ -7,6 +7,7 @@ defmodule Hamsat.Accounts do
   alias Hamsat.Repo
 
   alias Hamsat.Accounts.{User, UserToken, UserNotifier}
+  alias Hamsat.Util
 
   ## Database getters
 
@@ -76,7 +77,7 @@ defmodule Hamsat.Accounts do
   """
   def register_user(attrs) do
     %User{}
-    |> User.registration_changeset(attrs)
+    |> User.registration_changeset(attrs, repo: Hamsat.Repo)
     |> Repo.insert()
   end
 
@@ -90,7 +91,11 @@ defmodule Hamsat.Accounts do
 
   """
   def change_user_registration(%User{} = user, attrs \\ %{}) do
-    User.registration_changeset(user, attrs, hash_password: false)
+    user
+    |> User.registration_changeset(attrs, hash_password: false)
+    |> Util.location_picker_changeset(attrs,
+      fields: %{lat: :home_lat, lon: :home_lon, grid: :home_grid}
+    )
   end
 
   ## Settings

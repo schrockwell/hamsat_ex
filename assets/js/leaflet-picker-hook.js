@@ -40,7 +40,7 @@ export default {
     });
 
     this.handleEvent("set-marker", ({ coord }) => {
-      if (coord) {
+      if (coord && coord.lat && coord.lon) {
         this.marker.setLatLng([coord.lat, coord.lon]);
         this.marker.addTo(this.map);
       } else {
