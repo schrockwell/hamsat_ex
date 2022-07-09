@@ -52,7 +52,7 @@ defmodule Hamsat.Alerts do
         list_pass_infos(context.location, sat, opts)
       end)
     end)
-    |> Task.await_many()
+    |> Task.await_many(30_000)
     |> List.flatten()
     |> Enum.sort_by(& &1.aos.datetime)
     |> convert_pass_infos_to_passes(context.location)
