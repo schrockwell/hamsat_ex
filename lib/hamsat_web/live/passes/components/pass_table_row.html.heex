@@ -13,7 +13,7 @@
     <td class="text-left"><%= pass_los_direction(@pass) %></td>
     <td class="text-center">
     <%= for alert <- @pass.alerts do %>
-        <%= alert.callsign %>
+        <%= link alert.callsign, to: Routes.alerts_path(@socket, :show, alert.id), class: "link" %>
     <% end %>
     </td>
     <td class="text-right pr-6 whitespace-nowrap">
