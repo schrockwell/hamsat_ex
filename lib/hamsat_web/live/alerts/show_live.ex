@@ -66,6 +66,7 @@ defmodule HamsatWeb.Alerts.ShowLive do
     progress = max(min(progress(alert, now), 1.05), -0.05)
 
     progression = Alert.progression(alert, now)
+    events = Alert.events(alert, now)
 
     cursor_class =
       case progression do
@@ -94,11 +95,13 @@ defmodule HamsatWeb.Alerts.ShowLive do
       end
 
     socket
+    |> assign(:now, now)
     |> assign(:cursor_style, "left: #{progress * 100}%")
     |> assign(:cursor_class, cursor_class)
     |> assign(:progression, progression)
     |> assign(:my_sat_position, my_sat_position)
     |> assign(:activator_sat_position, activator_sat_position)
+    |> assign(:events, events)
   end
 
   defp progress(alert, now) do
@@ -119,6 +122,15 @@ defmodule HamsatWeb.Alerts.ShowLive do
 
   defp elevation_class(elevation) when elevation <= 0, do: "text-red-600"
   defp elevation_class(_), do: nil
+
+  defp event_timer(event, now, passed \\ "") do
+    cond do
+      # event.event == :passed and DateTime.event.end_at, now) :lt -> passed
+      DateTime.compare(event.end_at, now) == :lt -> passed
+      DateTime.compare(event.start_at, now) == :gt -> "in #{duration(now, event.start_at)}"
+      true -> "for #{duration(now, event.end_at)}"
+    end
+  end
 
   defp assign_tweet_url(socket) do
     alert = socket.assigns.alert

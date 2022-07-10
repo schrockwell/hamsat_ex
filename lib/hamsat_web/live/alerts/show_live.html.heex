@@ -1,7 +1,10 @@
 <div class="p-6">
     <div class="flex items-start justify-between">
         <div>
-            <h1 class="h1 mb-1"><%= @alert.callsign %> on <%= @alert.sat.name %></h1>
+            <h1 class="h1"><%= @alert.callsign %> on <%= @alert.sat.name %></h1>
+
+            <div class="mb-1 text-lg text-gray-500"><%= date(@context, @alert.aos_at) %></div>
+
             <div class="text-gray-500 text-lg flex space-x-2 mb-1">
                 <div class="bg-gray-200 px-3 py-0.5">
                     <%= Grid.encode!({@alert.observer_lat, @alert.observer_lon}, 6) %>
@@ -11,6 +14,7 @@
                     <%= @alert.mode %>
                 </div>
             </div>
+
             <%= if @alert.comment do %>
                 <div class="text-gray-500 text-lg">
                     “<%= @alert.comment %>”
@@ -30,25 +34,58 @@
         </div>
     </div>
 
-    <div class="flex space-x-2 items-center justify-center mt-6 mb-12 flex-wrap">
-        <div class={progression_class(@progression, :upcoming)}>Upcoming</div>
-        <div class="text-xl">→</div>
-        <%= if @alert.is_workable? do %>
-            <%= if @alert.workable_start_at != @alert.aos_at do %>
-                <div class={progression_class(@progression, :before_workable)}>Before Workable</div>
-                <div class="text-xl">→</div>
-            <% end %>
-            <div class={progression_class(@progression, :workable)}>Workable</div>
-            <div class="text-xl">→</div>
-            <%= if @alert.workable_end_at != @alert.los_at do %>
-                <div class={progression_class(@progression, :after_workable)}>After Workable</div>
-                <div class="text-xl">→</div>
-            <% end %>
-        <% else %>
-            <div class={progression_class(@progression, :in_progress)}>In Progress</div>
-            <div class="text-xl">→</div>
+    <div class="flex space-x-2 items-start justify-center mt-6 mb-12 flex-wrap">
+        <div class="text-center">
+            <div class={progression_class(@progression, :upcoming)}>Upcoming</div>
+            <div class="mt-1"><%= event_timer(@events[:upcoming], @now) %></div>
+        </div>
+
+        <div class="text-xl mt-2">→</div>
+
+        <%= if @events[:in_progress] do %>
+            <div class="text-center">
+                <div class={progression_class(@progression, :in_progress)}>In Progress</div>
+                <div class="mt-1"><%= event_timer(@events[:in_progress], @now) %></div>
+            </div>
+
+            <div class="text-xl mt-2">→</div>
         <% end %>
-        <div class={progression_class(@progression, :passed)}>Passed</div>
+
+        <%= if @events[:before_workable] do %>
+            <div class="text-center">
+                <div class={progression_class(@progression, :before_workable)}>Before Workable</div>
+                <div class="mt-1"><%= event_timer(@events[:before_workable], @now) %></div>
+            </div>
+
+            <div class="text-xl mt-2">→</div>
+        <% end %>
+
+        <%= if @events[:workable] do %>
+            <div class="text-center">
+                <div class={progression_class(@progression, :workable)}>Workable</div>
+                <%= if @progression == :workable do %>
+                    <div class="mt-1 text-emerald-600 font-medium"><%= event_timer(@events[:workable], @now) %></div>
+                <% else %>
+                    <div class="mt-1"><%= event_timer(@events[:workable], @now) %></div>
+                <% end %>
+            </div>
+
+            <div class="text-xl mt-2">→</div>
+        <% end %>
+
+        <%= if @events[:after_workable] do %>
+            <div class="text-center">
+                <div class={progression_class(@progression, :after_workable)}>After Workable</div>
+                <div class="mt-1"><%= event_timer(@events[:after_workable], @now) %></div>
+            </div>
+
+            <div class="text-xl mt-2">→</div>
+        <% end %>
+
+        <div class="text-center">
+            <div class={progression_class(@progression, :passed)}>Passed</div>
+            <div class="mt-1"><%= event_timer(@events[:passed], @now) %></div>
+        </div>
     </div>
 
     <div class="w-full relative h-8 overflow-hidden flex items-center mt-4">

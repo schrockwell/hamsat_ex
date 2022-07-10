@@ -89,6 +89,82 @@ defmodule Hamsat.Schemas.Alert do
     end
   end
 
+  def events(alert, now) do
+    upcoming_event =
+      {:upcoming,
+       %{
+         event: :upcoming,
+         start_at: min_datetime(now, alert.aos_at),
+         end_at: alert.aos_at
+       }}
+
+    passed_event =
+      {:passed,
+       %{
+         event: :passed,
+         start_at: alert.los_at,
+         end_at: alert.los_at
+       }}
+
+    before_workable_event =
+      if alert.is_workable? and alert.workable_start_at != alert.aos_at do
+        {:before_workable,
+         %{
+           event: :before_workable,
+           start_at: alert.aos_at,
+           end_at: alert.workable_start_at
+         }}
+      end
+
+    workable_event =
+      if alert.is_workable? do
+        {:workable,
+         %{
+           event: :workable,
+           start_at: alert.workable_start_at,
+           end_at: alert.workable_end_at
+         }}
+      end
+
+    after_workable_event =
+      if alert.is_workable? and alert.workable_end_at != alert.los_at do
+        {:after_workable,
+         %{
+           event: :after_workable,
+           start_at: alert.workable_end_at,
+           end_at: alert.los_at
+         }}
+      end
+
+    in_progress_event =
+      if not alert.is_workable? do
+        {:in_progress,
+         %{
+           event: :in_progress,
+           start_at: alert.aos_at,
+           end_at: alert.los_at
+         }}
+      end
+
+    [
+      upcoming_event,
+      in_progress_event,
+      before_workable_event,
+      workable_event,
+      after_workable_event,
+      passed_event
+    ]
+    |> Enum.reject(&is_nil/1)
+  end
+
+  defp min_datetime(d1, d2) do
+    if DateTime.compare(d1, d2) == :lt, do: d1, else: d2
+  end
+
+  defp max_datetime(d1, d2) do
+    if DateTime.compare(d1, d2) == :gt, do: d1, else: d2
+  end
+
   defp seconds_until(now, then) do
     Timex.diff(then, now, :second)
   end
