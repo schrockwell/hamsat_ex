@@ -234,28 +234,69 @@ defmodule Hamsat.Alerts do
         pass_aos = Util.erl_to_utc_datetime(pass_info.aos.datetime)
         pass_los = Util.erl_to_utc_datetime(pass_info.los.datetime)
 
+        {my_closest_position, activator_closest_position} = closest_position(alert, coord)
+
         [_, overlap_start] = Enum.sort([alert.aos_at, pass_aos], DateTime)
         [overlap_end, _] = Enum.sort([alert.los_at, pass_los], DateTime)
 
-        %{workable_start_at: overlap_start, workable_end_at: overlap_end, is_workable?: true}
+        %{
+          workable_start_at: overlap_start,
+          workable_end_at: overlap_end,
+          is_workable?: true,
+          my_closest_position: my_closest_position,
+          activator_closest_position: activator_closest_position
+        }
 
       [] ->
         %{is_workable?: false}
     end
+  end
 
-    # visible_at_aos? =
-    #   Satellite.Passes.current_position(satrec, observer, Util.utc_datetime_to_erl(alert.aos_at)).elevation_in_degrees >
-    #     0
+  defp closest_position(alert, coord) do
+    satrec = Sat.get_satrec(alert.sat)
+    obs1 = coord |> Coord.to_observer()
+    obs2 = alert |> Alert.observer_coord() |> Coord.to_observer()
 
-    # visible_at_max? =
-    #   Satellite.Passes.current_position(satrec, observer, Util.utc_datetime_to_erl(alert.max_at)).elevation_in_degrees >
-    #     0
+    iterate_closest_position(satrec, obs1, obs2, alert.aos_at, alert.los_at, :infinity)
+  end
 
-    # visible_at_los? =
-    #   Satellite.Passes.current_position(satrec, observer, Util.utc_datetime_to_erl(alert.los_at)).elevation_in_degrees >
-    #     0
+  defp iterate_closest_position(satrec, obs1, obs2, datetime, los_at, min_range) do
+    erl_datetime = Util.utc_datetime_to_erl(datetime)
 
-    # visible_at_aos? or visible_at_max? or visible_at_los?
+    pos1 =
+      Satellite.Passes.current_position(satrec, obs1, erl_datetime,
+        magnitude?: false,
+        geodetic?: false
+      )
+
+    pos2 =
+      Satellite.Passes.current_position(satrec, obs2, erl_datetime,
+        magnitude?: false,
+        geodetic?: false
+      )
+
+    total_range = pos1.range + pos2.range
+
+    cond do
+      # Alert LOS, so if we made it this far, it's actually the closest approach
+      DateTime.compare(datetime, los_at) == :gt ->
+        {pos1, pos2}
+
+      # New minimum!
+      total_range < min_range or min_range == :infinity ->
+        iterate_closest_position(
+          satrec,
+          obs1,
+          obs2,
+          DateTime.add(datetime, 5),
+          los_at,
+          total_range
+        )
+
+      # The range increased, so we're not longer at the minimum, so we must be done
+      true ->
+        {pos1, pos2}
+    end
   end
 
   def show_create_alert_button?(context, pass, now) do

@@ -174,9 +174,9 @@ defmodule HamsatWeb.Alerts.ShowLive do
       if socket.assigns.context.location,
         do: Grid.encode!(socket.assigns.context.location, 6)
 
-    # SatMatch searches for passes AFTER the specified datetime, so give it a one-minute grace
+    # SatMatch searches for passes AFTER the specified datetime, so give it a grace
     # period to ensure that it finds the desired pass
-    timestamp = socket.assigns.alert.aos_at |> Timex.shift(minutes: -1) |> DateTime.to_iso8601()
+    timestamp = socket.assigns.alert.aos_at |> Timex.shift(minutes: -10) |> DateTime.to_iso8601()
 
     url =
       if obs1 != obs2 and obs2 != nil do

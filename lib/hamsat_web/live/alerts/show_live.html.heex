@@ -118,31 +118,67 @@
         <div class="text-right">Ends<br /><%= time(@context, @alert.los_at) %></div>
     </div>
 
-
     <div class="mt-12">
         <%= if @my_sat_position do %>
-            <div class="flex">
-                <div class="w-1/4 flex flex-col justify-center space-y-12">
-                    <div class="text-center">From My Location (<%= Grid.encode!(@context.location, 6) %>)</div>
-                    <div class="text-center">
-                        <div class="text-3xl"><%= deg(@my_sat_position.azimuth_in_degrees) %> (<%= cardinal_direction(@my_sat_position.azimuth_in_degrees) %>)</div>
-                        <div class="text-gray-500">Azimuth</div>
+            <div class="flex space-x-8">
+                <div class="w-1/4 flex flex-col justify-center">
+                    <div class="text-center mb-8 font-medium border-b pb-2">From My Location (<%= Grid.encode!(@context.location, 6) %>)</div>
+
+                    <div class="text-center mb-2">Currently</div>
+
+                    <div class="flex justify-center space-x-8 mb-12">
+                        <div class="text-center">
+                            <div class="text-3xl"><%= deg(@my_sat_position.azimuth_in_degrees) %> (<%= cardinal_direction(@my_sat_position.azimuth_in_degrees) %>)</div>
+                            <div class="text-gray-500">Azimuth</div>
+                        </div>
+                        <div class="text-center">
+                            <div class={[elevation_class(@my_sat_position.elevation_in_degrees), "text-3xl"]}><%= deg(@my_sat_position.elevation_in_degrees) %></div>
+                            <div class="text-gray-500">Elevation</div>
+                        </div>
                     </div>
-                    <div class="text-center">
-                        <div class={[elevation_class(@my_sat_position.elevation_in_degrees), "text-3xl"]}><%= deg(@my_sat_position.elevation_in_degrees) %></div>
-                        <div class="text-gray-500">Elevation</div>
+
+                    <div class="text-center mb-2">Shortest Path</div>
+
+                    <div class="flex justify-center space-x-8">
+                        <div class="text-center">
+                            <div class="text-3xl"><%= deg(@alert.my_closest_position.azimuth_in_degrees) %> (<%= cardinal_direction(@alert.my_closest_position.azimuth_in_degrees) %>)</div>
+                            <div class="text-gray-500">Azimuth</div>
+                        </div>
+                        <div class="text-center">
+                            <div class={[elevation_class(@alert.my_closest_position.elevation_in_degrees), "text-3xl"]}><%= deg(@alert.my_closest_position.elevation_in_degrees) %></div>
+                            <div class="text-gray-500">Elevation</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="w-1/4 flex flex-col justify-center space-y-12">
-                    <div class="text-center">From <%= @alert.callsign %> Location (<%= Grid.encode!(@alert.observer_lat, @alert.observer_lon, 6) %>)</div>
-                    <div class="text-center">
-                        <div class="text-3xl"><%= deg(@activator_sat_position.azimuth_in_degrees) %> (<%= cardinal_direction(@activator_sat_position.azimuth_in_degrees) %>)</div>
-                        <div class="text-gray-500">Azimuth</div>
+                <div class="w-1/4 flex flex-col justify-center">
+                    <div class="text-center mb-8 font-medium border-b pb-2">From <%= @alert.callsign %> Location (<%= Grid.encode!(@alert.observer_lat, @alert.observer_lon, 6) %>)</div>
+
+                    <div class="text-center mb-2">Currently</div>
+
+                    <div class="flex justify-center space-x-8 mb-12">
+                        <div class="text-center">
+                            <div class="text-3xl"><%= deg(@activator_sat_position.azimuth_in_degrees) %> (<%= cardinal_direction(@activator_sat_position.azimuth_in_degrees) %>)</div>
+                            <div class="text-gray-500">Azimuth</div>
+                        </div>
+
+                        <div class="text-center">
+                            <div class={[elevation_class(@activator_sat_position.elevation_in_degrees), "text-3xl"]}><%= deg(@activator_sat_position.elevation_in_degrees) %></div>
+                            <div class="text-gray-500">Elevation</div>
+                        </div>
                     </div>
-                    <div class="text-center">
-                        <div class={[elevation_class(@activator_sat_position.elevation_in_degrees), "text-3xl"]}><%= deg(@activator_sat_position.elevation_in_degrees) %></div>
-                        <div class="text-gray-500">Elevation</div>
+
+                    <div class="text-center mb-2">Shortest Path</div>
+                    
+                    <div class="flex justify-center space-x-8">
+                        <div class="text-center">
+                            <div class="text-3xl"><%= deg(@alert.activator_closest_position.azimuth_in_degrees) %> (<%= cardinal_direction(@alert.activator_closest_position.azimuth_in_degrees) %>)</div>
+                            <div class="text-gray-500">Azimuth</div>
+                        </div>
+                        <div class="text-center">
+                            <div class={[elevation_class(@alert.activator_closest_position.elevation_in_degrees), "text-3xl"]}><%= deg(@alert.activator_closest_position.elevation_in_degrees) %></div>
+                            <div class="text-gray-500">Elevation</div>
+                        </div>
                     </div>
                 </div>
                 

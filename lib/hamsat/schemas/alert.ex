@@ -23,8 +23,14 @@ defmodule Hamsat.Schemas.Alert do
     field :is_workable?, :boolean, default: false, virtual: true
     field :workable_start_at, :utc_datetime, virtual: true
     field :workable_end_at, :utc_datetime, virtual: true
+    field :my_closest_position, :map, default: nil, virtual: true
+    field :activator_closest_position, :map, default: nil, virtual: true
 
     timestamps()
+  end
+
+  def observer_coord(alert) do
+    %Hamsat.Coord{lat: alert.observer_lat, lon: alert.observer_lon}
   end
 
   def insert_changeset(context, pass, attrs \\ %{}) do
@@ -159,10 +165,6 @@ defmodule Hamsat.Schemas.Alert do
 
   defp min_datetime(d1, d2) do
     if DateTime.compare(d1, d2) == :lt, do: d1, else: d2
-  end
-
-  defp max_datetime(d1, d2) do
-    if DateTime.compare(d1, d2) == :gt, do: d1, else: d2
   end
 
   defp seconds_until(now, then) do
