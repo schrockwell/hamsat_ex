@@ -9,11 +9,16 @@
                 <%= link "Browse", to: Routes.alerts_path(@socket, :index), class: "btn btn-link" %>
             </div>
         </div>
+        
         <.live_component module={AlertsList} id="upcoming-alerts-list" now={@now} context={@context} alerts_filter={@upcoming_alerts_filter}>
             <:empty>
-                <div class="p-6 text-gray-400 italic text-center">No upcoming activations have been posted.</div>
+                <div class="m-6 text-gray-400 italic text-center">No activations in the next 24 hours.</div>
             </:empty>
         </.live_component>
+
+        <%= if @upcoming_alert_count > 0 do %>
+            <%= link "View #{pluralized_count(@upcoming_alert_count, "future activation", "future activations")}", to: Routes.alerts_path(@socket, :index), class: "link block mt-6 mb-2 text-center" %>
+        <% end %>
     </div>
 
     <div class="flex-1">

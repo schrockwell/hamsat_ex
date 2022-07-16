@@ -6,7 +6,6 @@ defmodule HamsatWeb.LocationSetter do
 
   defmodule Form do
     use Ecto.Schema
-    import Ecto.Changeset
 
     @primary_key false
     embedded_schema do

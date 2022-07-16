@@ -164,6 +164,15 @@ defmodule Hamsat.Alerts do
     |> amend_visible_passes(context)
   end
 
+  @doc """
+  Returns an integer count of alerts based on the filter.
+  """
+  def count_alerts(filter \\ []) do
+    filter
+    |> Enum.reduce(Alert, &apply_alert_filter/2)
+    |> Repo.aggregate(:count)
+  end
+
   def get_alert!(context, id) do
     alert =
       Alert

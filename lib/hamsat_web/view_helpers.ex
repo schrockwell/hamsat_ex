@@ -168,9 +168,13 @@ defmodule HamsatWeb.ViewHelpers do
   def grid(_), do: "–"
 
   def pluralized_count([_], singular, _plural), do: "1 #{singular}"
+  def pluralized_count(1, singular, _plural), do: "1 #{singular}"
 
   def pluralized_count(list, _singular, plural) when is_list(list),
     do: "#{length(list)} #{plural}"
+
+  def pluralized_count(count, _singular, plural) when is_integer(count),
+    do: "#{count} #{plural}"
 
   def password_requirements do
     "Password must be between 8 and 72 characters."

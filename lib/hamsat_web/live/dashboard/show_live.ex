@@ -1,6 +1,7 @@
 defmodule HamsatWeb.Dashboard.ShowLive do
   use HamsatWeb, :live_view
 
+  alias Hamsat.Alerts
   alias HamsatWeb.Dashboard.Components.AlertsList
   alias HamsatWeb.Dashboard.Components.PassesList
 
@@ -13,7 +14,8 @@ defmodule HamsatWeb.Dashboard.ShowLive do
      |> assign(:page_title, "Home")
      |> assign_now()
      |> assign_my_alerts_filter()
-     |> assign_upcoming_alerts_filter()}
+     |> assign_upcoming_alerts_filter()
+     |> assign_upcoming_alert_count()}
   end
 
   def handle_info(:set_now, socket) do
@@ -53,6 +55,10 @@ defmodule HamsatWeb.Dashboard.ShowLive do
       after: DateTime.utc_now(),
       user_id: socket.assigns.context.user.id
     )
+  end
+
+  defp assign_upcoming_alert_count(socket) do
+    assign(socket, :upcoming_alert_count, Alerts.count_alerts(date: :upcoming))
   end
 
   defp schedule_reload_alerts do
