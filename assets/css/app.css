@@ -96,8 +96,10 @@ select {
   @apply text-sm mt-1 text-gray-500;
 }
 
-.panel {
-  @apply border rounded-lg shadow-md overflow-hidden;
+@layer components {
+  .panel {
+    @apply border rounded-lg shadow-md overflow-hidden;
+  }
 }
 
 /* LEAFLET CSS */

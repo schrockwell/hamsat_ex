@@ -2,7 +2,7 @@
     <.live_component module={AlertSaver} alert={@alert} context={@context} readonly?={@mine?} id={"alert-saver-#{@alert.id}-#{@id}"} class="px-3 md:px-4" button_class="hover:bg-gray-200" />
 
     <div class="flex-grow py-2 md:py-4">
-        <div class="flex items-start justify-between">
+        <div class="flex items-start justify-between mb-1">
             <div class="text-gray-500 font-medium text-sm">
             <SatComponents.alert_event_description alert={@alert} now={@now} mine?={@mine?} />
             </div>
@@ -11,7 +11,7 @@
             <% end %>
         </div>
         <div class="flex w-full items-center justify-between">
-            <div class="md:text-lg my-1">
+            <div class="md:text-lg">
                 <span class="font-medium">
                     <%= @alert.callsign %> on
                     <%= @alert.sat.name %>
@@ -24,7 +24,7 @@
                 “<%= @alert.comment %>”
             </div>
         <% end %>
-        <div class="text-sm flex space-x-6">
+        <div class="text-sm flex space-x-6 md:mt-1">
             <%= link "Track", to: Routes.alerts_path(@socket, :show, @alert.id), class: "link" %>
 
             <%= if @mine? and Alert.owned?(@alert, @context.user) do %>
@@ -33,7 +33,7 @@
         </div>
     </div>
 
-    <div class="flex flex-col md:flex-row md:space-x-2 space-y-2 md:space-y-0 items-end md:items-center justify-center pr-2 md:pr-4 text-sm md:text-base">
+    <div class="flex flex-col space-y-2 items-end justify-center pr-3 md:pr-4 text-sm md:text-base">
         <div class="bg-gray-200 px-2 font-medium text-gray-600">
             <%= Grid.encode!({@alert.observer_lat, @alert.observer_lon}, 4) %>
         </div>
