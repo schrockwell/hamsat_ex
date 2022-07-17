@@ -88,14 +88,6 @@ select {
   @apply block text-xs uppercase text-gray-500 font-semibold tracking-wider mb-1;
 }
 
-.h1 {
-  @apply text-2xl;
-}
-
-.h2 {
-  @apply text-xl;
-}
-
 .form-error {
   @apply text-sm font-medium text-red-500;
 }

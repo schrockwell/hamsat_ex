@@ -1,7 +1,7 @@
-<div class="p-6">
+<div class="p-3 md:p-6">
     <div class="flex items-start justify-between">
         <div>
-            <h1 class="h1"><%= @alert.callsign %> on <%= @alert.sat.name %></h1>
+            <h1 class="text-h1"><%= @alert.callsign %> on <%= @alert.sat.name %></h1>
 
             <div class="mb-1 text-lg text-gray-500"><%= date(@context, @alert.aos_at) %></div>
 

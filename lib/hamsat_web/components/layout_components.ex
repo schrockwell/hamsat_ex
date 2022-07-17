@@ -4,10 +4,11 @@ defmodule HamsatWeb.LayoutComponents do
   def form_row(%{label: _label} = assigns) do
     extra_class = if assigns[:input?], do: "mt-1", else: ""
 
-    assigns = assign(assigns, :label_class, ["w-48 text-right font-medium", extra_class])
+    assigns =
+      assign(assigns, :label_class, ["w-48 mb-1 md:mb-0 md:text-right font-medium", extra_class])
 
     ~H"""
-    <fieldset class="flex space-x-8">
+    <fieldset class="md:flex md:space-x-8">
       <div class={@label_class}><%= @label %></div>
       <div><%= render_slot @inner_block %></div>
     </fieldset>
