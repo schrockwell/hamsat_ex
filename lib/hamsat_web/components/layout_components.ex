@@ -17,7 +17,7 @@ defmodule HamsatWeb.LayoutComponents do
 
   def filter_panel(assigns) do
     ~H"""
-    <div class="w-full bg-gray-100 px-6 py-4 mx-auto border-b">
+    <div class="w-full bg-gray-100 px-3 py-2 md:px-6 md:py-4 mx-auto border-b">
       <%= render_slot @inner_block %>
     </div>
     """

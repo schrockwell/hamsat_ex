@@ -62,9 +62,8 @@ defmodule HamsatWeb.Dashboard.ShowLive do
       socket,
       :upcoming_alerts,
       Alerts.list_alerts(socket.assigns.context,
-        after: DateTime.utc_now(),
-        before: Timex.shift(DateTime.utc_now(), days: 1),
-        limit: 100
+        date: :upcoming,
+        limit: 25
       )
     )
   end

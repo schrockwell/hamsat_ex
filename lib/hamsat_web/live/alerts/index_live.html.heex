@@ -1,4 +1,7 @@
 <.filter_panel>
+  <h2 class="block md:hidden mb-2 text-h2">
+    Activations
+  </h2>
   <div class="flex space-x-4 items-center">
     <.pill_picker id="interval" options={duration_options()} value={@duration} />
     <%= if @duration == :browse do %>
@@ -9,28 +12,30 @@
   </div>
 </.filter_panel>
 
-<table class="table w-full">
-  <thead>
-    <tr>
-      <th></th>
-      <th class="pl-6">Date (UTC)</th>
-      <th>Time (UTC)</th>
-      <th>Callsign</th>
-      <th>Sat</th>
-      <th>Grid</th>
-      <th>Downlink</th>
-      <th>Mode</th>
-      <th>Comment</th>
-      <th>Workable (UTC)</th>
-      <th>Workable</th>
-      <th></th>
-    </tr>
-  </thead>
+<div class="overflow-x-auto">
+  <table class="table w-full">
+    <thead>
+      <tr>
+        <th></th>
+        <th class="pl-6">Date (UTC)</th>
+        <th>Time (UTC)</th>
+        <th>Callsign</th>
+        <th>Sat</th>
+        <th>Grid</th>
+        <th>Downlink</th>
+        <th>Mode</th>
+        <th>Comment</th>
+        <th>Workable (UTC)</th>
+        <th>Workable</th>
+        <th></th>
+      </tr>
+    </thead>
 
-  <%= for alert <- @alerts do %>
-    <.live_component module={AlertTableRow} id={alert.id} alert={alert} now={@now} context={@context} />
-  <% end %>
-</table>
+    <%= for alert <- @alerts do %>
+      <.live_component module={AlertTableRow} id={alert.id} alert={alert} now={@now} context={@context} />
+    <% end %>
+  </table>
+</div>
 
 <%= if @alerts == [] do %>
   <div class="text-center py-8 italic text-gray-400">
