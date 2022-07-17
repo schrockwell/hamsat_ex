@@ -4,7 +4,10 @@
     <div class="flex-grow py-2 md:py-4">
         <div class="flex items-start justify-between mb-1">
             <div class="text-gray-500 font-medium text-sm">
-            <SatComponents.alert_event_description alert={@alert} now={@now} mine?={@mine?} />
+                <%= unless @mine? do %>
+                    <AlertComponents.match_percentage alert={@alert} />
+                <% end %>
+                <SatComponents.alert_event_description alert={@alert} now={@now} mine?={@mine?} />
             </div>
             <%= if @sat_visible? do %>
                 <div class="uppercase text-xs bg-red-100 text-red-700 px-1.5 py-0.5 font-medium">Visible Now!</div>

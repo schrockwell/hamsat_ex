@@ -367,4 +367,14 @@ defmodule Hamsat.Accounts do
     |> User.alert_preferences_changeset(alert)
     |> Repo.update!()
   end
+
+  def change_user_match_preferences(user, params \\ %{}) do
+    User.match_preferences_changeset(user, params)
+  end
+
+  def update_match_preferences(user, alert) do
+    user
+    |> User.match_preferences_changeset(alert)
+    |> Repo.update()
+  end
 end

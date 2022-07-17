@@ -183,4 +183,14 @@ defmodule HamsatWeb.ViewHelpers do
   def deg(float, decimals \\ 0) do
     :erlang.float_to_binary(float, decimals: decimals) <> "°"
   end
+
+  def pct(number, decimals \\ 0)
+
+  def pct(float, decimals) when is_float(float) do
+    :erlang.float_to_binary(float * 100, decimals: decimals) <> "%"
+  end
+
+  def pct(int, decimals) when is_integer(int) do
+    pct(int / 100, decimals)
+  end
 end

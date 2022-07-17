@@ -50,6 +50,22 @@ defmodule HamsatWeb.UserSettingsController do
     end
   end
 
+  def update(conn, %{"action" => "update_match_preferences", "user" => user_params} = params) do
+    user = conn.assigns.current_user
+
+    case Accounts.update_match_preferences(user, user_params) do
+      {:ok, user} ->
+        conn
+        |> put_flash(:info, "Preferences updated successfully.")
+        |> put_session(:user_return_to, Routes.user_settings_path(conn, :edit))
+        |> UserAuth.log_in_user(user)
+
+      {:error, changeset} ->
+        IO.inspect(changeset)
+        render(conn, "edit.html", match_preferences_changeset: changeset)
+    end
+  end
+
   def confirm_email(conn, %{"token" => token}) do
     case Accounts.update_user_email(conn.assigns.current_user, token) do
       :ok ->
@@ -70,5 +86,6 @@ defmodule HamsatWeb.UserSettingsController do
     conn
     |> assign(:email_changeset, Accounts.change_user_email(user))
     |> assign(:password_changeset, Accounts.change_user_password(user))
+    |> assign(:match_preferences_changeset, Accounts.change_user_match_preferences(user))
   end
 end

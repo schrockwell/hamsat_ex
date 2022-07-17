@@ -2,7 +2,55 @@
   <h1 class="text-h2 md:text-h1 mb-6">Account Settings</h1>
 
   <.form_row label="">
-    <h2 class="h2">Change Email</h2>
+    <h2 class="text-h2">Activation Match Preferences</h2>
+  </.form_row>
+
+  <.form let={f} for={@match_preferences_changeset} action={Routes.user_settings_path(@conn, :update)} id="update_match_preferences">
+    <%= hidden_input f, :action, name: "action", value: "update_match_preferences" %>
+
+    <%= for {label, field} <- [{"My Minimum Elevation", :prefer_my_el}, {"DX Minimum Elevation", :prefer_dx_el}] do %>
+      <.form_row label={label} class="w-full pr-4 md:w-96">
+        <div class="flex space-x-4">
+          <%= range_input f, field, required: true, min: 0, max: 90, class: "w-full mt-1" %>
+          <div class="w-12 text-right">
+            <span data-value-of-range={"update_match_preferences_#{field}"}>0</span>°
+          </div>
+        </div>
+      </.form_row>
+    <% end %>
+
+    <.form_row label="" class="mb-4">
+      <p class="text-sm text-gray-500 md:w-96">
+        At the moment of closest approach between the two stations, prefer that the satellite is above these elevations. Below
+        these elevations, the match score is reduced.
+      </p>
+    </.form_row>
+
+    <%= for {label, field} <- [{"SSB", :prefer_ssb_mode}, {"CW", :prefer_cw_mode}, {"Data", :prefer_data_mode}, {"FM", :prefer_fm_mode}] do %>
+      <.form_row label={label} class="w-full pr-4 md:w-96">
+        <div class="flex space-x-4">
+          <%= range_input f, field, required: true, min: 0, max: 100, class: "w-full mt-1" %>
+          <div class="w-12 text-right">
+            <span data-value-of-range={"update_match_preferences_#{field}"}>0</span>%
+          </div>
+        </div>
+      </.form_row>
+    <% end %>
+
+    <.form_row label="">
+      <p class="text-sm text-gray-500 md:w-96">
+        Prefer activations with certain modes of operation. The match score is reduced relative to the other mode preferences.
+      </p>
+    </.form_row>
+    
+
+    <.form_row label="">
+      <%= submit "Save Preferences", class: "btn btn-default" %>
+    </.form_row>
+  </.form>
+
+  <.form_row label="">
+    <h2 class="text-h2 mt-12">Change Email</h2>
   </.form_row>
 
   <.form let={f} for={@email_changeset} action={Routes.user_settings_path(@conn, :update)} id="update_email">
@@ -30,7 +78,7 @@
   </.form>
 
   <.form_row label="">
-    <h2 class="h2 mt-12">Change Password</h2>
+    <h2 class="text-h2 mt-12">Change Password</h2>
   </.form_row>
 
   <.form let={f} for={@password_changeset} action={Routes.user_settings_path(@conn, :update)} id="update_password">

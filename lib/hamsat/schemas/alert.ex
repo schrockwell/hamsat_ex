@@ -31,6 +31,8 @@ defmodule Hamsat.Schemas.Alert do
     field :saved_count, :integer, default: nil, virtual: true
     field :saved?, :boolean, default: false, virtual: true
 
+    field :match, :map, default: nil, virtual: true
+
     timestamps()
   end
 

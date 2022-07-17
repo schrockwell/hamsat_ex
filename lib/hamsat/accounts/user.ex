@@ -15,6 +15,12 @@ defmodule Hamsat.Accounts.User do
     field :home_lon, :float
     field :latest_callsign, :string
     field :latest_modes, {:array, :string}
+    field :prefer_ssb_mode, :integer
+    field :prefer_data_mode, :integer
+    field :prefer_cw_mode, :integer
+    field :prefer_fm_mode, :integer
+    field :prefer_dx_el, :integer
+    field :prefer_my_el, :integer
 
     has_many :alerts, Hamsat.Schemas.Alert
     has_many :saved_alerts, Hamsat.Schemas.SavedAlert
@@ -181,5 +187,35 @@ defmodule Hamsat.Accounts.User do
     user
     |> change(latest_callsign: alert.callsign, latest_modes: new_latest_modes)
     |> format_callsign(:latest_callsign)
+  end
+
+  def match_preferences_changeset(user, params \\ %{}) do
+    user
+    |> cast(params, [
+      :prefer_cw_mode,
+      :prefer_ssb_mode,
+      :prefer_data_mode,
+      :prefer_fm_mode,
+      :prefer_dx_el,
+      :prefer_my_el
+    ])
+    |> validate_percentage(:prefer_cw_mode)
+    |> validate_percentage(:prefer_ssb_mode)
+    |> validate_percentage(:prefer_data_mode)
+    |> validate_percentage(:prefer_fm_mode)
+    |> validate_elevation(:prefer_dx_el)
+    |> validate_elevation(:prefer_my_el)
+  end
+
+  defp validate_percentage(changeset, field) do
+    changeset
+    |> validate_number(field, greater_than_or_equal_to: 0)
+    |> validate_number(field, less_than_or_equal_to: 100)
+  end
+
+  defp validate_elevation(changeset, field) do
+    changeset
+    |> validate_number(field, greater_than_or_equal_to: 0)
+    |> validate_number(field, less_than_or_equal_to: 90)
   end
 end

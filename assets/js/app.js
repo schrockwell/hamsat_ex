@@ -45,8 +45,8 @@ topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" });
 window.addEventListener("phx:page-loading-start", (info) => topbar.show());
 window.addEventListener("phx:page-loading-stop", (info) => topbar.hide());
 
-// data-toggle="some-other-id"
 window.addEventListener("DOMContentLoaded", (event) => {
+  // data-toggle="some-other-id"
   document.querySelectorAll("[data-toggle]").forEach((el) => {
     const targetEl = document.querySelector("#" + el.dataset.toggle);
     el.addEventListener("click", () => {
@@ -56,6 +56,15 @@ window.addEventListener("DOMContentLoaded", (event) => {
         targetEl.classList.add("hidden");
       }
     });
+  });
+
+  // data-value-of-range="id"
+  document.querySelectorAll("[data-value-of-range]").forEach((el) => {
+    const rangeEl = document.querySelector("#" + el.dataset.valueOfRange);
+    rangeEl.addEventListener("input", () => {
+      el.innerHTML = rangeEl.value;
+    });
+    el.innerHTML = rangeEl.value;
   });
 });
 

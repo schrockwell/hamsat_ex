@@ -2,6 +2,7 @@ defmodule Hamsat.Alerts do
   use Hamsat, :repo
 
   alias Hamsat.Accounts
+  alias Hamsat.Alerts.Match
   alias Hamsat.Alerts.Pass
   alias Hamsat.Alerts.PassCache
   alias Hamsat.Context
@@ -163,6 +164,7 @@ defmodule Hamsat.Alerts do
     |> Repo.all()
     |> Repo.preload([:sat])
     |> amend_visible_passes(context)
+    |> amend_matches(context)
     |> preload_saved_fields(context)
   end
 
@@ -181,7 +183,11 @@ defmodule Hamsat.Alerts do
       |> Repo.get!(id)
       |> Repo.preload(:sat)
 
-    [alert] = amend_visible_passes([alert], context)
+    [alert] =
+      [alert]
+      |> amend_visible_passes(context)
+      |> amend_matches(context)
+
     alert
   end
 
@@ -424,5 +430,9 @@ defmodule Hamsat.Alerts do
       alert ->
         alert
     end)
+  end
+
+  defp amend_matches(alerts, context) do
+    for alert <- alerts, do: Match.amend_alert(alert, context)
   end
 end

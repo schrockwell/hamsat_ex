@@ -1,5 +1,5 @@
 <div class="p-3 md:p-6">
-    <div class="flex flex-col md:flex-row items-start justify-between">
+    <div class="flex flex-col md:flex-row items-start justify-between md:space-x-4">
         <div>
             <h1 class="text-h1"><%= @alert.callsign %> on <%= @alert.sat.name %></h1>
 
@@ -21,6 +21,32 @@
                 </div>
             <% end %>
         </div>
+
+
+        <%= if @alert.match do %>
+            <div class="my-6 md:my-0">
+                <h2 class="text-h2 mb-1">Match Scoring</h2>
+                <table>
+                    <tr>
+                        <th class="font-medium text-left pr-2">My Elevation</th>
+                        <td class="text-right"><%= pct(@alert.match.my_el) %></td>
+                    </tr>
+                    <tr>
+                        <th class="font-medium text-left pr-2"><%= @alert.callsign %> Elevation</th>
+                        <td class="text-right"><%= pct(@alert.match.my_el) %></td>
+                    </tr>
+                    <tr>
+                        <th class="font-medium text-left pr-2">Mode</th>
+                        <td class="text-right"><%= pct(@alert.match.mode) %></td>
+                    </tr>
+                    <tr>
+                        <th class="font-medium text-left pr-2">Combined</th>
+                        <td class="text-right"><%= pct(@alert.match.total) %></td>
+                    </tr>
+                </table>
+            </div>
+        <% end %>
+
         <div class="flex items-center space-x-2 md:space-x-4 my-2 md:my-0">
             <a href={@satmatch_url} class="btn btn-link" target="_blank">
                 <span class="hidden md:inline">View on</span>

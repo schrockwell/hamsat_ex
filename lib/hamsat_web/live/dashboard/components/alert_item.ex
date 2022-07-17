@@ -3,6 +3,7 @@ defmodule HamsatWeb.Dashboard.Components.AlertItem do
 
   alias Hamsat.Grid
   alias Hamsat.Schemas.Alert
+  alias HamsatWeb.AlertComponents
   alias HamsatWeb.SatComponents
   alias HamsatWeb.LiveComponents.AlertSaver
 
