@@ -22,7 +22,7 @@ defmodule HamsatWeb.LocationPicker do
     {:ok, socket}
   end
 
-  def handle_event("map-clicked", %{"lat" => lat, "lon" => lon} = params, socket) do
+  def handle_event("map-clicked", %{"lat" => lat, "lon" => lon}, socket) do
     case socket.assigns[:target] do
       :self -> send(self(), {__MODULE__, :map_clicked, {lat, lon}})
       {module, id} -> send_update(module, id: id, __map_clicked__: {lat, lon})

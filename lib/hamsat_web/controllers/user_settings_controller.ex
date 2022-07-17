@@ -50,7 +50,7 @@ defmodule HamsatWeb.UserSettingsController do
     end
   end
 
-  def update(conn, %{"action" => "update_match_preferences", "user" => user_params} = params) do
+  def update(conn, %{"action" => "update_match_preferences", "user" => user_params}) do
     user = conn.assigns.current_user
 
     case Accounts.update_match_preferences(user, user_params) do
