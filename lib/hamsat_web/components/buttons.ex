@@ -7,7 +7,7 @@ defmodule HamsatWeb.Buttons do
       |> Map.take([:to, :method])
       |> Map.put(:class, [
         nav_pill_button_class(assigns),
-        "px-4 py-2 rounded hover:bg-gray-500 transition-all"
+        "px-2 py-2 inline-block md:px-4 md:py-2 rounded hover:bg-gray-500 transition-all"
       ])
       |> Map.to_list()
 

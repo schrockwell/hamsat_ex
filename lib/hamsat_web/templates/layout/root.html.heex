@@ -10,23 +10,48 @@
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
   </head>
   <body class="text-gray-900 bg-gray-200">
-    <div class="mt-4 mx-4 px-6 py-2 flex items-center justify-between rounded-t-xl bg-gray-700 text-white shadow-md">
+    <div class="md:mt-4 md:mx-4 md:px-6 md:py-2 px-3 py-1 flex items-center justify-between md:rounded-t-xl bg-gray-700 text-white shadow-md">
       <div class="flex items-center">
-        <div class="text-lg font-medium mr-8">
+        <%= link to: Routes.dashboard_path(@conn, :show), class: "text-lg font-medium md:mr-8" do %>
           Hams.at
-          <span class="uppercase rounded bg-orange-600 text-white text-sm px-2 py-1 ml-1 font-semibold">Beta</span>
+          <span class="hidden md:inline uppercase rounded bg-orange-600 text-white text-sm px-2 py-1 ml-1 font-semibold">Beta</span>
+        <% end %>
+
+        <div class="hidden md:flex items-center">
+          <.nav_pill_button to={Routes.alerts_path(@conn, :index)} conn={@conn} active={~r/^(\/alerts)/}>Activations</.nav_pill_button>
+          <.nav_pill_button to={Routes.passes_path(@conn, :index)} conn={@conn} active={~r/^\/passes/}>Passes</.nav_pill_button>
+          <.nav_pill_button to={Routes.location_path(@conn, :edit)} conn={@conn} active={~r/^\/location/}>
+            <.location_nav_button_text context={@context} />
+          </.nav_pill_button>
         </div>
-        <.nav_pill_button to={Routes.dashboard_path(@conn, :show)} conn={@conn} active={~r/^(\/$)/}>Home</.nav_pill_button>
-        <.nav_pill_button to={Routes.alerts_path(@conn, :index)} conn={@conn} active={~r/^(\/alerts)/}>Activations</.nav_pill_button>
-        <.nav_pill_button to={Routes.passes_path(@conn, :index)} conn={@conn} active={~r/^\/passes/}>Passes</.nav_pill_button>
+      </div>
+      
+      <div class="hidden md:flex items-center">
+        <%= if @current_user do %>
+          <.nav_pill_button to={Routes.user_settings_path(@conn, :edit)} conn={@conn} active={~r/^\/users\/settings/}>
+            <Heroicons.LiveView.icon name="cog" type="solid" class="h-6 w-6" />
+          </.nav_pill_button>
+          <.nav_pill_button to={Routes.user_session_path(@conn, :delete)} conn={@conn} method={:delete}>Log Out</.nav_pill_button>
+        <% else %>
+          <.nav_pill_button to={Routes.user_registration_path(@conn, :new)} conn={@conn} active={~r/^\/users\/register/}>Register</.nav_pill_button>
+          <.nav_pill_button to={Routes.user_session_path(@conn, :new)} conn={@conn} active={~r/^\/users\/log_in/}>Log In</.nav_pill_button>
+        <% end %>
+      </div>
+
+      <div class="md:hidden flex items-center">
+        <.nav_pill_button to={Routes.alerts_path(@conn, :index)} conn={@conn} active={~r/^(\/alerts)/}>
+          <Heroicons.LiveView.icon name="calendar" type="outline" class="h-6 w-6" />
+        </.nav_pill_button>
+        <.nav_pill_button to={Routes.passes_path(@conn, :index)} conn={@conn} active={~r/^\/passes/}>
+          <Heroicons.LiveView.icon name="table" type="outline" class="h-6 w-6" />
+        </.nav_pill_button>
         <.nav_pill_button to={Routes.location_path(@conn, :edit)} conn={@conn} active={~r/^\/location/}>
-          <%= location_nav_button_text(@context) %>
+          <.location_nav_button_text context={@context} />
         </.nav_pill_button>
       </div>
-      <%= render "_user_menu.html", assigns %>
     </div>
 
-    <div class="mx-4 bg-white shadow-md rounded-b-xl mb-4 overflow-hidden">
+    <div class="md:mx-4 bg-white shadow-md md:rounded-b-xl mb-4 overflow-hidden">
       <%= @inner_content %>
     </div>
 
