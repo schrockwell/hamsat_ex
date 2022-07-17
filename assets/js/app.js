@@ -45,6 +45,20 @@ topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" });
 window.addEventListener("phx:page-loading-start", (info) => topbar.show());
 window.addEventListener("phx:page-loading-stop", (info) => topbar.hide());
 
+// data-toggle="some-other-id"
+window.addEventListener("DOMContentLoaded", (event) => {
+  document.querySelectorAll("[data-toggle]").forEach((el) => {
+    const targetEl = document.querySelector("#" + el.dataset.toggle);
+    el.addEventListener("click", () => {
+      if (targetEl.classList.contains("hidden")) {
+        targetEl.classList.remove("hidden");
+      } else {
+        targetEl.classList.add("hidden");
+      }
+    });
+  });
+});
+
 // connect if there are any LiveViews on the page
 liveSocket.connect();
 

@@ -44,6 +44,10 @@ a.link:hover {
   @apply text-sky-600;
 }
 
+.btn-nav {
+  @apply px-2 py-2 inline-block md:px-4 md:py-2 rounded hover:bg-gray-500 transition-all;
+}
+
 .btn-link:hover {
   @apply text-sky-700;
 }

@@ -48,6 +48,29 @@
         <.nav_pill_button to={Routes.location_path(@conn, :edit)} conn={@conn} active={~r/^\/location/}>
           <.location_nav_button_text context={@context} />
         </.nav_pill_button>
+
+        <button class="btn-nav" data-toggle="mobile-nav-extras">
+          <Heroicons.LiveView.icon name="user" type="solid" class="h-6 w-6" />
+        </button>
+      </div>
+    </div>
+
+    <div id="mobile-nav-extras" class="p-3 hidden md:hidden bg-gray-800 text-white font-medium">
+      <div class="flex justify-between items-start">
+        <div>
+          <%= if @current_user do %>
+            <%= link "Settings", to: Routes.user_settings_path(@conn, :edit), class: "block py-2" %>
+            <%= link "Log Out", to: Routes.user_session_path(@conn, :delete), class: "block py-2", method: :delete %>
+          <% else %>
+            <%= link "Register", to: Routes.user_registration_path(@conn, :new), class: "block py-2" %>
+            <%= link "Sign In", to: Routes.user_session_path(@conn, :new), class: "block py-2" %>
+          <% end %>
+        </div>
+        <div>
+          <button data-toggle="mobile-nav-extras">
+            <Heroicons.LiveView.icon name="x" type="solid" class="h-6 w-6 text-gray-400 m-2" />
+          </button>
+        </div>
       </div>
     </div>
 

@@ -5,10 +5,7 @@ defmodule HamsatWeb.Buttons do
     link_opts =
       assigns
       |> Map.take([:to, :method])
-      |> Map.put(:class, [
-        nav_pill_button_class(assigns),
-        "px-2 py-2 inline-block md:px-4 md:py-2 rounded hover:bg-gray-500 transition-all"
-      ])
+      |> Map.put(:class, [nav_pill_button_class(assigns), "btn-nav"])
       |> Map.to_list()
 
     assigns = assign(assigns, :link_opts, link_opts)
