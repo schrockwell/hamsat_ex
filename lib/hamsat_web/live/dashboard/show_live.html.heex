@@ -10,7 +10,7 @@
             </div>
         </div>
         
-        <.live_component module={AlertsList} id="upcoming-alerts-list" now={@now} context={@context} alerts_filter={@upcoming_alerts_filter}>
+        <.live_component module={AlertsList} id="upcoming-alerts-list" now={@now} context={@context} alerts={@upcoming_alerts}>
             <:empty>
                 <div class="m-6 text-gray-400 italic text-center">No activations in the next 24 hours.</div>
             </:empty>
@@ -31,8 +31,8 @@
                 <%= link "Post an Activation", to: Routes.passes_path(@socket, :index), class: "btn btn-link" %>
             </div>
         </div>
-        <%= if @my_alerts_filter do %>
-            <.live_component module={AlertsList} id="my-alerts-list" now={@now} context={@context} alerts_filter={@my_alerts_filter} mine?={true}>
+        <%= if @my_alerts do %>
+            <.live_component module={AlertsList} id="my-alerts-list" now={@now} context={@context} alerts={@my_alerts} mine?={true}>
                 <:empty>
                     <div class="p-6 text-gray-400 italic text-center">You haven't posted any upcoming activations.</div>
                 </:empty>

@@ -1,40 +1,43 @@
-<div class="border-b last:border-0 p-4">
-    <div class="flex items-start justify-between">
-        <div class="text-gray-500 font-medium text-sm mb-1">
-        <SatComponents.alert_event_description alert={@alert} now={@now} mine?={@mine?} />
+<div class="border-b last:border-0 flex items-stretch space-x-1">
+    <.live_component module={AlertSaver} alert={@alert} context={@context} readonly?={@mine?} id={"alert-saver-#{@alert.id}-#{@id}"} class="px-4" button_class="hover:bg-gray-200" />
+    <div class="flex-grow p-4 pl-0">
+        <div class="flex items-start justify-between">
+            <div class="text-gray-500 font-medium text-sm mb-1">
+            <SatComponents.alert_event_description alert={@alert} now={@now} mine?={@mine?} />
+            </div>
+            <%= if @sat_visible? do %>
+                <div class="uppercase text-xs bg-red-100 text-red-700 px-1.5 py-0.5 font-medium">Visible Now!</div>
+            <% end %>
         </div>
-        <%= if @sat_visible? do %>
-            <div class="uppercase text-xs bg-red-100 text-red-700 px-1.5 py-0.5 font-medium">Visible Now!</div>
+        <div class="flex w-full items-center justify-between">
+            <div class="text-lg">
+                <span class="font-medium">
+                    <%= @alert.callsign %> on
+                    <%= @alert.sat.name %>
+                </span>
+                <SatComponents.sat_modulation_label sat={@alert.sat} />
+            </div>
+            <div class="flex space-x-2">
+                <div class="bg-gray-200 px-2 font-medium text-gray-600">
+                    <%= Grid.encode!({@alert.observer_lat, @alert.observer_lon}, 4) %>
+                </div>
+                <div class="bg-gray-200 px-2 font-medium text-gray-600">
+                    <%= mhz(@alert.downlink_mhz, 3, "") %>
+                    <%= @alert.mode %>
+                </div>
+            </div>
+        </div>
+        <%= if @alert.comment do %>
+            <div class="italic text-gray-500">
+                “<%= @alert.comment %>”
+            </div>
         <% end %>
-    </div>
-    <div class="flex w-full items-center justify-between">
-        <div class="text-lg">
-            <span class="font-medium">
-                <%= @alert.callsign %> on
-                <%= @alert.sat.name %>
-            </span>
-            <SatComponents.sat_modulation_label sat={@alert.sat} />
-        </div>
-        <div class="flex space-x-2">
-            <div class="bg-gray-200 px-2 font-medium text-gray-600">
-                <%= Grid.encode!({@alert.observer_lat, @alert.observer_lon}, 4) %>
-            </div>
-            <div class="bg-gray-200 px-2 font-medium text-gray-600">
-                <%= mhz(@alert.downlink_mhz, 3, "") %>
-                <%= @alert.mode %>
-            </div>
-        </div>
-    </div>
-    <%= if @alert.comment do %>
-        <div class="italic text-gray-500">
-            “<%= @alert.comment %>”
-        </div>
-    <% end %>
-    <div class="text-sm flex space-x-6">
-        <%= link "Track", to: Routes.alerts_path(@socket, :show, @alert.id), class: "link" %>
+        <div class="text-sm flex space-x-6">
+            <%= link "Track", to: Routes.alerts_path(@socket, :show, @alert.id), class: "link" %>
 
-        <%= if @mine? and Alert.owned?(@alert, @context.user) do %>
-            <%= link "Edit Activation", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "link" %>
-        <% end %>
+            <%= if @mine? and Alert.owned?(@alert, @context.user) do %>
+                <%= link "Edit Activation", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "link" %>
+            <% end %>
+        </div>
     </div>
 </div>

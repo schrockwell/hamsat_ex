@@ -8,6 +8,7 @@ defmodule Hamsat.Alerts do
   alias Hamsat.Coord
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.Sat
+  alias Hamsat.Schemas.SavedAlert
   alias Hamsat.Util
 
   def get_pass_by_hash(context, hash) do
@@ -162,6 +163,7 @@ defmodule Hamsat.Alerts do
     |> Repo.all()
     |> Repo.preload([:sat])
     |> amend_visible_passes(context)
+    |> preload_saved_fields(context)
   end
 
   @doc """
@@ -326,4 +328,101 @@ defmodule Hamsat.Alerts do
   end
 
   defdelegate mode_options(sat), to: Hamsat.Schemas.Alert
+
+  def save_alert(context, alert) do
+    context.user
+    |> SavedAlert.changeset(alert)
+    |> Repo.insert()
+
+    alert
+    |> preload_saved_fields(context)
+    |> Hamsat.PubSub.broadcast_alert_saved(context.user)
+  end
+
+  def unsave_alert(context, alert) do
+    Repo.delete_all(
+      from sa in SavedAlert,
+        where: sa.user_id == ^context.user.id,
+        where: sa.alert_id == ^alert.id
+    )
+
+    alert
+    |> preload_saved_fields(context)
+    |> Hamsat.PubSub.broadcast_alert_unsaved(context.user)
+  end
+
+  defp preload_saved_fields(%Alert{} = alert, context) do
+    [alert] = preload_saved_fields([alert], context)
+    alert
+  end
+
+  defp preload_saved_fields(alerts, context) when is_list(alerts) do
+    alert_ids = Enum.map(alerts, & &1.id)
+
+    counts =
+      Repo.all(
+        from sa in SavedAlert,
+          where: sa.alert_id in ^alert_ids,
+          select: {sa.alert_id, count(sa.id)},
+          group_by: sa.alert_id
+      )
+      |> Map.new()
+
+    my_saved_ids =
+      if context.user == :guest do
+        MapSet.new()
+      else
+        Repo.all(
+          from sa in SavedAlert,
+            where: sa.alert_id in ^alert_ids,
+            where: sa.user_id == ^context.user.id,
+            select: sa.alert_id
+        )
+        |> MapSet.new()
+      end
+
+    for alert <- alerts do
+      %{
+        alert
+        | saved_count: Map.get(counts, alert.id, 0),
+          saved?: MapSet.member?(my_saved_ids, alert.id)
+      }
+    end
+  end
+
+  def patch_alerts(
+        alerts,
+        context,
+        {:alert_saved, %{alert_id: alert_id, user_id: user_id, saved_count: saved_count}}
+      ) do
+    context_user_id = if context.user == :guest, do: nil, else: context.user.id
+
+    Enum.map(alerts, fn
+      %{id: ^alert_id} = alert ->
+        %{alert | saved_count: saved_count, saved?: user_id == context_user_id}
+
+      alert ->
+        alert
+    end)
+  end
+
+  def patch_alerts(
+        alerts,
+        context,
+        {:alert_unsaved, %{alert_id: alert_id, user_id: user_id, saved_count: saved_count}}
+      ) do
+    context_user_id = if context.user == :guest, do: nil, else: context.user.id
+
+    Enum.map(alerts, fn
+      %{id: ^alert_id} = alert ->
+        %{
+          alert
+          | saved_count: saved_count,
+            saved?: user_id != context_user_id
+        }
+
+      alert ->
+        alert
+    end)
+  end
 end

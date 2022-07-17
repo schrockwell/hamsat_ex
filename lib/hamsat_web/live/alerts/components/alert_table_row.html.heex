@@ -1,4 +1,7 @@
 <tr class={@class}>
+    <td class="text-center pl-6">
+        <.live_component module={AlertSaver} alert={@alert} context={@context} id={"alert-saver-#{@alert.id}"} class="inline-flex" button_class="rounded bg-gray-200 hover:bg-gray-300 font-medium px-2" />
+    </td>
     <td class="text-center pl-6"><%= date(@context, @alert.aos_at) %></td>
     <td class="text-center"><%= time(@context, @alert.aos_at) %> &ndash; <%= time(@context, @alert.los_at) %></td>
     <td class="text-center"><%= @alert.callsign %></td>

@@ -9,6 +9,10 @@ defmodule HamsatWeb.Alerts.IndexLive do
   def mount(_params, _session, socket) do
     Process.send_after(self(), :set_now, 1_000)
 
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(Hamsat.PubSub, "alerts")
+    end
+
     {:ok,
      socket
      |> assign(:page_title, "Activations")
@@ -57,6 +61,16 @@ defmodule HamsatWeb.Alerts.IndexLive do
   def handle_info(:set_now, socket) do
     Process.send_after(self(), :set_now, 1_000)
     {:noreply, assign(socket, :now, DateTime.utc_now())}
+  end
+
+  def handle_info({event, _info} = message, socket)
+      when event in [:alert_saved, :alert_unsaved] do
+    {:noreply,
+     assign(
+       socket,
+       :alerts,
+       Alerts.patch_alerts(socket.assigns.alerts, socket.assigns.context, message)
+     )}
   end
 
   defp duration_options do

@@ -4,11 +4,13 @@ defmodule Hamsat.Schemas.Alert do
   import Hamsat.Changeset
 
   alias Hamsat.Schemas.Sat
+  alias Hamsat.Schemas.SavedAlert
   alias Hamsat.Accounts.User
 
   schema "alerts" do
     belongs_to :sat, Sat, foreign_key: :satellite_id
     belongs_to :user, User
+    has_many :saved_alerts, SavedAlert
 
     field :aos_at, :utc_datetime
     field :max_at, :utc_datetime
@@ -25,6 +27,9 @@ defmodule Hamsat.Schemas.Alert do
     field :workable_end_at, :utc_datetime, virtual: true
     field :my_closest_position, :map, default: nil, virtual: true
     field :activator_closest_position, :map, default: nil, virtual: true
+
+    field :saved_count, :integer, default: nil, virtual: true
+    field :saved?, :boolean, default: false, virtual: true
 
     timestamps()
   end

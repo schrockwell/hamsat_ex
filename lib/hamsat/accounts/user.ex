@@ -17,6 +17,7 @@ defmodule Hamsat.Accounts.User do
     field :latest_modes, {:array, :string}
 
     has_many :alerts, Hamsat.Schemas.Alert
+    has_many :saved_alerts, Hamsat.Schemas.SavedAlert
 
     # Needed for the LocationPicker on the user registration form
     field :home_grid, :string, virtual: true

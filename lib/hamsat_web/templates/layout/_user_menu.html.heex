@@ -1,6 +1,8 @@
 <div class="flex items-center">
   <%= if @current_user do %>
-    <.nav_pill_button to={Routes.user_settings_path(@conn, :edit)} conn={@conn} active={~r/^\/users\/settings/}>Settings</.nav_pill_button>
+    <.nav_pill_button to={Routes.user_settings_path(@conn, :edit)} conn={@conn} active={~r/^\/users\/settings/}>
+      <Heroicons.LiveView.icon name="cog" type="solid" class="h-6 w-6" />
+    </.nav_pill_button>
     <.nav_pill_button to={Routes.user_session_path(@conn, :delete)} conn={@conn} method={:delete}>Log Out</.nav_pill_button>
   <% else %>
     <.nav_pill_button to={Routes.user_registration_path(@conn, :new)} conn={@conn} active={~r/^\/users\/register/}>Register</.nav_pill_button>

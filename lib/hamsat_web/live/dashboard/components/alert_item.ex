@@ -4,6 +4,7 @@ defmodule HamsatWeb.Dashboard.Components.AlertItem do
   alias Hamsat.Grid
   alias Hamsat.Schemas.Alert
   alias HamsatWeb.SatComponents
+  alias HamsatWeb.LiveComponents.AlertSaver
 
   def update(assigns, socket) do
     socket =

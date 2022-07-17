@@ -3,7 +3,6 @@ defmodule HamsatWeb.UserRegistration.NewLive do
 
   alias Hamsat.Accounts
   alias Hamsat.Accounts.User
-  alias Hamsat.Coord
 
   alias HamsatWeb.LocationPicker
   alias HamsatWeb.UserAuth

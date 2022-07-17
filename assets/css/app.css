@@ -101,7 +101,7 @@ select {
 }
 
 .panel {
-  @apply border rounded-lg shadow-md;
+  @apply border rounded-lg shadow-md overflow-hidden;
 }
 
 /* LEAFLET CSS */
