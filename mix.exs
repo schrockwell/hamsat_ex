@@ -20,7 +20,7 @@ defmodule Hamsat.MixProject do
   def application do
     [
       mod: {Hamsat.Application, []},
-      extra_applications: [:logger, :runtime_tools, :inets]
+      extra_applications: [:logger, :runtime_tools, :inets, :os_mon]
     ]
   end
 
