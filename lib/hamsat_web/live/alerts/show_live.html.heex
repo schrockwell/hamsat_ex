@@ -167,18 +167,20 @@
                         </div>
                     </div>
 
-                    <div class="text-center mb-2">Shortest Path</div>
+                    <%= if @alert.my_closest_position do %>
+                        <div class="text-center mb-2">Shortest Path</div>
 
-                    <div class="flex justify-center space-x-8">
-                        <div class="text-center">
-                            <div class="text-xl md:text-3xl"><%= deg(@alert.my_closest_position.azimuth_in_degrees) %> (<%= cardinal_direction(@alert.my_closest_position.azimuth_in_degrees) %>)</div>
-                            <div class="text-gray-500">Azimuth</div>
+                        <div class="flex justify-center space-x-8">
+                            <div class="text-center">
+                                <div class="text-xl md:text-3xl"><%= deg(@alert.my_closest_position.azimuth_in_degrees) %> (<%= cardinal_direction(@alert.my_closest_position.azimuth_in_degrees) %>)</div>
+                                <div class="text-gray-500">Azimuth</div>
+                            </div>
+                            <div class="text-center">
+                                <div class={[elevation_class(@alert.my_closest_position.elevation_in_degrees), "text-xl md:text-3xl"]}><%= deg(@alert.my_closest_position.elevation_in_degrees) %></div>
+                                <div class="text-gray-500">Elevation</div>
+                            </div>
                         </div>
-                        <div class="text-center">
-                            <div class={[elevation_class(@alert.my_closest_position.elevation_in_degrees), "text-xl md:text-3xl"]}><%= deg(@alert.my_closest_position.elevation_in_degrees) %></div>
-                            <div class="text-gray-500">Elevation</div>
-                        </div>
-                    </div>
+                    <% end %>
                 </div>
 
                 <div class="md:w-1/4 flex flex-col justify-center mt-6 md:mt-0">
@@ -198,18 +200,20 @@
                         </div>
                     </div>
 
-                    <div class="text-center mb-2">Shortest Path</div>
-                    
-                    <div class="flex justify-center space-x-8">
-                        <div class="text-center">
-                            <div class="text-xl md:text-3xl"><%= deg(@alert.activator_closest_position.azimuth_in_degrees) %> (<%= cardinal_direction(@alert.activator_closest_position.azimuth_in_degrees) %>)</div>
-                            <div class="text-gray-500">Azimuth</div>
+                    <%= if @alert.activator_closest_position do %>
+                        <div class="text-center mb-2">Shortest Path</div>
+                        
+                        <div class="flex justify-center space-x-8">
+                            <div class="text-center">
+                                <div class="text-xl md:text-3xl"><%= deg(@alert.activator_closest_position.azimuth_in_degrees) %> (<%= cardinal_direction(@alert.activator_closest_position.azimuth_in_degrees) %>)</div>
+                                <div class="text-gray-500">Azimuth</div>
+                            </div>
+                            <div class="text-center">
+                                <div class={[elevation_class(@alert.activator_closest_position.elevation_in_degrees), "text-xl md:text-3xl"]}><%= deg(@alert.activator_closest_position.elevation_in_degrees) %></div>
+                                <div class="text-gray-500">Elevation</div>
+                            </div>
                         </div>
-                        <div class="text-center">
-                            <div class={[elevation_class(@alert.activator_closest_position.elevation_in_degrees), "text-xl md:text-3xl"]}><%= deg(@alert.activator_closest_position.elevation_in_degrees) %></div>
-                            <div class="text-gray-500">Elevation</div>
-                        </div>
-                    </div>
+                    <% end %>
                 </div>
                 
                 <div class="flex-grow md:mt-0 mt-6">
