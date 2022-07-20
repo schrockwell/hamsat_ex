@@ -14,8 +14,10 @@ defmodule HamsatWeb.AdminsOnlyPlug do
 
   def call(conn, _) do
     conn
+    |> put_status(:not_found)
     |> Phoenix.Controller.put_root_layout(false)
-    |> Phoenix.Controller.render(HamsatWeb.ErrorView, :"404")
+    |> Phoenix.Controller.put_view(HamsatWeb.ErrorView)
+    |> Phoenix.Controller.render(:"404")
     |> halt()
   end
 end
