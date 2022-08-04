@@ -1,8 +1,19 @@
 defmodule HamsatWeb.LocationSetter do
-  use HamsatWeb, :live_component
+  use HamsatWeb, :love_component
 
   alias Hamsat.Coord
   alias HamsatWeb.LocationPicker
+
+  prop :context
+  prop :id
+  prop :redirect
+  prop :show_log_in_link?, default: false
+
+  state :clicked_coord, initial: nil
+  state :form_params, initial: %{}
+
+  computed :form
+  computed :changeset
 
   defmodule Form do
     use Ecto.Schema
@@ -27,36 +38,27 @@ defmodule HamsatWeb.LocationSetter do
     end
   end
 
-  def mount(socket) do
-    {:ok, assign(socket, :show_log_in_link?, false)}
-  end
-
   def update(%{__map_clicked__: {lat, lon}}, socket) do
     form = Form.from_coord(%Coord{lat: lat, lon: lon})
     changeset = Form.changeset(form)
-    {:ok, assign(socket, changeset: changeset, form: form)}
+    {:ok, put_computed(socket, changeset: changeset, form: form)}
   end
 
   def update(assigns, socket) do
-    {:ok,
-     socket
-     |> assign(assigns)
-     |> extract_context_coord()}
-  end
-
-  defp extract_context_coord(socket) do
-    if changed?(socket, :context) do
-      form = Form.from_coord(socket.assigns.context.location)
-      changeset = Form.changeset(form)
-      assign(socket, changeset: changeset, form: form)
-    else
-      socket
-    end
+    super(assigns, socket)
   end
 
   def handle_event("form-changed", %{"form" => params}, socket) do
     changeset = Form.changeset(socket.assigns.form, params)
     form = Ecto.Changeset.apply_changes(changeset)
-    {:noreply, assign(socket, changeset: changeset, form: form)}
+
+    {:noreply, put_computed(socket, changeset: changeset, form: form)}
+  end
+
+  @react to: :context
+  def put_initial_form(socket) do
+    form = Form.from_coord(socket.assigns.context.location)
+    changeset = Form.changeset(form)
+    put_computed(socket, changeset: changeset, form: form)
   end
 end

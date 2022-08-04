@@ -1,20 +1,14 @@
 defmodule HamsatWeb.Alerts.Components.AlertTableRow do
-  use HamsatWeb, :live_component
+  use HamsatWeb, :love_component
 
   alias Hamsat.Grid
   alias Hamsat.Schemas.Alert
   alias HamsatWeb.LiveComponents.AlertSaver
 
-  def update(assigns, socket) do
-    {:ok,
-     socket
-     |> assign(assigns)
-     |> assign_class()}
-  end
-
-  defp assign_class(socket) do
-    assign(socket, :class, alert_table_row_class(socket.assigns.alert, socket.assigns.now))
-  end
+  prop :alert
+  prop :context
+  prop :id
+  prop :now
 
   defp alert_table_row_class(alert, now) do
     case Alert.progression(alert, now) do

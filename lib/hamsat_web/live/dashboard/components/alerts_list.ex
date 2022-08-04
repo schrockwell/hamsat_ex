@@ -1,13 +1,15 @@
 defmodule HamsatWeb.Dashboard.Components.AlertsList do
-  use HamsatWeb, :live_component
+  use HamsatWeb, :love_component
 
   alias HamsatWeb.Dashboard.Components.AlertItem
 
-  def mount(socket) do
-    socket =
-      socket
-      |> assign(:mine?, false)
+  prop :alerts
+  prop :context
+  prop :id
+  prop :mine?, default: false
+  prop :now
 
-    {:ok, socket}
-  end
+  # Slots
+  prop :empty
+  prop :inner_block
 end

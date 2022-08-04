@@ -67,6 +67,18 @@ defmodule HamsatWeb do
     end
   end
 
+  def love_component do
+    quote do
+      use Phoenix.LiveComponent
+      use Love.Component
+
+      unquote(view_helpers())
+
+      import HamsatWeb.LayoutComponents
+      import Love.Component
+    end
+  end
+
   def component do
     quote do
       use Phoenix.Component

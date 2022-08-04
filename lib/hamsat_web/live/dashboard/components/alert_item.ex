@@ -1,5 +1,5 @@
 defmodule HamsatWeb.Dashboard.Components.AlertItem do
-  use HamsatWeb, :live_component
+  use HamsatWeb, :love_component
 
   alias Hamsat.Grid
   alias Hamsat.Schemas.Alert
@@ -7,24 +7,13 @@ defmodule HamsatWeb.Dashboard.Components.AlertItem do
   alias HamsatWeb.SatComponents
   alias HamsatWeb.LiveComponents.AlertSaver
 
-  def update(assigns, socket) do
-    socket =
-      socket
-      |> assign(assigns)
-      |> assign_sat_visible()
+  prop :alert
+  prop :context
+  prop :id
+  prop :mine?
+  prop :now
 
-    {:ok, socket}
-  end
-
-  defp assign_sat_visible(socket) do
-    if changed?(socket, :now) do
-      assign(
-        socket,
-        :sat_visible?,
-        Alert.progression(socket.assigns.alert, socket.assigns.now) == :workable
-      )
-    else
-      assign(socket, :sat_visible?, false)
-    end
+  defp sat_visible?(alert, now) do
+    Alert.progression(alert, now) == :workable
   end
 end

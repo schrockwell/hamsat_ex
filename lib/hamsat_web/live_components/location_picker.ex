@@ -1,58 +1,40 @@
 defmodule HamsatWeb.LocationPicker do
-  use HamsatWeb, :live_component
+  use HamsatWeb, :love_component
 
   @default_field_mapping %{lat: :lat, lon: :lon, grid: :grid}
 
-  def mount(socket) do
-    socket =
-      socket
-      |> assign(:mapbox_access_token, Application.fetch_env!(:hamsat, :mapbox_access_token))
-      |> assign(:fields, @default_field_mapping)
+  prop :fields, default: @default_field_mapping
+  prop :form
+  prop :id
+  prop :mapbox_access_token, default: Application.compile_env!(:hamsat, :mapbox_access_token)
+  prop :target
 
-    {:ok, socket}
+  computed :field_keys
+
+  @react to: :fields
+  def compute_field_keys(socket) do
+    put_computed(socket, :field_keys, Map.merge(@default_field_mapping, socket.assigns.fields))
   end
 
-  def update(assigns, socket) do
-    socket =
-      socket
-      |> assign(assigns)
-      |> assign_field_names()
-      |> push_marker_coord()
-
-    {:ok, socket}
+  @react to: :form
+  def push_marker_coord(socket) do
+    socket
+    |> push_event("set-marker", %{
+      "id" => "location-picker-map",
+      "coord" => %{
+        "lat" => Ecto.Changeset.get_field(socket.assigns.form.source, socket.assigns.fields.lat),
+        "lon" => Ecto.Changeset.get_field(socket.assigns.form.source, socket.assigns.fields.lon)
+      }
+    })
   end
 
   def handle_event("map-clicked", %{"lat" => lat, "lon" => lon}, socket) do
-    case socket.assigns[:target] do
+    case socket.assigns.target do
       :self -> send(self(), {__MODULE__, :map_clicked, {lat, lon}})
       {module, id} -> send_update(module, id: id, __map_clicked__: {lat, lon})
       nil -> nil
     end
 
     {:noreply, socket}
-  end
-
-  defp push_marker_coord(socket) do
-    if changed?(socket, :form) and connected?(socket) do
-      socket
-      |> push_event("set-marker", %{
-        "id" => "location-picker-map",
-        "coord" => %{
-          "lat" =>
-            Ecto.Changeset.get_field(socket.assigns.form.source, socket.assigns.fields.lat),
-          "lon" => Ecto.Changeset.get_field(socket.assigns.form.source, socket.assigns.fields.lon)
-        }
-      })
-    else
-      socket
-    end
-  end
-
-  defp assign_field_names(socket) do
-    if changed?(socket, :fields) do
-      assign(socket, :fields, Map.merge(@default_field_mapping, socket.assigns.fields))
-    else
-      socket
-    end
   end
 end

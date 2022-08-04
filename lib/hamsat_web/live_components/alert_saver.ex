@@ -1,22 +1,14 @@
 defmodule HamsatWeb.LiveComponents.AlertSaver do
-  use HamsatWeb, :live_component
+  use HamsatWeb, :love_component
 
   alias Hamsat.Alerts
 
-  def mount(socket) do
-    {:ok,
-     socket
-     |> assign(:class, nil)
-     |> assign(:button_class, nil)
-     |> assign(:readonly?, false)}
-  end
-
-  def update(assigns, socket) do
-    {:ok,
-     socket
-     |> assign(assigns)
-     |> assign_icon_type()}
-  end
+  prop :alert
+  prop :button_class, default: nil
+  prop :class, default: nil
+  prop :context
+  prop :id
+  prop :readonly?, default: false
 
   def handle_event("toggle-save", _, socket) do
     if socket.assigns.alert.saved? do
@@ -28,9 +20,8 @@ defmodule HamsatWeb.LiveComponents.AlertSaver do
     {:noreply, socket}
   end
 
-  defp assign_icon_type(socket) do
-    icon_type = if socket.assigns.alert.saved?, do: "solid", else: "outline"
-    assign(socket, :icon_type, icon_type)
+  defp icon_type(alert) do
+    if alert.saved?, do: "solid", else: "outline"
   end
 
   def render(assigns) do
@@ -47,7 +38,7 @@ defmodule HamsatWeb.LiveComponents.AlertSaver do
       ~H"""
         <button phx-click="toggle-save" phx-target={@myself} class={[@class, @button_class]}>
           <div class="flex justify-between items-center space-x-1">
-              <div><Heroicons.LiveView.icon name="thumb-up" type={@icon_type} class="h-4 w-4" /></div>
+              <div><Heroicons.LiveView.icon name="thumb-up" type={icon_type(@alert)} class="h-4 w-4" /></div>
               <div><%= @alert.saved_count %></div>
           </div>
       </button>

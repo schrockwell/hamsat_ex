@@ -1,4 +1,4 @@
-<tr class={@class}>
+<tr class={alert_table_row_class(@alert, @now)}>
     <td class="text-center pl-3 md:pl-6">
         <.live_component module={AlertSaver} alert={@alert} context={@context} id={"alert-saver-#{@alert.id}"} class="inline-flex" button_class="rounded bg-gray-200 hover:bg-gray-300 font-medium px-2" />
     </td>
