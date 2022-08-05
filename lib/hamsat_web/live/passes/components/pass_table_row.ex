@@ -6,7 +6,6 @@ defmodule HamsatWeb.Passes.Components.PassTableRow do
   alias HamsatWeb.SatComponents
 
   prop :context
-  prop :id
   prop :now
   prop :pass
 

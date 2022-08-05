@@ -7,7 +7,6 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
 
   prop :alert
   prop :context
-  prop :id
   prop :now
 
   defp alert_table_row_class(alert, now) do

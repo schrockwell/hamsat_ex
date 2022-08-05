@@ -5,8 +5,7 @@ defmodule HamsatWeb.LocationPicker do
 
   prop :fields, default: @default_field_mapping
   prop :form
-  prop :id
-  prop :mapbox_access_token, default: Application.compile_env!(:hamsat, :mapbox_access_token)
+  prop :mapbox_access_token, default: Application.fetch_env!(:hamsat, :mapbox_access_token)
   prop :target
 
   computed :field_keys

@@ -5,11 +5,9 @@ defmodule HamsatWeb.Dashboard.Components.AlertsList do
 
   prop :alerts
   prop :context
-  prop :id
   prop :mine?, default: false
   prop :now
 
-  # Slots
-  prop :empty
-  prop :inner_block
+  slot :empty
+  slot :inner_block
 end

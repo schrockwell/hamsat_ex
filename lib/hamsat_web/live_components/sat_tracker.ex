@@ -2,8 +2,7 @@ defmodule HamsatWeb.SatTracker do
   use HamsatWeb, :love_component
 
   prop :activator_position
-  prop :id
-  prop :mapbox_access_token, default: Application.compile_env!(:hamsat, :mapbox_access_token)
+  prop :mapbox_access_token, default: Application.fetch_env!(:hamsat, :mapbox_access_token)
   prop :observer_position
   prop :sat_position
 

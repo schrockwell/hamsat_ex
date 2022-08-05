@@ -9,7 +9,6 @@ defmodule HamsatWeb.Dashboard.Components.AlertItem do
 
   prop :alert
   prop :context
-  prop :id
   prop :mine?
   prop :now
 

@@ -5,7 +5,6 @@ defmodule HamsatWeb.LocationSetter do
   alias HamsatWeb.LocationPicker
 
   prop :context
-  prop :id
   prop :redirect
   prop :show_log_in_link?, default: false
 

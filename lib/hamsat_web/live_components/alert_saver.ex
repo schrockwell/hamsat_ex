@@ -7,7 +7,6 @@ defmodule HamsatWeb.LiveComponents.AlertSaver do
   prop :button_class, default: nil
   prop :class, default: nil
   prop :context
-  prop :id
   prop :readonly?, default: false
 
   def handle_event("toggle-save", _, socket) do
