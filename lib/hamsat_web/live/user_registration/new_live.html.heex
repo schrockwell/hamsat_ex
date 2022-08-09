@@ -23,7 +23,7 @@
 
     <h2 class="h2 mt-8 mb-4">Station location</h2>
     <fieldset class="w-full lg:w-1/2">
-      <.live_component module={LocationPicker} id="location-picker" form={f} target={:self} fields={%{lat: :home_lat, lon: :home_lon, grid: :home_grid}} />
+      <.live_component module={LocationPicker} id="location-picker" form={f} on_map_clicked={self()} fields={%{lat: :home_lat, lon: :home_lon, grid: :home_grid}} />
     </fieldset>
 
     <div>

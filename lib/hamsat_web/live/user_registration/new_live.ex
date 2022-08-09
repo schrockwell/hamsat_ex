@@ -42,8 +42,8 @@ defmodule HamsatWeb.UserRegistration.NewLive do
     end
   end
 
-  def handle_info({LocationPicker, :map_clicked, {lat, lon}}, socket) do
-    {:noreply, assign_changeset(socket, %{home_lat: lat, home_lon: lon})}
+  def handle_message(:on_map_clicked, _, {lat, lon}, socket) do
+    assign_changeset(socket, %{home_lat: lat, home_lon: lon})
   end
 
   defp assign_changeset(socket, params) do

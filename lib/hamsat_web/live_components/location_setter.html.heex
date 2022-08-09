@@ -17,7 +17,7 @@
     <% end %>
     
     <div class="w-full">
-      <.live_component module={LocationPicker} id="location-picker" form={f} target={{__MODULE__, @id}} />
+      <.live_component module={LocationPicker} id="location-picker" form={f} on_map_clicked={{__MODULE__, @id}} />
     </div>
     
     <input type="submit" value="Set Location" class="btn btn-default mt-6">

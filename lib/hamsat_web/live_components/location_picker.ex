@@ -6,9 +6,10 @@ defmodule HamsatWeb.LocationPicker do
   prop :fields, default: @default_field_mapping
   prop :form
   prop :mapbox_access_token, default: Application.fetch_env!(:hamsat, :mapbox_access_token)
-  prop :target
 
   computed :field_keys
+
+  event :on_map_clicked
 
   @react to: :fields
   def compute_field_keys(socket) do
@@ -28,12 +29,6 @@ defmodule HamsatWeb.LocationPicker do
   end
 
   def handle_event("map-clicked", %{"lat" => lat, "lon" => lon}, socket) do
-    case socket.assigns.target do
-      :self -> send(self(), {__MODULE__, :map_clicked, {lat, lon}})
-      {module, id} -> send_update(module, id: id, __map_clicked__: {lat, lon})
-      nil -> nil
-    end
-
-    {:noreply, socket}
+    {:noreply, emit(socket, :on_map_clicked, {lat, lon})}
   end
 end
