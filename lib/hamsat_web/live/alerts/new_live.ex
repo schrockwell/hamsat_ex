@@ -1,10 +1,19 @@
 defmodule HamsatWeb.Alerts.NewLive do
-  use HamsatWeb, :live_view
+  use HamsatWeb, :love_view
 
   import HamsatWeb.LayoutComponents
 
   alias Hamsat.Alerts
   alias Hamsat.Grid
+
+  state :sat
+
+  computed :alert
+  computed :changeset
+  computed :grid
+  computed :mode_options
+  computed :page_title
+  computed :pass
 
   def mount(%{"pass" => pass_hash}, _, socket) do
     pass = Alerts.get_pass_by_hash(socket.assigns.context, pass_hash)
@@ -15,12 +24,14 @@ defmodule HamsatWeb.Alerts.NewLive do
     else
       socket =
         socket
-        |> assign(:page_title, "New Activation")
-        |> assign(:pass, pass)
-        |> assign(:sat, pass.sat)
-        |> assign(:grid, Grid.encode!(pass.observer.latitude_deg, pass.observer.longitude_deg, 6))
-        |> assign_mode_options()
-        |> assign_new_alert_changeset()
+        |> put_state(sat: pass.sat)
+        |> put_computed(
+          alert: nil,
+          changeset: Alerts.change_new_alert(socket.assigns.context, pass, %{}),
+          grid: Grid.encode!(pass.observer.latitude_deg, pass.observer.longitude_deg, 6),
+          page_title: "New Activation",
+          pass: pass
+        )
 
       {:ok, socket}
     end
@@ -35,13 +46,14 @@ defmodule HamsatWeb.Alerts.NewLive do
 
     socket =
       socket
-      |> assign(:page_title, "Edit Activation")
-      |> assign(:alert, alert)
-      |> assign(:pass, pass)
-      |> assign(:sat, alert.sat)
-      |> assign(:grid, Grid.encode!(pass.observer.latitude_deg, pass.observer.longitude_deg, 6))
-      |> assign_mode_options()
-      |> assign_edit_alert_changeset(alert)
+      |> put_state(sat: alert.sat)
+      |> put_computed(
+        alert: alert,
+        changeset: Alerts.change_alert(alert),
+        grid: Grid.encode!(pass.observer.latitude_deg, pass.observer.longitude_deg, 6),
+        page_title: "Edit Activation",
+        pass: pass
+      )
 
     {:ok, socket}
   end
@@ -59,7 +71,7 @@ defmodule HamsatWeb.Alerts.NewLive do
          |> redirect(to: Routes.alerts_path(socket, :show, alert.id))}
 
       {:error, changeset} ->
-        {:noreply, assign(socket, :changeset, changeset)}
+        {:noreply, put_state(socket, changeset: changeset)}
     end
   end
 
@@ -76,7 +88,7 @@ defmodule HamsatWeb.Alerts.NewLive do
          |> redirect(to: Routes.alerts_path(socket, :show, alert.id))}
 
       {:error, changeset} ->
-        {:noreply, assign(socket, :changeset, changeset)}
+        {:noreply, put_state(socket, changeset: changeset)}
     end
   end
 
@@ -89,24 +101,9 @@ defmodule HamsatWeb.Alerts.NewLive do
      |> redirect(to: Routes.passes_path(socket, :index))}
   end
 
-  defp assign_new_alert_changeset(socket, params \\ %{}) do
-    assign(
-      socket,
-      :changeset,
-      Alerts.change_new_alert(socket.assigns.context, socket.assigns.pass, params)
-    )
-  end
-
-  defp assign_edit_alert_changeset(socket, alert, params \\ %{}) do
-    assign(
-      socket,
-      :changeset,
-      Alerts.change_alert(alert, params)
-    )
-  end
-
-  defp assign_mode_options(socket) do
-    assign(socket, :mode_options, Alerts.mode_options(socket.assigns.sat))
+  @react to: :sat
+  def put_mode_options(socket) do
+    put_computed(socket, :mode_options, Alerts.mode_options(socket.assigns.sat))
   end
 
   defp sat_downlink_ranges(sat) do

@@ -1,5 +1,5 @@
 defmodule HamsatWeb.UserRegistration.NewLive do
-  use HamsatWeb, :live_view
+  use HamsatWeb, :love_view
 
   alias Hamsat.Accounts
   alias Hamsat.Accounts.User
@@ -7,11 +7,15 @@ defmodule HamsatWeb.UserRegistration.NewLive do
   alias HamsatWeb.LocationPicker
   alias HamsatWeb.UserAuth
 
+  state :page_title, default: "Register"
+  state :sign_in_token, default: nil
+
+  computed :changeset
+  computed :user
+
   def mount(_, _, socket) do
     socket =
       socket
-      |> assign(:page_title, "Register")
-      |> assign(:sign_in_token, nil)
       |> assign_changeset(%{})
 
     {:ok, socket}
@@ -28,13 +32,13 @@ defmodule HamsatWeb.UserRegistration.NewLive do
       {:ok, user} ->
         socket =
           socket
-          |> assign(:sign_in_token, UserAuth.generate_sign_in_token(user))
+          |> put_state(sign_in_token: UserAuth.generate_sign_in_token(user))
           |> push_event("sumbit-registration-form", %{})
 
         {:noreply, socket}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, :changeset, changeset)}
+        {:noreply, put_computed(socket, :changeset, changeset)}
     end
   end
 
@@ -49,7 +53,7 @@ defmodule HamsatWeb.UserRegistration.NewLive do
       changeset = Accounts.change_user_registration(socket.assigns.user, params)
       user = Ecto.Changeset.apply_changes(changeset)
 
-      assign(socket, changeset: changeset, user: user)
+      put_computed(socket, changeset: changeset, user: user)
     else
       initial_attrs =
         if socket.assigns.context.location do
@@ -63,7 +67,7 @@ defmodule HamsatWeb.UserRegistration.NewLive do
 
       changeset = Accounts.change_user_registration(%User{}, initial_attrs)
       user = Ecto.Changeset.apply_changes(changeset)
-      assign(socket, changeset: changeset, user: user)
+      put_computed(socket, changeset: changeset, user: user)
     end
   end
 end
