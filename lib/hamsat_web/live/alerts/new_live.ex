@@ -6,14 +6,13 @@ defmodule HamsatWeb.Alerts.NewLive do
   alias Hamsat.Alerts
   alias Hamsat.Grid
 
+  state :alert
+  state :changeset
+  state :grid
+  state :mode_options
+  state :page_title
+  state :pass
   state :sat
-
-  computed :alert
-  computed :changeset
-  computed :grid
-  computed :mode_options
-  computed :page_title
-  computed :pass
 
   def mount(%{"pass" => pass_hash}, _, socket) do
     pass = Alerts.get_pass_by_hash(socket.assigns.context, pass_hash)
@@ -24,11 +23,10 @@ defmodule HamsatWeb.Alerts.NewLive do
     else
       socket =
         socket
-        |> put_state(sat: pass.sat)
-        |> put_computed(
+        |> put_state(
+          sat: pass.sat,
           alert: nil,
           changeset: Alerts.change_new_alert(socket.assigns.context, pass, %{}),
-          grid: Grid.encode!(pass.observer.latitude_deg, pass.observer.longitude_deg, 6),
           page_title: "New Activation",
           pass: pass
         )
@@ -46,11 +44,10 @@ defmodule HamsatWeb.Alerts.NewLive do
 
     socket =
       socket
-      |> put_state(sat: alert.sat)
-      |> put_computed(
+      |> put_state(
+        sat: alert.sat,
         alert: alert,
         changeset: Alerts.change_alert(alert),
-        grid: Grid.encode!(pass.observer.latitude_deg, pass.observer.longitude_deg, 6),
         page_title: "Edit Activation",
         pass: pass
       )
@@ -103,7 +100,19 @@ defmodule HamsatWeb.Alerts.NewLive do
 
   @react to: :sat
   def put_mode_options(socket) do
-    put_computed(socket, :mode_options, Alerts.mode_options(socket.assigns.sat))
+    put_state(socket, mode_options: Alerts.mode_options(socket.assigns.sat))
+  end
+
+  @react to: :pass
+  def put_grid(socket) do
+    put_state(socket,
+      grid:
+        Grid.encode!(
+          socket.assigns.pass.observer.latitude_deg,
+          socket.assigns.pass.observer.longitude_deg,
+          6
+        )
+    )
   end
 
   defp sat_downlink_ranges(sat) do

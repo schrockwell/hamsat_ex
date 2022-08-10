@@ -7,13 +7,13 @@ defmodule HamsatWeb.LocationPicker do
   prop :form
   prop :mapbox_access_token, default: Application.fetch_env!(:hamsat, :mapbox_access_token)
 
-  computed :field_keys
+  state :field_keys
 
   event :on_map_clicked
 
   @react to: :fields
   def compute_field_keys(socket) do
-    put_computed(socket, :field_keys, Map.merge(@default_field_mapping, socket.assigns.fields))
+    put_state(socket, field_keys: Map.merge(@default_field_mapping, socket.assigns.fields))
   end
 
   @react to: :form

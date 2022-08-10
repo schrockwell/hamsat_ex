@@ -4,13 +4,10 @@ defmodule HamsatWeb.Location.EditLive do
   alias HamsatWeb.LocationSetter
 
   state :page_title, default: "Set Location"
-
-  computed :redirect_path
+  state :redirect_path
 
   def mount(params, _session, socket) do
-    socket =
-      socket
-      |> put_computed(:redirect_path, params["redirect"])
+    socket = put_state(socket, redirect_path: params["redirect"])
 
     {:ok, socket}
   end

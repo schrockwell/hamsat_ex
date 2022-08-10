@@ -6,12 +6,11 @@ defmodule HamsatWeb.Alerts.IndexLive do
   alias Hamsat.Alerts
   alias HamsatWeb.Alerts.Components.AlertTableRow
 
+  state :alerts
+  state :duration
+  state :filter
   state :now, default: DateTime.utc_now()
   state :page_title, default: "Activations"
-
-  computed :alerts
-  computed :duration
-  computed :filter
 
   def mount(_params, _session, socket) do
     if connected?(socket) do
@@ -29,10 +28,11 @@ defmodule HamsatWeb.Alerts.IndexLive do
     duration = if filter[:date] == :upcoming, do: :upcoming, else: :browse
 
     {:noreply,
-     socket
-     |> put_computed(:filter, filter)
-     |> put_computed(:alerts, alerts)
-     |> put_computed(:duration, duration)}
+     put_state(socket,
+       filter: filter,
+       alerts: alerts,
+       duration: duration
+     )}
   end
 
   defp parse_date_filter(params) do
@@ -67,10 +67,9 @@ defmodule HamsatWeb.Alerts.IndexLive do
   def handle_info({event, _info} = message, socket)
       when event in [:alert_saved, :alert_unsaved] do
     {:noreply,
-     put_computed(
+     put_state(
        socket,
-       :alerts,
-       Alerts.patch_alerts(socket.assigns.alerts, socket.assigns.context, message)
+       alerts: Alerts.patch_alerts(socket.assigns.alerts, socket.assigns.context, message)
      )}
   end
 
