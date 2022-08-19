@@ -34,7 +34,7 @@ defmodule Hamsat.MixProject do
   defp deps do
     [
       # {:love_ex, path: "../love_ex"},
-      {:love_ex, "0.1.1"},
+      {:love_ex, "0.2.0"},
       {:bcrypt_elixir, "~> 2.0"},
       {:phoenix, "~> 1.6.7"},
       {:phoenix_ecto, "~> 4.4"},
