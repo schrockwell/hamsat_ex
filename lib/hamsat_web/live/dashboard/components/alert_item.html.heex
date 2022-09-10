@@ -9,7 +9,7 @@
                 <% end %>
                 <SatComponents.alert_event_description alert={@alert} now={@now} mine?={@mine?} />
             </div>
-            <%= if @sat_visible? do %>
+            <%= if sat_visible?(@alert, @now) do %>
                 <div class="uppercase text-xs bg-red-100 text-red-700 px-1.5 py-0.5 font-medium">Visible Now!</div>
             <% end %>
         </div>

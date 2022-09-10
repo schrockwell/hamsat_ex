@@ -7,7 +7,7 @@ defmodule Hamsat.MixProject do
       version: "0.1.0",
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:gettext] ++ Mix.compilers(),
+      compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
@@ -33,6 +33,10 @@ defmodule Hamsat.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      # {:live_assign, path: "../live_assign"},
+      {:live_assign, "0.3.1"},
+      # {:live_event, path: "../live_event"},
+      {:live_event, "0.1.0"},
       {:bcrypt_elixir, "~> 2.0"},
       {:phoenix, "~> 1.6.7"},
       {:phoenix_ecto, "~> 4.4"},
@@ -55,7 +59,9 @@ defmodule Hamsat.MixProject do
       # {:satellite_ex, path: "../satelliteEx"},
       {:timex, "~> 3.7"},
       {:hackney, "~> 1.18"},
-      {:ex_heroicons, "~> 0.6.0"}
+      {:ex_heroicons, "~> 0.6.0"},
+      # {:flame_on, path: "../flame_on"}
+      {:flame_on, "~> 0.5.2"}
     ]
   end
 

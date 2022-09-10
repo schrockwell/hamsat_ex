@@ -51,7 +51,11 @@ defmodule HamsatWeb.Router do
   scope "/" do
     pipe_through [:browser, :admins_only]
 
-    live_dashboard "/ld", metrics: HamsatWeb.Telemetry
+    live_dashboard "/ld",
+      metrics: HamsatWeb.Telemetry,
+      additional_pages: [
+        flame_on: FlameOn.DashboardPage
+      ]
   end
 
   # Enables the Swoosh mailbox preview in development.
