@@ -49,20 +49,8 @@ defmodule HamsatWeb do
       use Phoenix.LiveView,
         layout: {HamsatWeb.LayoutView, "live.html"}
 
-      on_mount HamsatWeb.ContextHook
-
-      unquote(view_helpers())
-
-      import HamsatWeb.LayoutComponents
-    end
-  end
-
-
-  def love_view do
-    quote do
-      use Phoenix.LiveView,
-        layout: {HamsatWeb.LayoutView, "live.html"}
-      use Love.View
+      use LiveAssign.LiveView
+      use LiveEvent.LiveView
 
       on_mount HamsatWeb.ContextHook
 
@@ -75,22 +63,12 @@ defmodule HamsatWeb do
   def live_component do
     quote do
       use Phoenix.LiveComponent
+      use LiveAssign.LiveComponent
+      use LiveEvent.LiveComponent
 
       unquote(view_helpers())
 
       import HamsatWeb.LayoutComponents
-    end
-  end
-
-  def love_component do
-    quote do
-      use Phoenix.LiveComponent
-      use Love.Component
-
-      unquote(view_helpers())
-
-      import HamsatWeb.LayoutComponents
-      import Love.Component
     end
   end
 

@@ -1,5 +1,5 @@
 defmodule HamsatWeb.Dashboard.Components.AlertsList do
-  use HamsatWeb, :love_component
+  use HamsatWeb, :live_component
 
   alias HamsatWeb.Dashboard.Components.AlertItem
 

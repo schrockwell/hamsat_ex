@@ -1,5 +1,5 @@
 defmodule HamsatWeb.LocationSetter do
-  use HamsatWeb, :love_component
+  use HamsatWeb, :live_component
 
   alias Hamsat.Coord
   alias HamsatWeb.LocationPicker
@@ -36,10 +36,10 @@ defmodule HamsatWeb.LocationSetter do
     end
   end
 
-  def handle_message(:on_map_clicked, _, {lat, lon}, socket) do
+  def handle_event(:on_map_clicked, _, {lat, lon}, socket) do
     form = Form.from_coord(%Coord{lat: lat, lon: lon})
     changeset = Form.changeset(form)
-    put_state(socket, changeset: changeset, form: form)
+    {:ok, put_state(socket, changeset: changeset, form: form)}
   end
 
   def handle_event("form-changed", %{"form" => params}, socket) do

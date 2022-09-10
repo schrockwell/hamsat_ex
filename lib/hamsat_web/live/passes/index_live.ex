@@ -1,5 +1,5 @@
 defmodule HamsatWeb.Passes.IndexLive do
-  use HamsatWeb, :love_view
+  use HamsatWeb, :live_view
 
   import HamsatWeb.LayoutComponents
 

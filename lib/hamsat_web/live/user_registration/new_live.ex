@@ -1,5 +1,5 @@
 defmodule HamsatWeb.UserRegistration.NewLive do
-  use HamsatWeb, :love_view
+  use HamsatWeb, :live_view
 
   alias Hamsat.Accounts
   alias Hamsat.Accounts.User
@@ -41,8 +41,8 @@ defmodule HamsatWeb.UserRegistration.NewLive do
     end
   end
 
-  def handle_message(:on_map_clicked, _, {lat, lon}, socket) do
-    assign_changeset(socket, %{home_lat: lat, home_lon: lon})
+  def handle_event(:on_map_clicked, _, {lat, lon}, socket) do
+    {:ok, assign_changeset(socket, %{home_lat: lat, home_lon: lon})}
   end
 
   defp assign_changeset(socket, params) do

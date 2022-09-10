@@ -1,5 +1,5 @@
 defmodule HamsatWeb.Alerts.ShowLive do
-  use HamsatWeb, :love_view
+  use HamsatWeb, :live_view
 
   alias Hamsat.Alerts
   alias Hamsat.Coord

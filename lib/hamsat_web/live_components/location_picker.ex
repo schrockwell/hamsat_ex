@@ -1,5 +1,5 @@
 defmodule HamsatWeb.LocationPicker do
-  use HamsatWeb, :love_component
+  use HamsatWeb, :live_component
 
   @default_field_mapping %{lat: :lat, lon: :lon, grid: :grid}
 

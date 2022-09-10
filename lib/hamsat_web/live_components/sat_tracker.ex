@@ -1,5 +1,5 @@
 defmodule HamsatWeb.SatTracker do
-  use HamsatWeb, :love_component
+  use HamsatWeb, :live_component
 
   prop :activator_position
   prop :mapbox_access_token, default: Application.fetch_env!(:hamsat, :mapbox_access_token)

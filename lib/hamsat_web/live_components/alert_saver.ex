@@ -1,5 +1,5 @@
 defmodule HamsatWeb.LiveComponents.AlertSaver do
-  use HamsatWeb, :love_component
+  use HamsatWeb, :live_component
 
   alias Hamsat.Alerts
 
