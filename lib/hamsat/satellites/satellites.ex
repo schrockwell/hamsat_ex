@@ -132,6 +132,12 @@ defmodule Hamsat.Satellites do
         number: 40906,
         modulation: :linear,
         downlinks: [%{lower_mhz: 145.795, upper_mhz: 145.815}]
+      },
+      %{
+        name: "EO-88",
+        number: 42017,
+        modulation: :linear,
+        downlinks: [%{lower_mhz: 145.960, upper_mhz: 145.990}]
       }
     ]
     |> Enum.map(&Map.put_new(&1, :slug, &1.name))
