@@ -36,6 +36,8 @@ defmodule Hamsat.MixProject do
       # {:live_assign, path: "../live_assign"},
       {:live_assign, "0.3.1"},
       # {:live_event, path: "../live_event"},
+      {:live_inspect, "~> 0.1"},
+      # {:live_inspect, path: "../live_dump"},
       {:live_event, "0.1.0"},
       {:bcrypt_elixir, "~> 2.0"},
       {:phoenix, "~> 1.6.7"},

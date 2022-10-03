@@ -57,6 +57,15 @@ defmodule HamsatWeb do
       unquote(view_helpers())
 
       import HamsatWeb.LayoutComponents
+      unquote(live_inspect())
+    end
+  end
+
+  defp live_inspect do
+    if Mix.env() == :dev do
+      quote do
+        import LiveInspect, only: [live_inspect: 1]
+      end
     end
   end
 
@@ -69,6 +78,7 @@ defmodule HamsatWeb do
       unquote(view_helpers())
 
       import HamsatWeb.LayoutComponents
+      unquote(live_inspect())
     end
   end
 
