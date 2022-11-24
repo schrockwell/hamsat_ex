@@ -78,6 +78,12 @@ defmodule Hamsat.Satellites do
         downlinks: [%{lower_mhz: 435.800, upper_mhz: 435.900}]
       },
       %{
+        name: "FO-99",
+        number: 43937,
+        modulation: :linear,
+        downlinks: [%{lower_mhz: 145.900, upper_mhz: 145.930}]
+      },
+      %{
         name: "ISS",
         number: 25544,
         modulation: :fm,
