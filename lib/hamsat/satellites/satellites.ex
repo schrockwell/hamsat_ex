@@ -84,6 +84,12 @@ defmodule Hamsat.Satellites do
         downlinks: [%{lower_mhz: 145.900, upper_mhz: 145.930}]
       },
       %{
+        name: "GREENCUBE",
+        number: 53106,
+        modulation: :digital,
+        downlinks: [%{lower_mhz: 435.310, upper_mhz: 435.310}]
+      },
+      %{
         name: "ISS",
         number: 25544,
         modulation: :fm,
