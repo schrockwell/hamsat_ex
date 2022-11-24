@@ -3,6 +3,16 @@ defmodule Hamsat.Satellites do
 
   alias Hamsat.Schemas.Sat
 
+  def sync do
+    for attrs <- known() do
+      upsert_satellite!(attrs.number, attrs)
+    end
+
+    IO.puts("Synced #{length(known())} satellites")
+
+    :ok
+  end
+
   def list_satellites do
     Repo.all(
       from s in Sat,
