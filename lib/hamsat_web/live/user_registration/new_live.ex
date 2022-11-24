@@ -41,7 +41,7 @@ defmodule HamsatWeb.UserRegistration.NewLive do
     end
   end
 
-  def handle_event(:on_map_clicked, _, {lat, lon}, socket) do
+  def handle_emit(:on_map_clicked, _, {lat, lon}, socket) do
     {:ok, assign_changeset(socket, %{home_lat: lat, home_lon: lon})}
   end
 

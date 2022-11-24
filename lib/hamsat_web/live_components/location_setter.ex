@@ -36,7 +36,7 @@ defmodule HamsatWeb.LocationSetter do
     end
   end
 
-  def handle_event(:on_map_clicked, _, {lat, lon}, socket) do
+  def handle_emit(:on_map_clicked, _, {lat, lon}, socket) do
     form = Form.from_coord(%Coord{lat: lat, lon: lon})
     changeset = Form.changeset(form)
     {:ok, put_state(socket, changeset: changeset, form: form)}
