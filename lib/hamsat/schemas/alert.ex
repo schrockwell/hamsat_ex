@@ -73,6 +73,7 @@ defmodule Hamsat.Schemas.Alert do
 
   def mode_options(%Sat{modulation: :fm}), do: ["FM"]
   def mode_options(%Sat{modulation: :linear}), do: ["SSB", "CW", "Data"]
+  def mode_options(%Sat{modulation: :digital}), do: ["Data"]
 
   defp preferred_mode(user, sat) do
     case mode_options(sat) do

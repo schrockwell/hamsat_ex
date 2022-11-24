@@ -8,7 +8,7 @@ defmodule Hamsat.Schemas.Sat do
     field :nasa_name, :string
     field :number, :integer
     field :slug, :string
-    field :modulation, Ecto.Enum, values: [:fm, :linear]
+    field :modulation, Ecto.Enum, values: [:fm, :linear, :digital]
 
     embeds_many :downlinks, Downlink, on_replace: :delete
 

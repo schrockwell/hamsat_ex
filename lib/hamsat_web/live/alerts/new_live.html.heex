@@ -16,7 +16,7 @@
       <%= @grid %>
     </.form_row>
 
-    <%= if @sat.modulation == :fm do %>
+    <%= if @sat.modulation in [:fm, :digital] do %>
       <.form_row label="Downlink MHz">
         <%= sat_downlink_ranges(@sat) %>
       </.form_row>
