@@ -2,30 +2,19 @@ defmodule HamsatWeb.SatComponents do
   use HamsatWeb, :component
 
   alias Hamsat.Alerts.Pass
+  alias Hamsat.Modulation
   alias Hamsat.Schemas.Alert
 
   def sat_modulation_label(%{sat: _sat} = assigns) do
     ~H"""
     <span
-      title={sat_modulation_title(@sat)}
-      class={[sat_modulation_class(@sat), "text-xs px-1.5 py-0.5 font-semibold text-gray-600 uppercase"]}
+      title={Modulation.name(@sat)}
+      class={[Modulation.css_class(@sat), "text-xs px-1.5 py-0.5 font-semibold text-gray-600 uppercase"]}
     >
-      <%= sat_modulation_text(@sat) %>
+      <%= Modulation.short_name(@sat) %>
     </span>
     """
   end
-
-  defp sat_modulation_title(%{modulation: :fm}), do: "FM Modulation"
-  defp sat_modulation_title(%{modulation: :linear}), do: "Linear (SSB/CW) Modulation"
-  defp sat_modulation_title(%{modulation: :digital}), do: "Digital Modulation"
-
-  defp sat_modulation_text(%{modulation: :fm}), do: "FM"
-  defp sat_modulation_text(%{modulation: :linear}), do: "Lin"
-  defp sat_modulation_text(%{modulation: :digital}), do: "Dig"
-
-  defp sat_modulation_class(%{modulation: :fm}), do: "bg-amber-100 text-amber-600"
-  defp sat_modulation_class(%{modulation: :linear}), do: "bg-sky-100 text-sky-600"
-  defp sat_modulation_class(%{modulation: :digital}), do: "bg-fuchsia-100 text-fuchsia-600"
 
   def alert_event_description(%{alert: _, now: _} = assigns) do
     case Alert.next_event(assigns.alert, assigns.now) do

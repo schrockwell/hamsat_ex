@@ -16,7 +16,7 @@
       <%= @grid %>
     </.form_row>
 
-    <%= if @sat.modulation in [:fm, :digital] do %>
+    <%= if Modulation.fixed_downlink?(@sat) do %>
       <.form_row label="Downlink MHz">
         <%= sat_downlink_ranges(@sat) %>
       </.form_row>
@@ -38,7 +38,7 @@
       <%= error_tag(f, :callsign) %>
     </.form_row>
 
-    <%= if @sat.modulation == :linear do %>
+    <%= if not Modulation.fixed_downlink?(@sat) do %>
       <.form_row label="Downlink MHz" input?={true}>
         <%= text_input(f, :downlink_mhz, class: "input-text", placeholder: "Optional") %>
 

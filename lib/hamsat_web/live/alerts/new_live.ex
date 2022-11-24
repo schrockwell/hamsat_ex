@@ -5,6 +5,7 @@ defmodule HamsatWeb.Alerts.NewLive do
 
   alias Hamsat.Alerts
   alias Hamsat.Grid
+  alias Hamsat.Modulation
 
   state :alert
   state :changeset
@@ -100,7 +101,7 @@ defmodule HamsatWeb.Alerts.NewLive do
 
   @react to: :sat
   def put_mode_options(socket) do
-    put_state(socket, mode_options: Alerts.mode_options(socket.assigns.sat))
+    put_state(socket, mode_options: Modulation.alert_options(socket.assigns.sat))
   end
 
   @react to: :pass

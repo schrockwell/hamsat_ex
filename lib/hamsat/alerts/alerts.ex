@@ -333,8 +333,6 @@ defmodule Hamsat.Alerts do
     Enum.find(pass.alerts, &(&1.user_id == context.user.id))
   end
 
-  defdelegate mode_options(sat), to: Hamsat.Schemas.Alert
-
   def save_alert(context, alert) do
     context.user
     |> SavedAlert.changeset(alert)

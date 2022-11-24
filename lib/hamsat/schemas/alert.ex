@@ -3,9 +3,10 @@ defmodule Hamsat.Schemas.Alert do
 
   import Hamsat.Changeset
 
+  alias Hamsat.Accounts.User
+  alias Hamsat.Modulation
   alias Hamsat.Schemas.Sat
   alias Hamsat.Schemas.SavedAlert
-  alias Hamsat.Accounts.User
 
   schema "alerts" do
     belongs_to :sat, Sat, foreign_key: :satellite_id
@@ -71,12 +72,8 @@ defmodule Hamsat.Schemas.Alert do
     |> validate_length(:comment, max: 50)
   end
 
-  def mode_options(%Sat{modulation: :fm}), do: ["FM"]
-  def mode_options(%Sat{modulation: :linear}), do: ["SSB", "CW", "Data"]
-  def mode_options(%Sat{modulation: :digital}), do: ["Data"]
-
   defp preferred_mode(user, sat) do
-    case mode_options(sat) do
+    case Modulation.alert_options(sat) do
       [mode] ->
         mode
 
