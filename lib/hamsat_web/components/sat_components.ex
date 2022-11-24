@@ -9,7 +9,7 @@ defmodule HamsatWeb.SatComponents do
     ~H"""
     <span
       title={Modulation.name(@sat)}
-      class={[Modulation.css_class(@sat), "text-xs px-1.5 py-0.5 font-semibold text-gray-600 uppercase"]}
+      class={[Modulation.css_class(@sat), "text-xs px-1.5 py-0.5 font-semibold uppercase rounded w-8 inline-block"]}
     >
       <%= Modulation.short_name(@sat) %>
     </span>
