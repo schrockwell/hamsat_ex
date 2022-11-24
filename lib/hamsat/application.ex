@@ -27,6 +27,7 @@ defmodule Hamsat.Application do
 
     with {:ok, pid} <- Supervisor.start_link(children, opts) do
       Hamsat.Alerts.PassCache.initialize()
+      Hamsat.Satellites.sync()
       {:ok, pid}
     end
   end

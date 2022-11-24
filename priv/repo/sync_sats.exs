@@ -1,1 +1,0 @@
-Hamsat.Satellites.sync()
