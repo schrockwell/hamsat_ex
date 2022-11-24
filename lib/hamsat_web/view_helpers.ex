@@ -139,6 +139,14 @@ defmodule HamsatWeb.ViewHelpers do
 
   def mhz(float, precision \\ 3, default \\ "–")
 
+  def mhz(%Alert{mhz: nil}, precision, default) do
+    mhz(nil, precision, default)
+  end
+
+  def mhz(%Alert{mhz: alert_mhz, mhz_direction: alert_direction}, precision, default) do
+    "#{mhz(alert_mhz, precision, default)}#{direction(alert_direction)}"
+  end
+
   def mhz(nil, _, default), do: default
 
   def mhz(float, precision, _default) do
@@ -193,4 +201,7 @@ defmodule HamsatWeb.ViewHelpers do
   def pct(int, decimals) when is_integer(int) do
     pct(int / 100, decimals)
   end
+
+  def direction(:up), do: "↑"
+  def direction(:down), do: "↓"
 end

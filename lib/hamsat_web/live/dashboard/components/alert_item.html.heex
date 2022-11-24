@@ -48,7 +48,7 @@
       <%= Grid.encode!({@alert.observer_lat, @alert.observer_lon}, 4) %>
     </div>
     <div class="bg-gray-200 px-2 font-medium text-gray-600">
-      <%= mhz(@alert.downlink_mhz, 3, "") %>
+      <%= mhz(@alert, 3, "") %>
       <%= @alert.mode %>
     </div>
   </div>

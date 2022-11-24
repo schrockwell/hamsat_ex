@@ -18,7 +18,8 @@ defmodule Hamsat.Schemas.Alert do
     field :los_at, :utc_datetime
     field :callsign, :string
     field :comment, :string
-    field :downlink_mhz, :float
+    field :mhz, :float
+    field :mhz_direction, Ecto.Enum, values: [:up, :down]
     field :mode, :string
     field :observer_lat, :float
     field :observer_lon, :float
@@ -49,7 +50,8 @@ defmodule Hamsat.Schemas.Alert do
       los_at: Hamsat.Util.erl_to_utc_datetime(pass.info.los.datetime),
       callsign: context.user.latest_callsign,
       mode: preferred_mode(context.user, pass.sat),
-      downlink_mhz: preferred_downlink_mhz(pass.sat),
+      mhz: preferred_downlink_mhz(pass.sat),
+      mhz_direction: :down,
       observer_lat: context.location.lat,
       observer_lon: context.location.lon
     })
@@ -62,7 +64,7 @@ defmodule Hamsat.Schemas.Alert do
     alert
     |> cast(attrs, [
       :callsign,
-      :downlink_mhz,
+      :mhz,
       :mode,
       :comment
     ])

@@ -40,9 +40,9 @@
 
     <%= if not Modulation.fixed_downlink?(@sat) do %>
       <.form_row label="Downlink MHz" input?={true}>
-        <%= text_input(f, :downlink_mhz, class: "input-text", placeholder: "Optional") %>
+        <%= text_input(f, :mhz, class: "input-text", placeholder: "Optional") %>
 
-        <%= error_tag(f, :downlink_mhz) %>
+        <%= error_tag(f, :mhz) %>
 
         <div class="mt-1 text-sm font-medium text-gray-500">
           <%= sat_downlink_ranges(@sat) %>

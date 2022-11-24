@@ -149,11 +149,11 @@ defmodule HamsatWeb.Alerts.ShowLive do
     grid = Grid.encode!(alert.observer_lat, alert.observer_lon, 6)
 
     freq =
-      case {alert.downlink_mhz, alert.mode} do
+      case {alert.mhz, alert.mode} do
         {nil, nil} -> nil
-        {mhz, nil} -> "📻 #{mhz(mhz)}"
+        {_mhz, nil} -> "📻 #{mhz(alert)}"
         {nil, mode} -> "📻 #{mode}"
-        {mhz, mode} -> "📻 #{mhz(mhz)} #{mode}"
+        {_mhz, mode} -> "📻 #{mhz(alert)} #{mode}"
       end
 
     comment =

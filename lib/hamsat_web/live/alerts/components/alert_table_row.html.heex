@@ -16,7 +16,7 @@
   <td class="whitespace-nowrap px-1 text-center"><%= @alert.callsign %></td>
   <td class="whitespace-nowrap px-1 text-center"><%= @alert.sat.name %></td>
   <td class="whitespace-nowrap px-1 text-center"><%= Grid.encode!({@alert.observer_lat, @alert.observer_lon}, 4) %></td>
-  <td class="whitespace-nowrap px-1 text-center"><%= mhz(@alert.downlink_mhz) %></td>
+  <td class="whitespace-nowrap px-1 text-center"><%= mhz(@alert) %></td>
   <td class="whitespace-nowrap px-1 text-center"><%= @alert.mode %></td>
   <td class="whitespace-nowrap px-1 text-center">
     <%= if @alert.comment do %>
