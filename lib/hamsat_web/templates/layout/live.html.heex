@@ -1,11 +1,21 @@
 <main>
-  <p class="bg-emerald-600 text-white px-6 py-2 empty:hidden cursor-pointer" role="alert"
+  <p
+    class="bg-emerald-600 text-white px-6 py-2 empty:hidden cursor-pointer"
+    role="alert"
     phx-click="lv:clear-flash"
-    phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+    phx-value-key="info"
+  >
+    <%= live_flash(@flash, :info) %>
+  </p>
 
-  <p class="bg-red-600 text-white px-6 py-2 empty:hidden cursor-pointer" role="alert"
+  <p
+    class="bg-red-600 text-white px-6 py-2 empty:hidden cursor-pointer"
+    role="alert"
     phx-click="lv:clear-flash"
-    phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+    phx-value-key="error"
+  >
+    <%= live_flash(@flash, :error) %>
+  </p>
 
   <%= @inner_content %>
 </main>

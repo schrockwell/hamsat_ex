@@ -9,20 +9,20 @@
     <% end %>
 
     <fieldset class="my-6">
-      <%= label f, :password, "New Password", class: "form-label" %>
-      <%= password_input f, :password, required: true, class: "input-text" %>
-      <%= error_tag f, :password %>
+      <%= label(f, :password, "New Password", class: "form-label") %>
+      <%= password_input(f, :password, required: true, class: "input-text") %>
+      <%= error_tag(f, :password) %>
       <div class="form-hint"><%= password_requirements() %></div>
     </fieldset>
 
     <fieldset class="my-6">
-      <%= label f, :password_confirmation, "Confirm New Password", class: "form-label"%>
-      <%= password_input f, :password_confirmation, required: true, class: "input-text" %>
-      <%= error_tag f, :password_confirmation %>
+      <%= label(f, :password_confirmation, "Confirm New Password", class: "form-label") %>
+      <%= password_input(f, :password_confirmation, required: true, class: "input-text") %>
+      <%= error_tag(f, :password_confirmation) %>
     </fieldset>
 
     <div>
-      <%= submit "Reset Password", class: "btn btn-default" %>
+      <%= submit("Reset Password", class: "btn btn-default") %>
     </div>
   </.form>
 </div>

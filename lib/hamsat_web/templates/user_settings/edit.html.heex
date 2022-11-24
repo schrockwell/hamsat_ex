@@ -5,13 +5,18 @@
     <h2 class="text-h2">Activation Match Preferences</h2>
   </.form_row>
 
-  <.form let={f} for={@match_preferences_changeset} action={Routes.user_settings_path(@conn, :update)} id="update_match_preferences">
-    <%= hidden_input f, :action, name: "action", value: "update_match_preferences" %>
+  <.form
+    let={f}
+    for={@match_preferences_changeset}
+    action={Routes.user_settings_path(@conn, :update)}
+    id="update_match_preferences"
+  >
+    <%= hidden_input(f, :action, name: "action", value: "update_match_preferences") %>
 
     <%= for {label, field} <- [{"My Minimum Elevation", :prefer_my_el}, {"DX Minimum Elevation", :prefer_dx_el}] do %>
       <.form_row label={label} class="w-full pr-4 md:w-96">
         <div class="flex space-x-4">
-          <%= range_input f, field, required: true, min: 0, max: 90, class: "w-full mt-1" %>
+          <%= range_input(f, field, required: true, min: 0, max: 90, class: "w-full mt-1") %>
           <div class="w-12 text-right">
             <span data-value-of-range={"update_match_preferences_#{field}"}>0</span>°
           </div>
@@ -29,7 +34,7 @@
     <%= for {label, field} <- [{"SSB", :prefer_ssb_mode}, {"CW", :prefer_cw_mode}, {"Data", :prefer_data_mode}, {"FM", :prefer_fm_mode}] do %>
       <.form_row label={label} class="w-full pr-4 md:w-96">
         <div class="flex space-x-4">
-          <%= range_input f, field, required: true, min: 0, max: 100, class: "w-full mt-1" %>
+          <%= range_input(f, field, required: true, min: 0, max: 100, class: "w-full mt-1") %>
           <div class="w-12 text-right">
             <span data-value-of-range={"update_match_preferences_#{field}"}>0</span>%
           </div>
@@ -42,10 +47,9 @@
         Prefer activations with certain modes of operation. The match score is reduced relative to the other mode preferences.
       </p>
     </.form_row>
-    
 
     <.form_row label="">
-      <%= submit "Save Preferences", class: "btn btn-default" %>
+      <%= submit("Save Preferences", class: "btn btn-default") %>
     </.form_row>
   </.form>
 
@@ -60,20 +64,25 @@
       </div>
     <% end %>
 
-    <%= hidden_input f, :action, name: "action", value: "update_email" %>
+    <%= hidden_input(f, :action, name: "action", value: "update_email") %>
 
     <.form_row label="Email" input?={true}>
-      <%= email_input f, :email, required: true, class: "input-text" %>
-      <%= error_tag f, :email %>
+      <%= email_input(f, :email, required: true, class: "input-text") %>
+      <%= error_tag(f, :email) %>
     </.form_row>
 
     <.form_row label="Current Password" input?={true}>
-      <%= password_input f, :current_password, required: true, name: "current_password", id: "current_password_for_email", class: "input-text" %>
-      <%= error_tag f, :current_password %>
+      <%= password_input(f, :current_password,
+        required: true,
+        name: "current_password",
+        id: "current_password_for_email",
+        class: "input-text"
+      ) %>
+      <%= error_tag(f, :current_password) %>
     </.form_row>
 
     <.form_row label="">
-      <%= submit "Change Email", class: "btn btn-default" %>
+      <%= submit("Change Email", class: "btn btn-default") %>
     </.form_row>
   </.form>
 
@@ -88,26 +97,31 @@
       </div>
     <% end %>
 
-    <%= hidden_input f, :action, name: "action", value: "update_password" %>
+    <%= hidden_input(f, :action, name: "action", value: "update_password") %>
 
     <.form_row label="New Password" input?={true}>
-      <%= password_input f, :password, required: true, class: "input-text" %>
-      <%= error_tag f, :password %>
+      <%= password_input(f, :password, required: true, class: "input-text") %>
+      <%= error_tag(f, :password) %>
       <div class="form-hint"><%= password_requirements() %></div>
     </.form_row>
 
     <.form_row label="Confirm New Password" input?={true}>
-      <%= password_input f, :password_confirmation, required: true, class: "input-text" %>
-      <%= error_tag f, :password_confirmation %>
+      <%= password_input(f, :password_confirmation, required: true, class: "input-text") %>
+      <%= error_tag(f, :password_confirmation) %>
     </.form_row>
 
     <.form_row label="Current Password" input?={true}>
-      <%= password_input f, :current_password, required: true, name: "current_password", id: "current_password_for_password", class: "input-text" %>
-      <%= error_tag f, :current_password %>
+      <%= password_input(f, :current_password,
+        required: true,
+        name: "current_password",
+        id: "current_password_for_password",
+        class: "input-text"
+      ) %>
+      <%= error_tag(f, :current_password) %>
     </.form_row>
 
     <.form_row label="">
-      <%= submit "Change Password", class: "btn btn-default" %>
+      <%= submit("Change Password", class: "btn btn-default") %>
     </.form_row>
   </.form>
 </div>

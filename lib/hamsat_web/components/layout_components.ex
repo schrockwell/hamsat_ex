@@ -12,7 +12,7 @@ defmodule HamsatWeb.LayoutComponents do
     ~H"""
     <fieldset class="md:flex md:space-x-8">
       <div class={@label_class}><%= @label %></div>
-      <div class={@class}><%= render_slot @inner_block %></div>
+      <div class={@class}><%= render_slot(@inner_block) %></div>
     </fieldset>
     """
   end
@@ -20,7 +20,7 @@ defmodule HamsatWeb.LayoutComponents do
   def filter_panel(assigns) do
     ~H"""
     <div class="w-full bg-gray-100 px-3 py-2 md:px-6 md:py-4 mx-auto border-b">
-      <%= render_slot @inner_block %>
+      <%= render_slot(@inner_block) %>
     </div>
     """
   end

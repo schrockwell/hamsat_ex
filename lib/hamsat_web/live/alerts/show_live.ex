@@ -102,9 +102,7 @@ defmodule HamsatWeb.Alerts.ShowLive do
       if socket.assigns.context.location do
         alert.sat
         |> Sat.get_satrec()
-        |> Satellite.current_position(
-          Coord.to_observer(%Coord{lat: alert.observer_lat, lon: alert.observer_lon})
-        )
+        |> Satellite.current_position(Coord.to_observer(%Coord{lat: alert.observer_lat, lon: alert.observer_lon}))
       end
 
     put_state(socket,
@@ -124,8 +122,7 @@ defmodule HamsatWeb.Alerts.ShowLive do
   end
 
   defp progression_class(:workable, :workable),
-    do:
-      "uppercase px-4 py-2 border-2 border-emerald-500 bg-emerald-100 text-emerald-600 font-medium"
+    do: "uppercase px-4 py-2 border-2 border-emerald-500 bg-emerald-100 text-emerald-600 font-medium"
 
   defp progression_class(match, match),
     do: "uppercase px-4 py-2 border-2 border-gray-300 bg-gray-100 text-gray-600 font-medium"

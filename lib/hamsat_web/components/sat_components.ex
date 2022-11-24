@@ -6,7 +6,10 @@ defmodule HamsatWeb.SatComponents do
 
   def sat_modulation_label(%{sat: _sat} = assigns) do
     ~H"""
-    <span title={sat_modulation_title(@sat)} class={[sat_modulation_class(@sat), "text-xs px-1.5 py-0.5 font-semibold text-gray-600 uppercase"]}>
+    <span
+      title={sat_modulation_title(@sat)}
+      class={[sat_modulation_class(@sat), "text-xs px-1.5 py-0.5 font-semibold text-gray-600 uppercase"]}
+    >
       <%= sat_modulation_text(@sat) %>
     </span>
     """

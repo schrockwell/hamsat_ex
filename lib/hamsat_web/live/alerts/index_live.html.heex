@@ -6,7 +6,7 @@
     <.pill_picker id="interval" options={duration_options()} value={@duration} />
     <%= if @duration == :browse do %>
       <form phx-change="date-changed">
-        <input name="date" type="date" class="input-date text-sm" value={@filter[:date]} phx-debounce="250">
+        <input name="date" type="date" class="input-date text-sm" value={@filter[:date]} phx-debounce="250" />
       </form>
     <% end %>
   </div>
@@ -39,7 +39,6 @@
 
 <%= if @alerts == [] do %>
   <div class="text-center py-8 italic text-gray-400">
-    
     <%= if @duration == :upcoming do %>
       No future activation alerts have been posted.
     <% else %>

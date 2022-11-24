@@ -28,22 +28,22 @@
       </.form_row>
     <% else %>
       <.form_row label="Mode" input?={true}>
-        <%= select f, :mode, @mode_options %>
-        <%= error_tag f, :mode %>
+        <%= select(f, :mode, @mode_options) %>
+        <%= error_tag(f, :mode) %>
       </.form_row>
     <% end %>
 
     <.form_row label="Callsign" input?={true}>
-      <%= text_input f, :callsign, class: "input-text", required: true, minlength: 3, placeholder: "Required" %>
-      <%= error_tag f, :callsign %>
+      <%= text_input(f, :callsign, class: "input-text", required: true, minlength: 3, placeholder: "Required") %>
+      <%= error_tag(f, :callsign) %>
     </.form_row>
 
     <%= if @sat.modulation == :linear do %>
       <.form_row label="Downlink MHz" input?={true}>
-        <%= text_input f, :downlink_mhz, class: "input-text", placeholder: "Optional" %>
+        <%= text_input(f, :downlink_mhz, class: "input-text", placeholder: "Optional") %>
 
-        <%= error_tag f, :downlink_mhz %>
-        
+        <%= error_tag(f, :downlink_mhz) %>
+
         <div class="mt-1 text-sm font-medium text-gray-500">
           <%= sat_downlink_ranges(@sat) %>
         </div>
@@ -51,18 +51,25 @@
     <% end %>
 
     <.form_row label="Comment" input?={true}>
-      <%= text_input f, :comment, class: "input-text", placeholder: "Optional", maxlength: 50 %>
+      <%= text_input(f, :comment, class: "input-text", placeholder: "Optional", maxlength: 50) %>
       <div class="mt-1 text-sm font-medium text-gray-500">
         Max 50 characters
       </div>
-      <%= error_tag f, :comment %>
+      <%= error_tag(f, :comment) %>
     </.form_row>
 
     <.form_row label="">
-      <%= submit "#{action_verb(@live_action)} Activation", class: "btn btn-default" %>
+      <%= submit("#{action_verb(@live_action)} Activation", class: "btn btn-default") %>
 
       <%= if @live_action == :edit do %>
-        <button type="button" phx-click="delete" data-confirm="Are you sure you want to delete this alert?" class="btn btn-default btn-text-danger">Delete Activation</button>
+        <button
+          type="button"
+          phx-click="delete"
+          data-confirm="Are you sure you want to delete this alert?"
+          class="btn btn-default btn-text-danger"
+        >
+          Delete Activation
+        </button>
       <% end %>
     </.form_row>
   </.form>

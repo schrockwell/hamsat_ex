@@ -43,8 +43,7 @@ defmodule HamsatWeb.Dashboard.ShowLive do
     socket =
       put_state(socket,
         my_alerts: Alerts.patch_alerts(socket.assigns.my_alerts, socket.assigns.context, message),
-        upcoming_alerts:
-          Alerts.patch_alerts(socket.assigns.upcoming_alerts, socket.assigns.context, message)
+        upcoming_alerts: Alerts.patch_alerts(socket.assigns.upcoming_alerts, socket.assigns.context, message)
       )
 
     {:noreply, socket}

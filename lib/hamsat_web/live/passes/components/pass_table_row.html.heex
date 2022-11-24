@@ -1,27 +1,33 @@
 <tr class={pass_table_row_class(@pass, @now)}>
-    <td class="whitespace-nowrap px-1 text-center whitespace-nowrap">
-        <span class="mr-4"><%= date(@context, @pass.info.aos.datetime) %></span>
-        <span class="mr-4"><%= time(@context, @pass.info.aos.datetime) %></span>
-    </td>
-    <td class="whitespace-nowrap px-1 text-center"><%= pass_next_event_in(@now, @pass) %></td>
-    <td class="whitespace-nowrap px-1 text-center whitespace-nowrap"><%= pass_sat_name(@pass) %></td>
-    <td class="whitespace-nowrap px-1 text-center"><SatComponents.sat_modulation_label sat={@pass.sat} /></td>
-    <td class="whitespace-nowrap px-1 text-center"><%= pass_duration(@pass) %></td>
-    <td class="whitespace-nowrap px-1 text-center"><%= pass_max_el(@pass) %></td>
-    <td class="whitespace-nowrap px-1 text-right"><%= pass_aos_direction(@pass) %></td>
-    <td class="whitespace-nowrap px-1 text-center">→</td>
-    <td class="whitespace-nowrap px-1 text-left"><%= pass_los_direction(@pass) %></td>
-    <td class="whitespace-nowrap px-1 text-center">
-        <%= for alert <- @pass.alerts do %>
-            <%= link alert.callsign, to: Routes.alerts_path(@socket, :show, alert.id), class: "link" %>
-        <% end %>
-    </td>
-    <td class="whitespace-nowrap px-1 text-right pr-6 whitespace-nowrap">
-        <%= if Alerts.show_create_alert_button?(@context, @pass, @now) do %>
-            <%= link "Post an Activation", to: Routes.alerts_path(HamsatWeb.Endpoint, :new, pass: Pass.encode_hash(@pass)), class: "link" %>
-        <% end %>
-        <%= if Alerts.show_edit_alert_button?(@context, @pass, @now) do %>
-            <%= link "Edit Activation", to: Routes.alerts_path(HamsatWeb.Endpoint, :edit, Alerts.my_alert_during_pass(@context, @pass).id), class: "link" %>
-        <% end %>
-    </td>
+  <td class="whitespace-nowrap px-1 text-center whitespace-nowrap">
+    <span class="mr-4"><%= date(@context, @pass.info.aos.datetime) %></span>
+    <span class="mr-4"><%= time(@context, @pass.info.aos.datetime) %></span>
+  </td>
+  <td class="whitespace-nowrap px-1 text-center"><%= pass_next_event_in(@now, @pass) %></td>
+  <td class="whitespace-nowrap px-1 text-center whitespace-nowrap"><%= pass_sat_name(@pass) %></td>
+  <td class="whitespace-nowrap px-1 text-center"><SatComponents.sat_modulation_label sat={@pass.sat} /></td>
+  <td class="whitespace-nowrap px-1 text-center"><%= pass_duration(@pass) %></td>
+  <td class="whitespace-nowrap px-1 text-center"><%= pass_max_el(@pass) %></td>
+  <td class="whitespace-nowrap px-1 text-right"><%= pass_aos_direction(@pass) %></td>
+  <td class="whitespace-nowrap px-1 text-center">→</td>
+  <td class="whitespace-nowrap px-1 text-left"><%= pass_los_direction(@pass) %></td>
+  <td class="whitespace-nowrap px-1 text-center">
+    <%= for alert <- @pass.alerts do %>
+      <%= link(alert.callsign, to: Routes.alerts_path(@socket, :show, alert.id), class: "link") %>
+    <% end %>
+  </td>
+  <td class="whitespace-nowrap px-1 text-right pr-6 whitespace-nowrap">
+    <%= if Alerts.show_create_alert_button?(@context, @pass, @now) do %>
+      <%= link("Post an Activation",
+        to: Routes.alerts_path(HamsatWeb.Endpoint, :new, pass: Pass.encode_hash(@pass)),
+        class: "link"
+      ) %>
+    <% end %>
+    <%= if Alerts.show_edit_alert_button?(@context, @pass, @now) do %>
+      <%= link("Edit Activation",
+        to: Routes.alerts_path(HamsatWeb.Endpoint, :edit, Alerts.my_alert_during_pass(@context, @pass).id),
+        class: "link"
+      ) %>
+    <% end %>
+  </td>
 </tr>

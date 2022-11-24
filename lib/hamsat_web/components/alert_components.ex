@@ -5,7 +5,7 @@ defmodule HamsatWeb.AlertComponents do
 
   def match_percentage(%{alert: _} = assigns) do
     ~H"""
-      <span class="text-xs px-1.5 py-0.5 bg-gray-200 mr-1"><%= pct(@alert.match.total) %></span>
+    <span class="text-xs px-1.5 py-0.5 bg-gray-200 mr-1"><%= pct(@alert.match.total) %></span>
     """
   end
 end

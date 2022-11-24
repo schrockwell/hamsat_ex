@@ -1,40 +1,46 @@
 <tr class={alert_table_row_class(@alert, @now)}>
-    <td class="text-center pl-3 md:pl-6">
-        <.live_component module={AlertSaver} alert={@alert} context={@context} id={"alert-saver-#{@alert.id}"} class="inline-flex" button_class="rounded bg-gray-200 hover:bg-gray-300 font-medium px-2" />
-    </td>
-    <td class="whitespace-nowrap px-1 text-center pl-6">
-        <%= date(@context, @alert.aos_at) %>
-        <%= time(@context, @alert.aos_at) %> &ndash; <%= time(@context, @alert.los_at) %>
-    </td>
-    <td class="whitespace-nowrap px-1 text-center"><%= @alert.callsign %></td>
-    <td class="whitespace-nowrap px-1 text-center"><%= @alert.sat.name %></td>
-    <td class="whitespace-nowrap px-1 text-center"><%= Grid.encode!({@alert.observer_lat, @alert.observer_lon}, 4) %></td>
-    <td class="whitespace-nowrap px-1 text-center"><%= mhz(@alert.downlink_mhz) %></td>
-    <td class="whitespace-nowrap px-1 text-center"><%= @alert.mode %></td>
-    <td class="whitespace-nowrap px-1 text-center">
-        <%= if @alert.comment do %>
-            “<%= @alert.comment %>”
-        <% else %>
-            –
-        <% end %>
-    </td>
-    <td class="whitespace-nowrap px-1 text-center">
-        <%= if @alert.match, do: pct(@alert.match.total), else: "–" %>
-    </td>
-    <td class="whitespace-nowrap px-1 text-center text-emerald-700">
-    <%= if @alert.is_workable? do %>
-        <%= time(@context, @alert.workable_start_at) %> &ndash;
-        <%= time(@context, @alert.workable_end_at) %>
+  <td class="text-center pl-3 md:pl-6">
+    <.live_component
+      module={AlertSaver}
+      alert={@alert}
+      context={@context}
+      id={"alert-saver-#{@alert.id}"}
+      class="inline-flex"
+      button_class="rounded bg-gray-200 hover:bg-gray-300 font-medium px-2"
+    />
+  </td>
+  <td class="whitespace-nowrap px-1 text-center pl-6">
+    <%= date(@context, @alert.aos_at) %>
+    <%= time(@context, @alert.aos_at) %> &ndash; <%= time(@context, @alert.los_at) %>
+  </td>
+  <td class="whitespace-nowrap px-1 text-center"><%= @alert.callsign %></td>
+  <td class="whitespace-nowrap px-1 text-center"><%= @alert.sat.name %></td>
+  <td class="whitespace-nowrap px-1 text-center"><%= Grid.encode!({@alert.observer_lat, @alert.observer_lon}, 4) %></td>
+  <td class="whitespace-nowrap px-1 text-center"><%= mhz(@alert.downlink_mhz) %></td>
+  <td class="whitespace-nowrap px-1 text-center"><%= @alert.mode %></td>
+  <td class="whitespace-nowrap px-1 text-center">
+    <%= if @alert.comment do %>
+      “<%= @alert.comment %>”
+    <% else %>
+      –
     <% end %>
-    </td>
-    <td class="whitespace-nowrap px-1 text-center text-emerald-700">
-        <%= alert_next_workable_in(@now, @alert) %>
-    </td>
-    <td class="whitespace-nowrap px-1 text-right px-3 md:pr-6">
-        <%= if Alert.owned?(@alert, @context.user) do %>
-            <%= link "Edit", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "link mr-2 md:mr-4" %>
-        <% end %>
+  </td>
+  <td class="whitespace-nowrap px-1 text-center">
+    <%= if @alert.match, do: pct(@alert.match.total), else: "–" %>
+  </td>
+  <td class="whitespace-nowrap px-1 text-center text-emerald-700">
+    <%= if @alert.is_workable? do %>
+      <%= time(@context, @alert.workable_start_at) %> &ndash; <%= time(@context, @alert.workable_end_at) %>
+    <% end %>
+  </td>
+  <td class="whitespace-nowrap px-1 text-center text-emerald-700">
+    <%= alert_next_workable_in(@now, @alert) %>
+  </td>
+  <td class="whitespace-nowrap px-1 text-right px-3 md:pr-6">
+    <%= if Alert.owned?(@alert, @context.user) do %>
+      <%= link("Edit", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "link mr-2 md:mr-4") %>
+    <% end %>
 
-        <%= link "Track", to: Routes.alerts_path(@socket, :show, @alert.id), class: "link" %>
-    </td>
+    <%= link("Track", to: Routes.alerts_path(@socket, :show, @alert.id), class: "link") %>
+  </td>
 </tr>

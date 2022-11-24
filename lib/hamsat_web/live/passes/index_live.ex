@@ -131,8 +131,7 @@ defmodule HamsatWeb.Passes.IndexLive do
   end
 
   defp purge_passed_passes(socket) do
-    next_passes =
-      Enum.reject(socket.assigns.passes, &(Pass.progression(&1, socket.assigns.now) == :passed))
+    next_passes = Enum.reject(socket.assigns.passes, &(Pass.progression(&1, socket.assigns.now) == :passed))
 
     put_state(socket, passes: next_passes)
   end

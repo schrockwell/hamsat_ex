@@ -9,30 +9,36 @@
     <% end %>
 
     <fieldset>
-      <%= label f, :email, class: "form-label" %>
-      <%= email_input f, :email, required: true, class: "input-text" %>
-      <%= error_tag f, :email %>
+      <%= label(f, :email, class: "form-label") %>
+      <%= email_input(f, :email, required: true, class: "input-text") %>
+      <%= error_tag(f, :email) %>
     </fieldset>
 
     <fieldset>
-      <%= label f, :password, class: "form-label" %>
-      <%= password_input f, :password, required: true, class: "input-text", value: input_value(f, :password) %>
-      <%= error_tag f, :password %>
+      <%= label(f, :password, class: "form-label") %>
+      <%= password_input(f, :password, required: true, class: "input-text", value: input_value(f, :password)) %>
+      <%= error_tag(f, :password) %>
       <div class="form-hint"><%= password_requirements() %></div>
     </fieldset>
 
     <h2 class="h2 mt-8 mb-4">Station location</h2>
     <fieldset class="w-full lg:w-1/2">
-      <.live_component module={LocationPicker} id="location-picker" form={f} on_map_clicked={self()} fields={%{lat: :home_lat, lon: :home_lon, grid: :home_grid}} />
+      <.live_component
+        module={LocationPicker}
+        id="location-picker"
+        form={f}
+        on_map_clicked={self()}
+        fields={%{lat: :home_lat, lon: :home_lon, grid: :home_grid}}
+      />
     </fieldset>
 
     <div>
-      <%= submit "Register", class: "btn btn-default" %>
+      <%= submit("Register", class: "btn btn-default") %>
     </div>
   </.form>
 
   <form phx-hook="Registration" method="POST" action={Routes.user_session_path(@socket, :create)} id="sign-in-form">
     <%= csrf_input_tag(Routes.user_session_path(@socket, :create)) %>
-    <input type="hidden" name="token" value={@sign_in_token}>
+    <input type="hidden" name="token" value={@sign_in_token} />
   </form>
 </div>

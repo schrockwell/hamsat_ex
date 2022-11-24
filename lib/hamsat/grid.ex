@@ -29,8 +29,7 @@ defmodule Hamsat.Grid do
     lat_index_2 = trunc(lat)
 
     # Convert to string
-    grid =
-      "#{Enum.at(@alphabet, lon_index_1)}#{Enum.at(@alphabet, lat_index_1)}#{lon_index_2}#{lat_index_2}"
+    grid = "#{Enum.at(@alphabet, lon_index_1)}#{Enum.at(@alphabet, lat_index_1)}#{lon_index_2}#{lat_index_2}"
 
     if length == 6 do
       # Now 2 degrees lon per grid remaining
@@ -88,11 +87,9 @@ defmodule Hamsat.Grid do
     lon = -180.0
     lat = -90.0
 
-    lon_ord_1 =
-      Enum.find_index(@alphabet, fn letter -> String.upcase(String.at(grid, 0)) == letter end)
+    lon_ord_1 = Enum.find_index(@alphabet, fn letter -> String.upcase(String.at(grid, 0)) == letter end)
 
-    lat_ord_1 =
-      Enum.find_index(@alphabet, fn letter -> String.upcase(String.at(grid, 1)) == letter end)
+    lat_ord_1 = Enum.find_index(@alphabet, fn letter -> String.upcase(String.at(grid, 1)) == letter end)
 
     lon_ord_2 = String.at(grid, 2) |> String.to_integer()
     lat_ord_2 = String.at(grid, 3) |> String.to_integer()
@@ -108,11 +105,9 @@ defmodule Hamsat.Grid do
         {:ok, {lat, lon}}
 
       6 ->
-        lon_ord_3 =
-          Enum.find_index(@alphabet, fn letter -> String.upcase(String.at(grid, 4)) == letter end)
+        lon_ord_3 = Enum.find_index(@alphabet, fn letter -> String.upcase(String.at(grid, 4)) == letter end)
 
-        lat_ord_3 =
-          Enum.find_index(@alphabet, fn letter -> String.upcase(String.at(grid, 5)) == letter end)
+        lat_ord_3 = Enum.find_index(@alphabet, fn letter -> String.upcase(String.at(grid, 5)) == letter end)
 
         lon = lon + 360.0 / 18.0 / 10.0 / 24.0 * (lon_ord_3 + 0.5)
         lat = lat + 180.0 / 18.0 / 10.0 / 24.0 * (lat_ord_3 + 0.5)
