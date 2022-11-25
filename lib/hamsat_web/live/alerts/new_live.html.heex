@@ -17,8 +17,17 @@
     </.form_row>
 
     <%= if Modulation.fixed_downlink?(@sat) do %>
-      <.form_row label="Downlink MHz">
-        <%= sat_downlink_ranges(@sat) %>
+      <.form_row label="MHz">
+        <div class="flex items-center space-x-4">
+          <span><%= sat_freq_ranges(@sat, Ecto.Changeset.get_field(@changeset, :mhz_direction)) %></span>
+
+          <label class="flex items-center space-x-1.5 cursor-pointer">
+            <%= radio_button(f, :mhz_direction, :up) %> <span>Uplink</span>
+          </label>
+          <label class="flex items-center space-x-1.5 cursor-pointer">
+            <%= radio_button(f, :mhz_direction, :down) %> <span>Downlink</span>
+          </label>
+        </div>
       </.form_row>
     <% end %>
 
@@ -53,7 +62,7 @@
         <%= error_tag(f, :mhz) %>
 
         <div class="mt-1 text-sm font-medium text-gray-500">
-          <%= sat_downlink_ranges(@sat) %>
+          <%= sat_freq_ranges(@sat, Ecto.Changeset.get_field(@changeset, :mhz_direction)) %>
         </div>
       </.form_row>
     <% end %>

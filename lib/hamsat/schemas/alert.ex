@@ -92,7 +92,7 @@ defmodule Hamsat.Schemas.Alert do
   end
 
   defp preferred_mhz(%Sat{downlinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :down), do: mhz
-  # TODO: default uplink mhz
+  defp preferred_mhz(%Sat{uplinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :up), do: mhz
   defp preferred_mhz(_sat, _direction), do: nil
 
   defp preferred_mhz_direction(user), do: user.latest_mhz_direction || :down

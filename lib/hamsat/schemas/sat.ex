@@ -1,7 +1,7 @@
 defmodule Hamsat.Schemas.Sat do
   use Hamsat, :schema
 
-  alias Hamsat.Schemas.Downlink
+  alias Hamsat.Schemas.FreqRange
 
   schema "satellites" do
     field :name, :string
@@ -10,7 +10,8 @@ defmodule Hamsat.Schemas.Sat do
     field :slug, :string
     field :modulation, Ecto.Enum, values: Hamsat.Modulation.sat_values()
 
-    embeds_many :downlinks, Downlink, on_replace: :delete
+    embeds_many :downlinks, FreqRange, on_replace: :delete
+    embeds_many :uplinks, FreqRange, on_replace: :delete
 
     timestamps()
   end
@@ -20,7 +21,8 @@ defmodule Hamsat.Schemas.Sat do
     |> cast(attrs, [:name, :number, :slug, :nasa_name, :modulation])
     |> put_nasa_name()
     |> validate_required([:name, :number, :slug, :nasa_name, :modulation])
-    |> cast_embed(:downlinks, with: &Downlink.changeset/2)
+    |> cast_embed(:downlinks, with: &FreqRange.changeset/2)
+    |> cast_embed(:uplinks, with: &FreqRange.changeset/2)
   end
 
   defp put_nasa_name(changeset) do

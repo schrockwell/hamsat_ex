@@ -116,8 +116,15 @@ defmodule HamsatWeb.Alerts.NewLive do
     )
   end
 
-  defp sat_downlink_ranges(sat) do
-    sat.downlinks
+  defp sat_freq_ranges(sat, direction) do
+    field =
+      case direction do
+        :up -> :uplinks
+        :down -> :downlinks
+      end
+
+    sat
+    |> Map.fetch!(field)
     |> Enum.map(fn
       %{lower_mhz: mhz, upper_mhz: mhz} ->
         "#{mhz} MHz"

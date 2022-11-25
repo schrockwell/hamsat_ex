@@ -1,4 +1,4 @@
-defmodule Hamsat.Schemas.Downlink do
+defmodule Hamsat.Schemas.FreqRange do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -8,8 +8,8 @@ defmodule Hamsat.Schemas.Downlink do
     field :upper_mhz, :float
   end
 
-  def changeset(downlink, attrs \\ %{}) do
-    downlink
+  def changeset(freq_range, attrs \\ %{}) do
+    freq_range
     |> cast(attrs, [:lower_mhz, :upper_mhz])
     |> validate_required([:lower_mhz, :upper_mhz])
   end
