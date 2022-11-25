@@ -43,8 +43,6 @@ defmodule Hamsat.Schemas.Alert do
   end
 
   def insert_changeset(context, pass, attrs \\ %{}) do
-    preferred_direction = preferred_mhz_direction(context.user)
-
     %__MODULE__{}
     |> change(%{
       aos_at: Hamsat.Util.erl_to_utc_datetime(pass.info.aos.datetime),
@@ -52,8 +50,7 @@ defmodule Hamsat.Schemas.Alert do
       los_at: Hamsat.Util.erl_to_utc_datetime(pass.info.los.datetime),
       callsign: context.user.latest_callsign,
       mode: preferred_mode(context.user, pass.sat),
-      mhz: preferred_mhz(pass.sat, preferred_direction),
-      mhz_direction: preferred_direction,
+      mhz_direction: preferred_mhz_direction(context.user),
       observer_lat: context.location.lat,
       observer_lon: context.location.lon
     })
@@ -72,10 +69,23 @@ defmodule Hamsat.Schemas.Alert do
       :comment
     ])
     |> format_callsign()
+    |> put_forced_mhz()
     |> validate_required([:callsign])
     |> validate_length(:callsign, min: 3)
     |> validate_length(:comment, max: 50)
   end
+
+  defp put_forced_mhz(changeset) do
+    if mhz = forced_mhz(get_field(changeset, :sat), get_field(changeset, :mhz_direction)) do
+      put_change(changeset, :mhz, mhz)
+    else
+      changeset
+    end
+  end
+
+  defp forced_mhz(%Sat{downlinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :down), do: mhz
+  defp forced_mhz(%Sat{uplinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :up), do: mhz
+  defp forced_mhz(_sat, _direction), do: nil
 
   defp preferred_mode(user, sat) do
     case Modulation.alert_options(sat) do
@@ -90,10 +100,6 @@ defmodule Hamsat.Schemas.Alert do
         end)
     end
   end
-
-  defp preferred_mhz(%Sat{downlinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :down), do: mhz
-  defp preferred_mhz(%Sat{uplinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :up), do: mhz
-  defp preferred_mhz(_sat, _direction), do: nil
 
   defp preferred_mhz_direction(user), do: user.latest_mhz_direction || :down
 
