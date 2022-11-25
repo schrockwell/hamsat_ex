@@ -39,8 +39,16 @@
     </.form_row>
 
     <%= if not Modulation.fixed_downlink?(@sat) do %>
-      <.form_row label="Downlink MHz" input?={true}>
-        <%= text_input(f, :mhz, class: "input-text", placeholder: "Optional") %>
+      <.form_row label="MHz" input?={true}>
+        <div class="flex items-center space-x-4">
+          <%= text_input(f, :mhz, class: "input-text", placeholder: "Optional") %>
+          <label class="flex items-center space-x-1.5 cursor-pointer">
+            <%= radio_button(f, :mhz_direction, :up) %> <span>Uplink</span>
+          </label>
+          <label class="flex items-center space-x-1.5 cursor-pointer">
+            <%= radio_button(f, :mhz_direction, :down) %> <span>Downlink</span>
+          </label>
+        </div>
 
         <%= error_tag(f, :mhz) %>
 
