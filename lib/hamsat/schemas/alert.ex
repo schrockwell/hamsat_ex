@@ -43,6 +43,8 @@ defmodule Hamsat.Schemas.Alert do
   end
 
   def insert_changeset(context, pass, attrs \\ %{}) do
+    preferred_direction = preferred_mhz_direction(context.user)
+
     %__MODULE__{}
     |> change(%{
       aos_at: Hamsat.Util.erl_to_utc_datetime(pass.info.aos.datetime),
@@ -50,8 +52,8 @@ defmodule Hamsat.Schemas.Alert do
       los_at: Hamsat.Util.erl_to_utc_datetime(pass.info.los.datetime),
       callsign: context.user.latest_callsign,
       mode: preferred_mode(context.user, pass.sat),
-      mhz: preferred_downlink_mhz(pass.sat),
-      mhz_direction: :down,
+      mhz: preferred_mhz(pass.sat, preferred_direction),
+      mhz_direction: preferred_direction,
       observer_lat: context.location.lat,
       observer_lon: context.location.lon
     })
@@ -65,6 +67,7 @@ defmodule Hamsat.Schemas.Alert do
     |> cast(attrs, [
       :callsign,
       :mhz,
+      :mhz_direction,
       :mode,
       :comment
     ])
@@ -88,8 +91,11 @@ defmodule Hamsat.Schemas.Alert do
     end
   end
 
-  defp preferred_downlink_mhz(%Sat{downlinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}), do: mhz
-  defp preferred_downlink_mhz(_sat), do: nil
+  defp preferred_mhz(%Sat{downlinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :down), do: mhz
+  # TODO: default uplink mhz
+  defp preferred_mhz(_sat, _direction), do: nil
+
+  defp preferred_mhz_direction(user), do: user.latest_mhz_direction || :down
 
   def progression(alert, now) do
     cond do

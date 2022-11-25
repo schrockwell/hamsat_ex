@@ -15,6 +15,7 @@ defmodule Hamsat.Accounts.User do
     field :home_lon, :float
     field :latest_callsign, :string
     field :latest_modes, {:array, :string}
+    field :latest_mhz_direction, Ecto.Enum, values: [:up, :down]
     field :prefer_ssb_mode, :integer
     field :prefer_data_mode, :integer
     field :prefer_cw_mode, :integer
@@ -185,7 +186,11 @@ defmodule Hamsat.Accounts.User do
     new_latest_modes = Enum.uniq([alert.mode | user.latest_modes])
 
     user
-    |> change(latest_callsign: alert.callsign, latest_modes: new_latest_modes)
+    |> change(
+      latest_callsign: alert.callsign,
+      latest_modes: new_latest_modes,
+      latest_mhz_direction: alert.mhz_direction
+    )
     |> format_callsign(:latest_callsign)
   end
 
