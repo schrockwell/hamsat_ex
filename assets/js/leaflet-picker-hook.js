@@ -5,7 +5,7 @@ leaflet.Icon.Default.imagePath = "/images/leaflet/";
 
 export default {
   mounted() {
-    this.map = leaflet.map(this.el).setView([0, 0], 1);
+    this.map = leaflet.map(this.el).setView([20, 0], 1);
     this.marker = leaflet.marker([0, 0]);
 
     leaflet

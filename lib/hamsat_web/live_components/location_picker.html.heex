@@ -1,9 +1,11 @@
 <div>
   <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
-    <div>
-      <%= label(@form, @field_keys.grid, class: "form-label") %>
-      <%= text_input(@form, @field_keys.grid, placeholder: "Grid", class: "w-24 input-text font-mono", maxlength: 6) %>
-    </div>
+    <%= if @show_grid? do %>
+      <div>
+        <%= label(@form, @field_keys.grid, class: "form-label") %>
+        <%= text_input(@form, @field_keys.grid, placeholder: "Grid", class: "w-24 input-text font-mono", maxlength: 6) %>
+      </div>
+    <% end %>
     <div class="flex-1">
       <%= label(@form, @field_keys.lat, "Latitude (°N)", class: "form-label") %>
       <%= text_input(@form, @field_keys.lat, placeholder: "Latitude", class: "input-text w-full") %>
@@ -19,7 +21,7 @@
   <div phx-update="ignore" id="location-picker-map-container">
     <div
       id="location-picker-map"
-      style="height: 400px"
+      style="height: 300px"
       phx-hook="LeafletPicker"
       data-mapbox-access-token={@mapbox_access_token}
     >

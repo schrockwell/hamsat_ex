@@ -6,6 +6,7 @@ defmodule HamsatWeb.LocationPicker do
   prop :fields, default: @default_field_mapping
   prop :form
   prop :mapbox_access_token, default: Application.fetch_env!(:hamsat, :mapbox_access_token)
+  prop :show_grid?, default: true
 
   state :field_keys
 

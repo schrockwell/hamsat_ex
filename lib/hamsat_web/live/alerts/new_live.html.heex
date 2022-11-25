@@ -3,17 +3,47 @@
     <%= action_verb(@live_action) %> an Activation For <%= @sat.name %>
   </h1>
 
-  <.form let={f} for={@changeset} phx-change="change" phx-submit="submit">
-    <.form_row label="UTC Date">
-      <%= date_span(@pass.info.aos.datetime, @pass.info.los.datetime) %>
+  <.form let={f} for={@changeset} phx-change="change">
+    <.form_row label="Satellite" input?={true}>
+      <%= select(f, :satellite_id, Satellites.list_satellite_options()) %>
     </.form_row>
 
-    <.form_row label="UTC Time">
-      <%= time_span(@pass.info.aos.datetime, @pass.info.los.datetime) %>
+    <.form_row label="Location" input?={true}>
+      <.live_component
+        module={LocationPicker}
+        id="location_picker"
+        form={f}
+        fields={%{lat: :observer_lat, lon: :observer_lon, grid: :grid}}
+        on_map_clicked={self()}
+        show_grid?={false}
+      />
     </.form_row>
 
-    <.form_row label="From Location">
-      <%= @grid %>
+    <.form_row label="Grid(s)" input?={true}>
+      <div class="flex items-center space-x-2">
+        <%= text_input(f, :grid_1, class: "input-text w-16", required: true, placeholder: "Req'd") %>
+        <%= text_input(f, :grid_2, class: "input-text w-16") %>
+        <%= text_input(f, :grid_3, class: "input-text w-16") %>
+        <%= text_input(f, :grid_4, class: "input-text w-16") %>
+      </div>
+
+      <%= if show_recommended_grids?(@changeset) do %>
+        <button type="button" class="text-sm font-medium link" phx-click="use-recommended-grids">
+          Recommended: <%= AlertForm.recommended_grids(@changeset) |> Enum.join(", ") %>
+        </button>
+      <% end %>
+    </.form_row>
+
+    <.form_row label="UTC Date" input?={true}>
+      <%= date_input(f, :pass_filter_date, class: "input-date text-sm") %>
+    </.form_row>
+
+    <.form_row label="UTC Time" input?={true}>
+      <%= if @passes == [] do %>
+        <div class="italic text-gray-500">No passes found</div>
+      <% else %>
+        <%= select(f, :pass_hash, pass_options(@passes)) %>
+      <% end %>
     </.form_row>
 
     <%= if Modulation.fixed_downlink?(@sat) do %>
@@ -31,13 +61,13 @@
       </.form_row>
     <% end %>
 
-    <%= if length(@mode_options) == 1 do %>
+    <%= if length(mode_options(@sat)) == 1 do %>
       <.form_row label="Mode">
-        <%= hd(@mode_options) %>
+        <%= hd(mode_options(@sat)) %>
       </.form_row>
     <% else %>
       <.form_row label="Mode" input?={true}>
-        <%= select(f, :mode, @mode_options) %>
+        <%= select(f, :mode, mode_options(@sat)) %>
         <%= error_tag(f, :mode) %>
       </.form_row>
     <% end %>

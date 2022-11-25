@@ -49,10 +49,12 @@ defmodule Hamsat.Schemas.Alert do
       max_at: Hamsat.Util.erl_to_utc_datetime(pass.info.max.datetime),
       los_at: Hamsat.Util.erl_to_utc_datetime(pass.info.los.datetime),
       callsign: context.user.latest_callsign,
-      mode: preferred_mode(context.user, pass.sat),
-      mhz_direction: preferred_mhz_direction(context.user),
+      # mode: preferred_mode(context.user, pass.sat),
+      # mhz_direction: preferred_mhz_direction(context.user),
       observer_lat: context.location.lat,
-      observer_lon: context.location.lon
+      observer_lon: context.location.lon,
+      satellite_id: pass.sat.id,
+      user_id: context.user.id
     })
     |> put_assoc(:user, context.user)
     |> put_assoc(:sat, pass.sat)
@@ -86,22 +88,6 @@ defmodule Hamsat.Schemas.Alert do
   defp forced_mhz(%Sat{downlinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :down), do: mhz
   defp forced_mhz(%Sat{uplinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :up), do: mhz
   defp forced_mhz(_sat, _direction), do: nil
-
-  defp preferred_mode(user, sat) do
-    case Modulation.alert_options(sat) do
-      [mode] ->
-        mode
-
-      sat_modes ->
-        # The list of latest_modes is ordered by most-recent, so try to find the first one
-        # that is applicable to this satellite
-        Enum.find(user.latest_modes, hd(sat_modes), fn mode ->
-          mode in sat_modes
-        end)
-    end
-  end
-
-  defp preferred_mhz_direction(user), do: user.latest_mhz_direction || :down
 
   def progression(alert, now) do
     cond do

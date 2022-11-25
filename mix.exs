@@ -35,7 +35,7 @@ defmodule Hamsat.MixProject do
     [
       # {:live_assign, path: "../live_assign"},
       {:live_assign, "0.3.1"},
-      {:live_inspect, "~> 0.1"},
+      {:live_inspect, "~> 0.2"},
       # {:live_inspect, path: "../live_inspect"},
       # {:live_dev_tools, path: "../live_dev_tools"},
       {:live_event, "0.2.0"},

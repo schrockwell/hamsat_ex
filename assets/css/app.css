@@ -3,11 +3,11 @@
 @tailwind components;
 @tailwind utilities;
 
-a.link {
+.link {
   @apply font-medium text-sky-600 transition-all;
 }
 
-a.link:hover {
+.link:hover {
   @apply text-sky-700;
 }
 
