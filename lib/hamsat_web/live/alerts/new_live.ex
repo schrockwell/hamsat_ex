@@ -56,6 +56,15 @@ defmodule HamsatWeb.Alerts.NewLive do
     {:ok, socket}
   end
 
+  def handle_event("change", %{"alert" => alert_params}, %{assigns: %{live_action: :new}} = socket) do
+    {:noreply,
+     assign(socket, :changeset, Alerts.change_new_alert(socket.assigns.context, socket.assigns.pass, alert_params))}
+  end
+
+  def handle_event("change", %{"alert" => alert_params}, %{assigns: %{live_action: :edit}} = socket) do
+    {:noreply, assign(socket, :changeset, Alerts.change_alert(socket.assigns.alert, alert_params))}
+  end
+
   def handle_event(
         "submit",
         %{"alert" => alert_params},
@@ -116,9 +125,9 @@ defmodule HamsatWeb.Alerts.NewLive do
     )
   end
 
-  defp sat_freq_ranges(sat, direction) do
+  defp sat_freq_ranges(sat, changeset) do
     field =
-      case direction do
+      case selected_direction(changeset) do
         :up -> :uplinks
         :down -> :downlinks
       end
@@ -127,14 +136,18 @@ defmodule HamsatWeb.Alerts.NewLive do
     |> Map.fetch!(field)
     |> Enum.map(fn
       %{lower_mhz: mhz, upper_mhz: mhz} ->
-        "#{mhz} MHz"
+        "#{mhz(mhz, 3)} MHz"
 
       downlink ->
-        "#{downlink.lower_mhz} – #{downlink.upper_mhz} MHz"
+        "#{mhz(downlink.lower_mhz, 3)} – #{mhz(downlink.upper_mhz, 3)} MHz"
     end)
     |> Enum.join(", ")
   end
 
   defp action_verb(:new), do: "Post"
   defp action_verb(:edit), do: "Update"
+
+  defp selected_direction(changeset) do
+    Ecto.Changeset.get_field(changeset, :mhz_direction)
+  end
 end

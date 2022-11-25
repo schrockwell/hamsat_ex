@@ -3,7 +3,7 @@
     <%= action_verb(@live_action) %> an Activation For <%= @sat.name %>
   </h1>
 
-  <.form let={f} for={@changeset} phx-submit="submit">
+  <.form let={f} for={@changeset} phx-change="change" phx-submit="submit">
     <.form_row label="UTC Date">
       <%= date_span(@pass.info.aos.datetime, @pass.info.los.datetime) %>
     </.form_row>
@@ -19,7 +19,7 @@
     <%= if Modulation.fixed_downlink?(@sat) do %>
       <.form_row label="MHz">
         <div class="flex items-center space-x-4">
-          <span><%= sat_freq_ranges(@sat, Ecto.Changeset.get_field(@changeset, :mhz_direction)) %></span>
+          <span><%= sat_freq_ranges(@sat, @changeset) %></span>
 
           <label class="flex items-center space-x-1.5 cursor-pointer">
             <%= radio_button(f, :mhz_direction, :up) %> <span>Uplink</span>
@@ -62,7 +62,7 @@
         <%= error_tag(f, :mhz) %>
 
         <div class="mt-1 text-sm font-medium text-gray-500">
-          <%= sat_freq_ranges(@sat, Ecto.Changeset.get_field(@changeset, :mhz_direction)) %>
+          <%= sat_freq_ranges(@sat, @changeset) %>
         </div>
       </.form_row>
     <% end %>
