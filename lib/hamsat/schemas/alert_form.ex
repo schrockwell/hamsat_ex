@@ -103,7 +103,7 @@ defmodule Hamsat.Schemas.AlertForm do
     ])
     |> format_callsign()
     |> validate_required([:callsign, :grid_1, :satellite_id, :observer_lat, :observer_lon])
-    |> validate_grids_format()
+    |> validate_and_format_grids()
     # |> validate_grids()
     |> put_forced_mhz(sat)
     |> validate_length(:callsign, min: 3)
@@ -165,14 +165,22 @@ defmodule Hamsat.Schemas.AlertForm do
     end)
   end
 
-  defp validate_grids_format(changeset) do
+  defp validate_and_format_grids(changeset) do
     Enum.reduce(@grid_fields, changeset, fn field, cs ->
       grid = get_field(cs, field)
 
-      if grid == nil or Grid.valid?(grid) do
-        cs
-      else
-        add_error(cs, field, "is invalid")
+      cond do
+        grid == nil ->
+          cs
+
+        Grid.valid?(grid) ->
+          # Convert "fn31" to "FN31"
+          {prefix, suffix} = String.split_at(grid, 2)
+          new_grid = String.upcase(prefix) <> suffix
+          put_change(cs, field, new_grid)
+
+        :else ->
+          add_error(cs, field, "is invalid")
       end
     end)
   end
