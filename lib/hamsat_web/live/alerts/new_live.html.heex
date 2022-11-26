@@ -8,6 +8,18 @@
       <%= select(f, :satellite_id, Satellites.list_satellite_options()) %>
     </.form_row>
 
+    <.form_row label="UTC" input?={true}>
+      <div class="flex items-center space-x-2">
+        <%= date_input(f, :pass_filter_date, class: "input-text text-sm") %>
+
+        <%= if @passes == [] do %>
+          <div class="italic text-gray-500">No passes found</div>
+        <% else %>
+          <%= select(f, :pass_hash, pass_options(@passes)) %>
+        <% end %>
+      </div>
+    </.form_row>
+
     <.form_row label="Location" input?={true}>
       <.live_component
         module={LocationPicker}
@@ -43,18 +55,6 @@
         <button type="button" class="text-sm font-medium link" phx-click="use-recommended-grids">
           Recommended: <%= AlertForm.recommended_grids(@changeset) |> Enum.join(", ") %>
         </button>
-      <% end %>
-    </.form_row>
-
-    <.form_row label="UTC Date" input?={true}>
-      <%= date_input(f, :pass_filter_date, class: "input-date text-sm") %>
-    </.form_row>
-
-    <.form_row label="UTC Time" input?={true}>
-      <%= if @passes == [] do %>
-        <div class="italic text-gray-500">No passes found</div>
-      <% else %>
-        <%= select(f, :pass_hash, pass_options(@passes)) %>
       <% end %>
     </.form_row>
 
