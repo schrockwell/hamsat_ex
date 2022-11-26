@@ -3,24 +3,28 @@ defmodule Hamsat.Schemas.AlertForm do
 
   import Hamsat.Changeset
 
+  alias Hamsat.Alerts
+  alias Hamsat.Alerts.Pass
   alias Hamsat.Context
   alias Hamsat.Grid
-  alias Hamsat.Alerts.Pass
   alias Hamsat.Modulation
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.Sat
 
-  # @grid_fields [:grid_1, :grid_2, :grid_3, :grid_4]
+  @grid_fields [:grid_1, :grid_2, :grid_3, :grid_4]
 
   embedded_schema do
     # Pass selection
-    belongs_to :sat, Sat, foreign_key: :satellite_id
+    field :sat, :map
+    field :satellite_id, :binary_id
+    field :pass, :map
     field :pass_filter_date, :date
     field :pass_hash, :string
     field :observer_lat, :float
     field :observer_lon, :float
 
     # Alert info
+    field :context, :map
     field :grid_1, :string
     field :grid_2, :string
     field :grid_3, :string
@@ -58,26 +62,29 @@ defmodule Hamsat.Schemas.AlertForm do
     })
   end
 
-  def from_alert(%Alert{} = alert) do
-    %__MODULE__{
-      satellite_id: alert.satellite_id,
-      sat: alert.sat,
-      pass_filter_date: DateTime.to_date(alert.max_at),
-      # TODO: grids
-      grid_1: Grid.encode!({alert.observer_lat, alert.observer_lon}, 6),
-      grid_2: nil,
-      grid_3: nil,
-      grid_4: nil,
-      mhz: alert.mhz,
-      mhz_direction: alert.mhz_direction,
-      mode: alert.mode,
-      callsign: alert.callsign,
-      comment: alert.comment
+  def initial_params(%Context{} = context, %Alert{} = alert) do
+    pass = Alerts.get_pass_by_alert(alert)
+
+    %{
+      "satellite_id" => alert.satellite_id,
+      "pass_filter_date" => Timex.to_date(alert.max_at),
+      "pass_hash" => pass.hash,
+      "observer_lat" => alert.observer_lat,
+      "observer_lon" => alert.observer_lon,
+      "grid_1" => Enum.at(alert.grids, 0),
+      "grid_2" => Enum.at(alert.grids, 1),
+      "grid_3" => Enum.at(alert.grids, 2),
+      "grid_4" => Enum.at(alert.grids, 3),
+      "mhz" => alert.mhz,
+      "mhz_direction" => alert.mhz_direction,
+      "mode" => alert.mode,
+      "callsign" => alert.callsign,
+      "comment" => alert.comment
     }
   end
 
-  def changeset(%__MODULE__{} = form, params \\ %{}) do
-    form
+  def changeset(context, sat, pass, params \\ %{}) do
+    %__MODULE__{context: context, sat: sat, pass: pass}
     |> cast(params, [
       :callsign,
       :comment,
@@ -95,12 +102,25 @@ defmodule Hamsat.Schemas.AlertForm do
       :observer_lon
     ])
     |> format_callsign()
-    |> validate_required([:callsign])
+    |> validate_required([:callsign, :grid_1, :satellite_id, :observer_lat, :observer_lon])
+    |> validate_grids_format()
     # |> validate_grids()
-    # |> put_forced_mhz()
+    |> put_forced_mhz(sat)
     |> validate_length(:callsign, min: 3)
     |> validate_length(:comment, max: 50)
   end
+
+  defp put_forced_mhz(changeset, sat) do
+    if mhz = forced_mhz(sat, get_field(changeset, :mhz_direction)) do
+      put_change(changeset, :mhz, mhz)
+    else
+      changeset
+    end
+  end
+
+  defp forced_mhz(%Sat{downlinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :down), do: mhz
+  defp forced_mhz(%Sat{uplinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :up), do: mhz
+  defp forced_mhz(_sat, _direction), do: nil
 
   defp preferred_mode(user, sat) do
     case Modulation.alert_options(sat) do
@@ -142,6 +162,18 @@ defmodule Hamsat.Schemas.AlertForm do
       within_lon? = abs(grid_center_lon - lon) < 1.00 + slop
 
       within_lat? and within_lon?
+    end)
+  end
+
+  defp validate_grids_format(changeset) do
+    Enum.reduce(@grid_fields, changeset, fn field, cs ->
+      grid = get_field(cs, field)
+
+      if grid == nil or Grid.valid?(grid) do
+        cs
+      else
+        add_error(cs, field, "is invalid")
+      end
     end)
   end
 

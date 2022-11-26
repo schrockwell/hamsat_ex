@@ -4,7 +4,9 @@ defmodule Hamsat.Schemas.Alert do
   import Hamsat.Changeset
 
   alias Hamsat.Accounts.User
+  alias Hamsat.Alerts.Pass
   alias Hamsat.Modulation
+  alias Hamsat.Schemas.AlertForm
   alias Hamsat.Schemas.Sat
   alias Hamsat.Schemas.SavedAlert
 
@@ -23,6 +25,7 @@ defmodule Hamsat.Schemas.Alert do
     field :mode, :string
     field :observer_lat, :float
     field :observer_lon, :float
+    field :grids, {:array, :string}
 
     field :is_workable?, :boolean, default: false, virtual: true
     field :workable_start_at, :utc_datetime, virtual: true
@@ -42,52 +45,38 @@ defmodule Hamsat.Schemas.Alert do
     %Hamsat.Coord{lat: alert.observer_lat, lon: alert.observer_lon}
   end
 
-  def insert_changeset(context, pass, attrs \\ %{}) do
-    %__MODULE__{}
-    |> change(%{
-      aos_at: Hamsat.Util.erl_to_utc_datetime(pass.info.aos.datetime),
-      max_at: Hamsat.Util.erl_to_utc_datetime(pass.info.max.datetime),
-      los_at: Hamsat.Util.erl_to_utc_datetime(pass.info.los.datetime),
-      callsign: context.user.latest_callsign,
-      # mode: preferred_mode(context.user, pass.sat),
-      # mhz_direction: preferred_mhz_direction(context.user),
-      observer_lat: context.location.lat,
-      observer_lon: context.location.lon,
-      satellite_id: pass.sat.id,
-      user_id: context.user.id
-    })
-    |> put_assoc(:user, context.user)
-    |> put_assoc(:sat, pass.sat)
-    |> update_changeset(attrs)
-  end
-
-  def update_changeset(alert, attrs \\ %{}) do
+  def changeset(%__MODULE__{} = alert, %AlertForm{} = alert_form) do
     alert
-    |> cast(attrs, [
+    |> change(%{
+      aos_at: Hamsat.Util.erl_to_utc_datetime(alert_form.pass.info.aos.datetime),
+      max_at: Hamsat.Util.erl_to_utc_datetime(alert_form.pass.info.max.datetime),
+      los_at: Hamsat.Util.erl_to_utc_datetime(alert_form.pass.info.los.datetime),
+      callsign: alert_form.callsign,
+      mode: alert_form.mode,
+      mhz: alert_form.mhz,
+      mhz_direction: alert_form.mhz_direction,
+      observer_lat: alert_form.observer_lat,
+      observer_lon: alert_form.observer_lon,
+      satellite_id: alert_form.satellite_id,
+      user_id: alert_form.context.user.id,
+      comment: alert_form.comment,
+      grids: grids_from_alert_form(alert_form)
+    })
+    |> validate_required([
       :callsign,
-      :mhz,
+      :aos_at,
+      :max_at,
+      :los_at,
+      :observer_lat,
+      :observer_lon,
       :mhz_direction,
-      :mode,
-      :comment
+      :grids
     ])
-    |> format_callsign()
-    |> put_forced_mhz()
-    |> validate_required([:callsign])
-    |> validate_length(:callsign, min: 3)
-    |> validate_length(:comment, max: 50)
   end
 
-  defp put_forced_mhz(changeset) do
-    if mhz = forced_mhz(get_field(changeset, :sat), get_field(changeset, :mhz_direction)) do
-      put_change(changeset, :mhz, mhz)
-    else
-      changeset
-    end
+  defp grids_from_alert_form(alert_form) do
+    [:grid_1, :grid_2, :grid_3, :grid_4] |> Enum.map(&Map.get(alert_form, &1)) |> Enum.reject(&is_nil/1)
   end
-
-  defp forced_mhz(%Sat{downlinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :down), do: mhz
-  defp forced_mhz(%Sat{uplinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :up), do: mhz
-  defp forced_mhz(_sat, _direction), do: nil
 
   def progression(alert, now) do
     cond do

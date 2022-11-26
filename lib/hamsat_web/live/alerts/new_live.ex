@@ -10,10 +10,11 @@ defmodule HamsatWeb.Alerts.NewLive do
   alias Hamsat.Grid
   alias Hamsat.Modulation
   alias Hamsat.Satellites
+  alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.AlertForm
   alias HamsatWeb.LocationPicker
 
-  state :alert_form, default: %AlertForm{}
+  state :alert
   state :changeset
   state :page_title, default: "Post an Activation"
   state :params
@@ -32,9 +33,21 @@ defmodule HamsatWeb.Alerts.NewLive do
       {:ok,
        socket
        |> assign(:sat, sat)
+       |> assign(:alert, nil)
        |> update_form(AlertForm.initial_params(socket.assigns.context, pass))
        |> use_recommended_grids()}
     end
+  end
+
+  def mount(%{"id" => alert_id}, _session, socket) do
+    alert = Alerts.get_my_alert!(socket.assigns.context, alert_id)
+    sat = alert.sat
+
+    {:ok,
+     socket
+     |> assign(:sat, sat)
+     |> assign(:alert, alert)
+     |> update_form(AlertForm.initial_params(socket.assigns.context, alert))}
   end
 
   def mount(_params, _session, socket) do
@@ -43,26 +56,35 @@ defmodule HamsatWeb.Alerts.NewLive do
     {:ok,
      socket
      |> assign(:sat, sat)
+     |> assign(:alert, nil)
      |> update_form(AlertForm.initial_params(socket.assigns.context, sat))
      |> use_recommended_grids()}
   end
 
   defp update_form(socket, params) do
+    context = socket.assigns.context
+    sat = get_sat(socket, params["satellite_id"])
+    # TODO: I think this is wrong, because it happens before assign_passes/1
+    pass = get_pass(socket, params["pass_hash"])
+    changeset = Alerts.change_alert(context, sat, pass, params)
+
     socket
     |> assign(:params, params)
-    |> assign(:changeset, AlertForm.changeset(socket.assigns.alert_form, params))
-    |> assign_sat()
+    |> assign(:sat, sat)
+    |> assign(:changeset, changeset)
     |> assign_passes()
   end
 
-  defp assign_sat(%{assigns: assigns} = socket) do
-    sat_id = get_field(assigns.changeset, :satellite_id)
-
+  defp get_sat(%{assigns: assigns} = socket, sat_id) do
     if assigns.sat.id == sat_id do
-      socket
+      socket.assigns.sat
     else
-      assign(socket, :sat, Satellites.get_satellite!(sat_id))
+      Satellites.get_satellite!(sat_id)
     end
+  end
+
+  def get_pass(socket, pass_hash) do
+    Enum.find(socket.assigns.passes, &(&1.hash == pass_hash))
   end
 
   def handle_emit(:on_map_clicked, _sender, {lat, lon}, socket) do
@@ -74,12 +96,51 @@ defmodule HamsatWeb.Alerts.NewLive do
      |> use_recommended_grids()}
   end
 
-  def handle_event("change", %{"alert_form" => params}, %{assigns: %{live_action: :new}} = socket) do
+  def handle_event("change", %{"alert_form" => params}, socket) do
     {:noreply, update_form(socket, params)}
+  end
+
+  def handle_event("submit", %{"alert_form" => params}, %{assigns: %{alert: nil}} = socket) do
+    socket = update_form(socket, params)
+
+    case Alerts.create_alert(socket.assigns.context, socket.assigns.changeset) do
+      {:ok, alert} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Created activation.")
+         |> redirect(to: Routes.alerts_path(socket, :show, alert.id))}
+
+      {:error, changeset} ->
+        {:noreply, put_state(socket, changeset: changeset)}
+    end
+  end
+
+  def handle_event("submit", %{"alert_form" => params}, %{assigns: %{alert: %Alert{} = alert}} = socket) do
+    socket = update_form(socket, params)
+
+    case Alerts.update_alert(alert, socket.assigns.context, socket.assigns.changeset) do
+      {:ok, alert} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Updated activation.")
+         |> redirect(to: Routes.alerts_path(socket, :show, alert.id))}
+
+      {:error, changeset} ->
+        {:noreply, put_state(socket, changeset: changeset)}
+    end
   end
 
   def handle_event("use-recommended-grids", _, socket) do
     {:noreply, use_recommended_grids(socket)}
+  end
+
+  def handle_event("delete", _, socket) do
+    Alerts.delete_alert(socket.assigns.alert)
+
+    {:noreply,
+     socket
+     |> put_flash(:info, "Activation deleted.")
+     |> redirect(to: Routes.passes_path(socket, :index))}
   end
 
   defp use_recommended_grids(socket) do
@@ -151,8 +212,6 @@ defmodule HamsatWeb.Alerts.NewLive do
     if pass_list_params == socket.assigns.pass_list_params do
       socket
     else
-      parent = self()
-
       coord = %Coord{lat: pass_list_params.observer_lat, lon: pass_list_params.observer_lon}
 
       passes =
@@ -246,14 +305,5 @@ defmodule HamsatWeb.Alerts.NewLive do
   #     {:error, changeset} ->
   #       {:noreply, put_state(socket, changeset: changeset)}
   #   end
-  # end
-
-  # def handle_event("delete", _, socket) do
-  #   Alerts.delete_alert(socket.assigns.alert)
-
-  #   {:noreply,
-  #    socket
-  #    |> put_flash(:info, "Activation deleted.")
-  #    |> redirect(to: Routes.passes_path(socket, :index))}
   # end
 end

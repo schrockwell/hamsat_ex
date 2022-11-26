@@ -3,7 +3,7 @@
     <%= action_verb(@live_action) %> an Activation For <%= @sat.name %>
   </h1>
 
-  <.form let={f} for={@changeset} phx-change="change">
+  <.form let={f} for={@changeset} phx-change="change" phx-submit="submit">
     <.form_row label="Satellite" input?={true}>
       <%= select(f, :satellite_id, Satellites.list_satellite_options()) %>
     </.form_row>
@@ -20,11 +20,23 @@
     </.form_row>
 
     <.form_row label="Grid(s)" input?={true}>
-      <div class="flex items-center space-x-2">
-        <%= text_input(f, :grid_1, class: "input-text w-16", required: true, placeholder: "Req'd") %>
-        <%= text_input(f, :grid_2, class: "input-text w-16") %>
-        <%= text_input(f, :grid_3, class: "input-text w-16") %>
-        <%= text_input(f, :grid_4, class: "input-text w-16") %>
+      <div class="flex items-top space-x-2">
+        <div>
+          <%= text_input(f, :grid_1, class: "input-text w-16", required: true, placeholder: "Req'd") %>
+          <%= error_tag(f, :grid_1) %>
+        </div>
+        <div>
+          <%= text_input(f, :grid_2, class: "input-text w-16") %>
+          <%= error_tag(f, :grid_2) %>
+        </div>
+        <div>
+          <%= text_input(f, :grid_3, class: "input-text w-16") %>
+          <%= error_tag(f, :grid_3) %>
+        </div>
+        <div>
+          <%= text_input(f, :grid_4, class: "input-text w-16") %>
+          <%= error_tag(f, :grid_4) %>
+        </div>
       </div>
 
       <%= if show_recommended_grids?(@changeset) do %>
@@ -118,6 +130,8 @@
           Delete Activation
         </button>
       <% end %>
+
+      <%= error_tag(f, :base) %>
     </.form_row>
   </.form>
 </div>

@@ -1,6 +1,7 @@
 defmodule Hamsat.Alerts do
   use Hamsat, :repo
 
+  alias Hamsat.Changeset
   alias Hamsat.Accounts
   alias Hamsat.Alerts.Match
   alias Hamsat.Alerts.Pass
@@ -8,6 +9,7 @@ defmodule Hamsat.Alerts do
   alias Hamsat.Context
   alias Hamsat.Coord
   alias Hamsat.Schemas.Alert
+  alias Hamsat.Schemas.AlertForm
   alias Hamsat.Schemas.Sat
   alias Hamsat.Schemas.SavedAlert
   alias Hamsat.Util
@@ -116,42 +118,48 @@ defmodule Hamsat.Alerts do
     end
   end
 
+  def change_alert(context, sat, pass, params) do
+    AlertForm.changeset(context, sat, pass, params)
+  end
+
   @doc """
   Creates an alert for a pass.
   """
-  def create_alert(context, pass, attrs \\ %{}) do
-    context
-    |> change_new_alert(pass, attrs)
-    |> Repo.insert()
-    |> case do
-      {:ok, alert} ->
-        Accounts.update_alert_preferences!(context.user, alert)
-        {:ok, alert}
+  def create_alert(context, alert_form_changeset) do
+    with {:ok, alert_form} <- Ecto.Changeset.apply_action(alert_form_changeset, :create),
+         {:ok, alert} <- Repo.insert(Alert.changeset(%Alert{}, alert_form)) do
+      Accounts.update_alert_preferences!(context.user, alert)
+      {:ok, alert}
+    else
+      {:error, %Ecto.Changeset{data: %AlertForm{}} = alert_form_changeset} ->
+        {:error, alert_form_changeset}
 
-      {:error, changeset} ->
-        {:error, changeset}
+      {:error, %Ecto.Changeset{data: %Alert{}} = alert_changeset} ->
+        {:error,
+         alert_form_changeset
+         |> Map.put(:action, :insert)
+         |> add_error(:base, "Sorry, an internal error occurred. Please take a screenshot and contact WW1X.")}
     end
   end
 
-  def update_alert(alert, attrs \\ %{}) do
-    alert
-    |> change_alert(attrs)
-    |> Repo.update()
+  def update_alert(alert, context, alert_form_changeset) do
+    with {:ok, alert_form} <- Ecto.Changeset.apply_action(alert_form_changeset, :update),
+         {:ok, alert} <- Repo.update(Alert.changeset(alert, alert_form)) do
+      {:ok, alert}
+    else
+      {:error, %Ecto.Changeset{data: %AlertForm{}} = alert_form_changeset} ->
+        {:error, alert_form_changeset}
+
+      {:error, %Ecto.Changeset{data: %Alert{}} = alert_changeset} ->
+        {:error,
+         alert_form_changeset
+         |> Map.put(:action, :update)
+         |> add_error(:base, "Sorry, an internal error occurred. Please take a screenshot and contact WW1X.")}
+    end
   end
 
   def delete_alert(alert) do
     Repo.delete(alert)
-  end
-
-  @doc """
-  Creates an alert changeset for a pass.
-  """
-  def change_new_alert(context, pass, attrs \\ %{}) do
-    Alert.insert_changeset(context, pass, attrs)
-  end
-
-  def change_alert(alert, attrs \\ %{}) do
-    Alert.update_changeset(alert, attrs)
   end
 
   @doc """
