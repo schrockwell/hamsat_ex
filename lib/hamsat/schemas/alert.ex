@@ -1,11 +1,7 @@
 defmodule Hamsat.Schemas.Alert do
   use Hamsat, :schema
 
-  import Hamsat.Changeset
-
   alias Hamsat.Accounts.User
-  alias Hamsat.Alerts.Pass
-  alias Hamsat.Modulation
   alias Hamsat.Schemas.AlertForm
   alias Hamsat.Schemas.Sat
   alias Hamsat.Schemas.SavedAlert

@@ -5,9 +5,7 @@ defmodule HamsatWeb.Alerts.NewLive do
   import HamsatWeb.LayoutComponents
 
   alias Hamsat.Alerts
-  alias Hamsat.Alerts.Pass
   alias Hamsat.Coord
-  alias Hamsat.Grid
   alias Hamsat.Modulation
   alias Hamsat.Satellites
   alias Hamsat.Schemas.Alert
@@ -118,7 +116,7 @@ defmodule HamsatWeb.Alerts.NewLive do
   def handle_event("submit", %{"alert_form" => params}, %{assigns: %{alert: %Alert{} = alert}} = socket) do
     socket = update_form(socket, params)
 
-    case Alerts.update_alert(alert, socket.assigns.context, socket.assigns.changeset) do
+    case Alerts.update_alert(alert, socket.assigns.changeset) do
       {:ok, alert} ->
         {:noreply,
          socket
@@ -230,81 +228,4 @@ defmodule HamsatWeb.Alerts.NewLive do
       {time_span(pass.info.aos.datetime, pass.info.los.datetime), pass.hash}
     end)
   end
-
-  # def mount(%{"pass" => pass_hash}, _, socket) do
-  #   pass = Alerts.get_pass_by_hash(socket.assigns.context, pass_hash)
-  #   existing_alert = Alerts.my_alert_during_pass(socket.assigns.context, pass)
-
-  #   if existing_alert do
-  #     {:ok, redirect(socket, to: Routes.alerts_path(socket, :edit, existing_alert.id))}
-  #   else
-  #     socket =
-  #       socket
-  #       |> put_state(
-  #         sat: pass.sat,
-  #         sat_options: Satellites.list_satellite_options(),
-  #         alert: nil,
-  #         changeset: Alerts.change_new_alert(socket.assigns.context, pass, %{}),
-  #         page_title: "New Activation",
-  #         pass: pass
-  #       )
-
-  #     {:ok, socket}
-  #   end
-  # end
-
-  # def mount(%{"id" => alert_id}, _, socket) do
-  #   # existing_alert = Alerts.my_alert_during_pass(socket.assigns.context, pass)
-  #   # pass = Alerts.get_pass_by_hash(socket.assigns.context, pass_hash)
-
-  #   alert = Alerts.get_my_alert!(socket.assigns.context, alert_id)
-  #   pass = Alerts.get_pass_by_alert(alert)
-
-  #   socket =
-  #     socket
-  #     |> put_state(
-  #       sat: alert.sat,
-  #       sat_options: Satellites.list_satellite_options(),
-  #       alert: alert,
-  #       changeset: Alerts.change_alert(alert),
-  #       page_title: "Edit Activation",
-  #       pass: pass
-  #     )
-
-  #   {:ok, socket}
-  # end
-
-  # def handle_event(
-  #       "submit",
-  #       %{"alert" => alert_params},
-  #       %{assigns: %{live_action: :new}} = socket
-  #     ) do
-  #   case Alerts.create_alert(socket.assigns.context, socket.assigns.pass, alert_params) do
-  #     {:ok, alert} ->
-  #       {:noreply,
-  #        socket
-  #        |> put_flash(:info, "Created an alert.")
-  #        |> redirect(to: Routes.alerts_path(socket, :show, alert.id))}
-
-  #     {:error, changeset} ->
-  #       {:noreply, put_state(socket, changeset: changeset)}
-  #   end
-  # end
-
-  # def handle_event(
-  #       "submit",
-  #       %{"alert" => alert_params},
-  #       %{assigns: %{live_action: :edit}} = socket
-  #     ) do
-  #   case Alerts.update_alert(socket.assigns.alert, alert_params) do
-  #     {:ok, alert} ->
-  #       {:noreply,
-  #        socket
-  #        |> put_flash(:info, "Updated an alert.")
-  #        |> redirect(to: Routes.alerts_path(socket, :show, alert.id))}
-
-  #     {:error, changeset} ->
-  #       {:noreply, put_state(socket, changeset: changeset)}
-  #   end
-  # end
 end

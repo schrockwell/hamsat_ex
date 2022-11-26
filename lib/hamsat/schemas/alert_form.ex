@@ -62,7 +62,7 @@ defmodule Hamsat.Schemas.AlertForm do
     })
   end
 
-  def initial_params(%Context{} = context, %Alert{} = alert) do
+  def initial_params(%Context{} = _context, %Alert{} = alert) do
     pass = Alerts.get_pass_by_alert(alert)
 
     %{

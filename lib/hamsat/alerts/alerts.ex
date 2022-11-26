@@ -1,7 +1,6 @@
 defmodule Hamsat.Alerts do
   use Hamsat, :repo
 
-  alias Hamsat.Changeset
   alias Hamsat.Accounts
   alias Hamsat.Alerts.Match
   alias Hamsat.Alerts.Pass
@@ -134,7 +133,7 @@ defmodule Hamsat.Alerts do
       {:error, %Ecto.Changeset{data: %AlertForm{}} = alert_form_changeset} ->
         {:error, alert_form_changeset}
 
-      {:error, %Ecto.Changeset{data: %Alert{}} = alert_changeset} ->
+      {:error, %Ecto.Changeset{data: %Alert{}} = _alert_changeset} ->
         {:error,
          alert_form_changeset
          |> Map.put(:action, :insert)
@@ -142,7 +141,7 @@ defmodule Hamsat.Alerts do
     end
   end
 
-  def update_alert(alert, context, alert_form_changeset) do
+  def update_alert(alert, alert_form_changeset) do
     with {:ok, alert_form} <- Ecto.Changeset.apply_action(alert_form_changeset, :update),
          {:ok, alert} <- Repo.update(Alert.changeset(alert, alert_form)) do
       {:ok, alert}
@@ -150,7 +149,7 @@ defmodule Hamsat.Alerts do
       {:error, %Ecto.Changeset{data: %AlertForm{}} = alert_form_changeset} ->
         {:error, alert_form_changeset}
 
-      {:error, %Ecto.Changeset{data: %Alert{}} = alert_changeset} ->
+      {:error, %Ecto.Changeset{data: %Alert{}} = _alert_changeset} ->
         {:error,
          alert_form_changeset
          |> Map.put(:action, :update)
