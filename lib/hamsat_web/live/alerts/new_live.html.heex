@@ -8,6 +8,17 @@
       <%= select(f, :satellite_id, Satellites.list_satellite_options()) %>
     </.form_row>
 
+    <.form_row label="Location" input?={true}>
+      <.live_component
+        module={LocationPicker}
+        id="location_picker"
+        form={f}
+        fields={%{lat: :observer_lat, lon: :observer_lon, grid: :grid}}
+        on_map_clicked={self()}
+        show_grid?={false}
+      />
+    </.form_row>
+
     <.form_row label="UTC" input?={true}>
       <div class="flex items-center space-x-2">
         <%= date_input(f, :pass_filter_date, class: "input-text text-sm") %>
@@ -18,17 +29,6 @@
           <%= select(f, :pass_hash, pass_options(@passes)) %>
         <% end %>
       </div>
-    </.form_row>
-
-    <.form_row label="Location" input?={true}>
-      <.live_component
-        module={LocationPicker}
-        id="location_picker"
-        form={f}
-        fields={%{lat: :observer_lat, lon: :observer_lon, grid: :grid}}
-        on_map_clicked={self()}
-        show_grid?={false}
-      />
     </.form_row>
 
     <.form_row label="Grid(s)" input?={true}>

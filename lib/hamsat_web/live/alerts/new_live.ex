@@ -170,7 +170,7 @@ defmodule HamsatWeb.Alerts.NewLive do
       |> Enum.map(&get_field(changeset, &1))
       |> Enum.reject(&is_nil/1)
 
-    Enum.sort(recommended) != Enum.sort(actual)
+    recommended != [] and Enum.sort(recommended) != Enum.sort(actual)
   end
 
   defp mode_options(sat), do: Modulation.alert_options(sat)
@@ -209,9 +209,8 @@ defmodule HamsatWeb.Alerts.NewLive do
       observer_lon: get_field(socket.assigns.changeset, :observer_lon)
     }
 
-    if pass_list_params == socket.assigns.pass_list_params do
-      socket
-    else
+    if pass_list_params != socket.assigns.pass_list_params and is_float(pass_list_params.observer_lat) and
+         is_float(pass_list_params.observer_lon) do
       coord = %Coord{lat: pass_list_params.observer_lat, lon: pass_list_params.observer_lon}
 
       passes =
@@ -221,6 +220,8 @@ defmodule HamsatWeb.Alerts.NewLive do
         )
 
       assign(socket, passes: passes, pass_list_params: pass_list_params)
+    else
+      socket
     end
   end
 

@@ -144,7 +144,12 @@ defmodule Hamsat.Schemas.AlertForm do
   def recommended_grids(%Ecto.Changeset{} = changeset) do
     lat = get_field(changeset, :observer_lat)
     lon = get_field(changeset, :observer_lon)
-    recommended_grids(lat, lon)
+
+    if is_float(lat) and is_float(lon) do
+      recommended_grids(lat, lon)
+    else
+      []
+    end
   end
 
   def recommended_grids(lat, lon) do
