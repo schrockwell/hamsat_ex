@@ -148,12 +148,10 @@ defmodule Hamsat.Schemas.AlertForm do
   end
 
   def recommended_grids(lat, lon) do
-    all_grids =
-      for delta_lat <- [-1.0, 0, 1.0], delta_lon <- [-2.0, 0, 2.0] do
-        Grid.encode!(lat + delta_lat, lon + delta_lon, 4)
-      end
-
-    Enum.filter(all_grids, fn grid ->
+    for delta_lat <- [-1.0, 0, 1.0], delta_lon <- [-2.0, 0, 2.0] do
+      Grid.encode!(lat + delta_lat, lon + delta_lon, 4)
+    end
+    |> Enum.filter(fn grid ->
       {:ok, {grid_center_lat, grid_center_lon}} = Grid.decode(grid)
 
       # Warning: does not account for longitude wrapping from -180 to +180
@@ -163,6 +161,7 @@ defmodule Hamsat.Schemas.AlertForm do
 
       within_lat? and within_lon?
     end)
+    |> Enum.sort()
   end
 
   defp validate_and_format_grids(changeset) do
