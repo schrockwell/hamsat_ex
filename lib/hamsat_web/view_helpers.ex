@@ -1,8 +1,6 @@
 defmodule HamsatWeb.ViewHelpers do
   alias Hamsat.Alerts.Pass
   alias Hamsat.Context
-  alias Hamsat.Coord
-  alias Hamsat.Grid
   alias Hamsat.Schemas.Alert
 
   @date_format "{YYYY}-{0M}-{0D}"
@@ -169,11 +167,9 @@ defmodule HamsatWeb.ViewHelpers do
     end
   end
 
-  def grid(%Coord{lat: lat, lon: lon}) do
-    Grid.encode!(lat, lon, 4)
+  def alert_grids(%Alert{} = alert) do
+    Enum.join(alert.grids, "/")
   end
-
-  def grid(_), do: "–"
 
   def pluralized_count([_], singular, _plural), do: "1 #{singular}"
   def pluralized_count(1, singular, _plural), do: "1 #{singular}"

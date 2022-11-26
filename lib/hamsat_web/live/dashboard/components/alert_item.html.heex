@@ -45,7 +45,7 @@
 
   <div class="flex flex-col space-y-2 items-end justify-center pr-3 md:pr-4 text-sm md:text-base">
     <div class="bg-gray-200 px-2 font-medium text-gray-600">
-      <%= Grid.encode!({@alert.observer_lat, @alert.observer_lon}, 4) %>
+      <%= alert_grids(@alert) %>
     </div>
     <div class="bg-gray-200 px-2 font-medium text-gray-600">
       <%= mhz(@alert, 3, "") %>

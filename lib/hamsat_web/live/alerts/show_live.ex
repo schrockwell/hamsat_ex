@@ -146,7 +146,7 @@ defmodule HamsatWeb.Alerts.ShowLive do
   def assign_tweet_url(socket) do
     alert = socket.assigns.alert
     url = URI.encode(Routes.alerts_url(socket, :show, alert.id))
-    grid = Grid.encode!(alert.observer_lat, alert.observer_lon, 6)
+    grids = alert_grids(alert)
 
     freq =
       case {alert.mhz, alert.mode} do
@@ -165,7 +165,7 @@ defmodule HamsatWeb.Alerts.ShowLive do
       [
         "🛰 #{alert.callsign} on #{alert.sat.name}",
         "⏰ #{date(:utc, alert.aos_at)} from #{short_time(:utc, alert.aos_at)}Z to #{short_time(:utc, alert.los_at)}Z",
-        "🗺 #{grid}",
+        "🗺 #{grids}",
         freq,
         comment,
         "👀 #{url}"
