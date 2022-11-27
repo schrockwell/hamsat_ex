@@ -30,8 +30,7 @@ defmodule HamsatWeb.Alerts.NewLive do
     else
       {:ok,
        socket
-       |> assign(:sat, sat)
-       |> assign(:alert, nil)
+       |> put_state(sat: sat, alert: nil)
        |> update_form(AlertForm.initial_params(socket.assigns.context, pass))
        |> use_recommended_grids()}
     end
@@ -43,8 +42,7 @@ defmodule HamsatWeb.Alerts.NewLive do
 
     {:ok,
      socket
-     |> assign(:sat, sat)
-     |> assign(:alert, alert)
+     |> put_state(sat: sat, alert: alert)
      |> update_form(AlertForm.initial_params(socket.assigns.context, alert))}
   end
 
@@ -53,8 +51,7 @@ defmodule HamsatWeb.Alerts.NewLive do
 
     {:ok,
      socket
-     |> assign(:sat, sat)
-     |> assign(:alert, nil)
+     |> put_state(sat: sat, alert: nil)
      |> update_form(AlertForm.initial_params(socket.assigns.context, sat))
      |> use_recommended_grids()}
   end
@@ -62,14 +59,11 @@ defmodule HamsatWeb.Alerts.NewLive do
   defp update_form(socket, params) do
     context = socket.assigns.context
     sat = get_sat(socket, params["satellite_id"])
-    # TODO: I think this is wrong, because it happens before assign_passes/1
     pass = get_pass(socket, params["pass_hash"])
     changeset = Alerts.change_alert(context, sat, pass, params)
 
     socket
-    |> assign(:params, params)
-    |> assign(:sat, sat)
-    |> assign(:changeset, changeset)
+    |> put_state(params: params, sat: sat, changeset: changeset)
     |> assign_passes()
   end
 
@@ -217,7 +211,7 @@ defmodule HamsatWeb.Alerts.NewLive do
           ending: pass_list_params.date |> Timex.to_datetime() |> Timex.end_of_day()
         )
 
-      assign(socket, passes: passes, pass_list_params: pass_list_params)
+      put_state(socket, passes: passes, pass_list_params: pass_list_params)
     else
       socket
     end
