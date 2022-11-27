@@ -40,9 +40,14 @@ defmodule HamsatWeb.Dashboard.ShowLive do
 
   def handle_info({event, _info} = message, socket)
       when event in [:alert_saved, :alert_unsaved] do
+    patched_my_alerts =
+      if my_alerts = socket.assigns.my_alerts do
+        Alerts.patch_alerts(my_alerts, socket.assigns.context, message)
+      end
+
     socket =
       put_state(socket,
-        my_alerts: Alerts.patch_alerts(socket.assigns.my_alerts, socket.assigns.context, message),
+        my_alerts: patched_my_alerts,
         upcoming_alerts: Alerts.patch_alerts(socket.assigns.upcoming_alerts, socket.assigns.context, message)
       )
 
