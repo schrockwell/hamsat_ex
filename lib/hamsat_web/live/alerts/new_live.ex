@@ -12,7 +12,7 @@ defmodule HamsatWeb.Alerts.NewLive do
   alias Hamsat.Schemas.AlertForm
   alias HamsatWeb.LocationPicker
 
-  state :alert
+  state :alert, default: nil
   state :changeset
   state :page_title, default: "Post an Activation"
   state :params
@@ -30,7 +30,7 @@ defmodule HamsatWeb.Alerts.NewLive do
     else
       {:ok,
        socket
-       |> put_state(sat: sat, alert: nil)
+       |> put_state(sat: sat)
        |> update_form(AlertForm.initial_params(socket.assigns.context, pass))
        |> use_recommended_grids()}
     end
@@ -51,7 +51,7 @@ defmodule HamsatWeb.Alerts.NewLive do
 
     {:ok,
      socket
-     |> put_state(sat: sat, alert: nil)
+     |> put_state(sat: sat)
      |> update_form(AlertForm.initial_params(socket.assigns.context, sat))
      |> use_recommended_grids()}
   end
@@ -135,6 +135,18 @@ defmodule HamsatWeb.Alerts.NewLive do
      |> redirect(to: Routes.passes_path(socket, :index))}
   end
 
+  def handle_info({:fetch_passes, pass_list_params}, socket) do
+    coord = %Coord{lat: pass_list_params.observer_lat, lon: pass_list_params.observer_lon}
+
+    passes =
+      Alerts.list_passes(coord, socket.assigns.sat,
+        starting: pass_list_params.date |> Timex.to_datetime() |> Timex.beginning_of_day(),
+        ending: pass_list_params.date |> Timex.to_datetime() |> Timex.end_of_day()
+      )
+
+    {:noreply, put_state(socket, passes: passes)}
+  end
+
   defp use_recommended_grids(socket) do
     grid_params =
       case AlertForm.recommended_grids(socket.assigns.changeset) do
@@ -203,15 +215,11 @@ defmodule HamsatWeb.Alerts.NewLive do
 
     if pass_list_params != socket.assigns.pass_list_params and is_float(pass_list_params.observer_lat) and
          is_float(pass_list_params.observer_lon) do
-      coord = %Coord{lat: pass_list_params.observer_lat, lon: pass_list_params.observer_lon}
+      # This calculation can be slow, and we don't want to block the UI update, but also we want to make sure the
+      # calculation happens serially, so let's immediately handle it in the next message
+      send(self(), {:fetch_passes, pass_list_params})
 
-      passes =
-        Alerts.list_passes(coord, socket.assigns.sat,
-          starting: pass_list_params.date |> Timex.to_datetime() |> Timex.beginning_of_day(),
-          ending: pass_list_params.date |> Timex.to_datetime() |> Timex.end_of_day()
-        )
-
-      put_state(socket, passes: passes, pass_list_params: pass_list_params)
+      put_state(socket, pass_list_params: pass_list_params)
     else
       socket
     end
