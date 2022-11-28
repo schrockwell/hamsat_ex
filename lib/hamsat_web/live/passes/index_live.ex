@@ -3,8 +3,8 @@ defmodule HamsatWeb.Passes.IndexLive do
 
   import HamsatWeb.LayoutComponents
 
-  alias Hamsat.Alerts
   alias Hamsat.Alerts.Pass
+  alias Hamsat.Passes
   alias Hamsat.Satellites
   alias Hamsat.Util
   alias HamsatWeb.Passes.Components.PassTableRow
@@ -97,7 +97,7 @@ defmodule HamsatWeb.Passes.IndexLive do
       send(
         parent,
         {:more_upcoming_passes_loaded,
-         Alerts.list_all_passes(socket.assigns.context, socket.assigns.sats,
+         Passes.list_all_passes(socket.assigns.context, socket.assigns.sats,
            starting: starting,
            ending: ending
          )}
@@ -120,7 +120,7 @@ defmodule HamsatWeb.Passes.IndexLive do
       send(
         parent,
         {:daily_passes_loaded,
-         Alerts.list_all_passes(socket.assigns.context, socket.assigns.sats,
+         Passes.list_all_passes(socket.assigns.context, socket.assigns.sats,
            starting: starting,
            ending: ending
          )}

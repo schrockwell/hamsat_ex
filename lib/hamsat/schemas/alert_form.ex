@@ -3,11 +3,11 @@ defmodule Hamsat.Schemas.AlertForm do
 
   import Hamsat.Changeset
 
-  alias Hamsat.Alerts
   alias Hamsat.Alerts.Pass
   alias Hamsat.Context
   alias Hamsat.Grid
   alias Hamsat.Modulation
+  alias Hamsat.Passes
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.Sat
 
@@ -63,7 +63,7 @@ defmodule Hamsat.Schemas.AlertForm do
   end
 
   def initial_params(%Context{} = _context, %Alert{} = alert) do
-    pass = Alerts.get_pass_by_alert(alert)
+    pass = Passes.get_pass_by_alert(alert)
 
     %{
       "satellite_id" => alert.satellite_id,

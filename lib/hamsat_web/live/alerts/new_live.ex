@@ -7,6 +7,7 @@ defmodule HamsatWeb.Alerts.NewLive do
   alias Hamsat.Alerts
   alias Hamsat.Coord
   alias Hamsat.Modulation
+  alias Hamsat.Passes
   alias Hamsat.Satellites
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.AlertForm
@@ -21,7 +22,7 @@ defmodule HamsatWeb.Alerts.NewLive do
   state :sat
 
   def mount(%{"pass" => pass_hash}, _session, socket) do
-    pass = Alerts.get_pass_by_hash(socket.assigns.context, pass_hash)
+    pass = Passes.get_pass_by_hash(socket.assigns.context, pass_hash)
     sat = pass.sat
     existing_alert = Alerts.my_alert_during_pass(socket.assigns.context, pass)
 
@@ -139,7 +140,7 @@ defmodule HamsatWeb.Alerts.NewLive do
     coord = %Coord{lat: pass_list_params.observer_lat, lon: pass_list_params.observer_lon}
 
     passes =
-      Alerts.list_passes(coord, socket.assigns.sat,
+      Passes.list_passes(coord, socket.assigns.sat,
         starting: pass_list_params.date |> Timex.to_datetime() |> Timex.beginning_of_day(),
         ending: pass_list_params.date |> Timex.to_datetime() |> Timex.end_of_day()
       )
