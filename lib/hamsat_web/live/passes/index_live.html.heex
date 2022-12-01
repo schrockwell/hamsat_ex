@@ -53,7 +53,7 @@
   </table>
 </div>
 
-<%= if @passes == [] do %>
+<%= if @passes == [] and not @loading? do %>
   <div class="text-center py-8 italic text-gray-400">
     No passes found. Try enabling more filters.
   </div>
