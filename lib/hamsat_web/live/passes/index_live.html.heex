@@ -9,6 +9,22 @@
         <input name="date" type="date" class="input-date text-sm" value={@date} phx-debounce="500" />
       </form>
     <% end %>
+
+    <.form for={@pass_filter_changeset} let={f} class="flex items-center space-x-8 text-sm" phx-change="filter-changed">
+      <div class="flex items-center space-x-4">
+        <%= for {field, label} <- [fm_mod: "FM", linear_mod: "Linear", digital_mod: "Digital"] do %>
+          <div class="flex items-center space-x-2">
+            <%= checkbox(f, field) %>
+            <%= label(f, field, label) %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <%= number_input(f, :min_el, class: "input-text text-sm w-16", min: 0, max: 90, phx_debounce: 250) %>
+        <%= label(f, :min_el, "Max El") %>
+      </div>
+    </.form>
   </div>
 
   <div class="mt-3 text-sm font-medium text-gray-600"><%= @results_description %></div>

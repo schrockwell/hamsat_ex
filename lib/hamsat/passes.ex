@@ -6,6 +6,7 @@ defmodule Hamsat.Passes do
   alias Hamsat.Context
   alias Hamsat.Coord
   alias Hamsat.Schemas.Alert
+  alias Hamsat.Schemas.PassFilter
   alias Hamsat.Schemas.Sat
   alias Hamsat.Util
 
@@ -111,5 +112,34 @@ defmodule Hamsat.Passes do
       }
       |> Pass.put_hash()
     end
+  end
+
+  @doc """
+  Returns the latest PassFilter for the user, or creates a new one if it does not yet exist.
+  """
+  def get_pass_filter(user) do
+    user
+    |> assoc(:pass_filter)
+    |> Repo.one()
+    |> case do
+      nil -> user |> build_assoc(:pass_filter) |> Repo.insert!()
+      filter -> filter
+    end
+  end
+
+  @doc """
+  Returns a changeset for a PassFilter.
+  """
+  def change_pass_filter(pass_filter, params \\ %{}) do
+    PassFilter.changeset(pass_filter, params)
+  end
+
+  @doc """
+  Updates a PassFilter.
+  """
+  def update_pass_filter(pass_filter, params \\ %{}) do
+    pass_filter
+    |> change_pass_filter(params)
+    |> Repo.update()
   end
 end

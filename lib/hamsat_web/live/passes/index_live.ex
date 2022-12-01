@@ -21,13 +21,18 @@ defmodule HamsatWeb.Passes.IndexLive do
   state :needs_location?, default: false
   state :now, default: DateTime.utc_now()
   state :page_title, default: "Passes"
+  state :pass_filter
+  state :pass_filter_changeset
   state :passes
   state :passes_calculated_until
   state :results_description
   state :sats, default: Satellites.list_satellites()
 
   def mount(_params, _session, socket) do
-    socket = assign_sats(socket)
+    socket =
+      socket
+      |> assign_sats()
+      |> assign_pass_filter_changeset()
 
     if connected?(socket) do
       Process.send_after(self(), :set_now, @set_now_interval)
@@ -71,6 +76,11 @@ defmodule HamsatWeb.Passes.IndexLive do
 
   defp assign_sats(socket) do
     put_state(socket, sats: Satellites.list_satellites())
+  end
+
+  defp assign_pass_filter_changeset(socket) do
+    pass_filter = Passes.get_pass_filter(socket.assigns.context.user)
+    put_state(socket, pass_filter: pass_filter, pass_filter_changeset: Passes.change_pass_filter(pass_filter))
   end
 
   defp maybe_append_upcoming_passes(socket) do
@@ -199,6 +209,17 @@ defmodule HamsatWeb.Passes.IndexLive do
         {:noreply, push_patch(socket, to: Routes.passes_path(socket, :index, date: date))}
 
       _ ->
+        {:noreply, socket}
+    end
+  end
+
+  def handle_event("filter-changed", %{"pass_filter" => params}, socket) do
+    case Passes.update_pass_filter(socket.assigns.pass_filter, params) do
+      {:ok, pass_filter} ->
+        {:noreply,
+         put_state(socket, pass_filter: pass_filter, pass_filter_changeset: Passes.change_pass_filter(pass_filter))}
+
+      {:error, _} ->
         {:noreply, socket}
     end
   end
