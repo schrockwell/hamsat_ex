@@ -46,7 +46,10 @@ defmodule Hamsat.Passes do
   Returns a sorted list of satellite passes for many satellites.
   """
   def list_all_passes(context, sats, opts \\ []) do
+    pass_filter = Keyword.get(opts, :filter, %PassFilter{})
+
     sats
+    |> filter_sats(pass_filter)
     |> Enum.map(fn sat ->
       Task.async(fn ->
         list_pass_infos(context.location, sat, opts)
@@ -54,8 +57,24 @@ defmodule Hamsat.Passes do
     end)
     |> Task.await_many(30_000)
     |> List.flatten()
+    |> filter_pass_infos(pass_filter)
     |> Enum.sort_by(& &1.aos.datetime)
     |> convert_pass_infos_to_passes(context.location)
+  end
+
+  defp filter_sats(sats, pass_filter) do
+    Enum.filter(sats, fn
+      %{modulation: :fm} -> pass_filter.fm_mod
+      %{modulation: :linear} -> pass_filter.linear_mod
+      %{modulation: :digital} -> pass_filter.digital_mod
+      _ -> false
+    end)
+  end
+
+  defp filter_pass_infos(pass_infos, pass_filter) do
+    Enum.filter(pass_infos, fn pass_info ->
+      pass_info.max.elevation_in_degrees >= pass_filter.min_el
+    end)
   end
 
   defp list_pass_infos(coord, sat, opts) do

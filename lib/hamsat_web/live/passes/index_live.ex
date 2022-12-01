@@ -109,7 +109,8 @@ defmodule HamsatWeb.Passes.IndexLive do
         {:more_upcoming_passes_loaded,
          Passes.list_all_passes(socket.assigns.context, socket.assigns.sats,
            starting: starting,
-           ending: ending
+           ending: ending,
+           filter: socket.assigns.pass_filter
          )}
       )
     end)
@@ -132,7 +133,8 @@ defmodule HamsatWeb.Passes.IndexLive do
         {:daily_passes_loaded,
          Passes.list_all_passes(socket.assigns.context, socket.assigns.sats,
            starting: starting,
-           ending: ending
+           ending: ending,
+           filter: socket.assigns.pass_filter
          )}
       )
     end)
@@ -217,7 +219,14 @@ defmodule HamsatWeb.Passes.IndexLive do
     case Passes.update_pass_filter(socket.assigns.pass_filter, params) do
       {:ok, pass_filter} ->
         {:noreply,
-         put_state(socket, pass_filter: pass_filter, pass_filter_changeset: Passes.change_pass_filter(pass_filter))}
+         socket
+         |> put_state(
+           pass_filter_changeset: Passes.change_pass_filter(pass_filter),
+           pass_filter: pass_filter,
+           passes_calculated_until: nil,
+           passes: []
+         )
+         |> maybe_append_upcoming_passes()}
 
       {:error, _} ->
         {:noreply, socket}
