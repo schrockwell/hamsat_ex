@@ -1,4 +1,4 @@
-<tr class={alert_table_row_class(@alert, @now)}>
+<tr class={@row_class}>
   <td class="text-center pl-3 md:pl-6">
     <.live_component
       module={AlertSaver}
@@ -34,7 +34,7 @@
     <% end %>
   </td>
   <td class="whitespace-nowrap px-1 text-center text-emerald-700">
-    <%= alert_next_workable_in(@now, @alert) %>
+    <%= @next_workable_in %>
   </td>
   <td class="whitespace-nowrap px-1 text-right px-3 md:pr-6">
     <%= if Alert.owned?(@alert, @context.user) do %>
