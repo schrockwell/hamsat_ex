@@ -45,7 +45,9 @@ defmodule HamsatWeb.ViewHelpers do
     |> hms()
   end
 
-  def hms(seconds) do
+  def hms(seconds, opts \\ []) do
+    coarse? = Keyword.get(opts, :coarse?, false)
+
     sign = if seconds < 0, do: "-", else: ""
     seconds = abs(seconds)
 
@@ -58,11 +60,13 @@ defmodule HamsatWeb.ViewHelpers do
     minutes = floor(seconds / 60)
     seconds = seconds - minutes * 60
 
-    case {days, hours, minutes, seconds} do
-      {0, 0, 0, s} -> "#{sign}0:#{zero_pad(s)}"
-      {0, 0, m, s} -> "#{sign}#{m}:#{zero_pad(s)}"
-      {0, h, m, s} -> "#{sign}#{h}:#{zero_pad(m)}:#{zero_pad(s)}"
-      {d, h, m, s} -> "#{sign}#{d}d #{h}:#{zero_pad(m)}:#{zero_pad(s)}"
+    case {coarse?, days, hours, minutes, seconds} do
+      {_coarse?, 0, 0, 0, s} -> "#{sign}0:#{zero_pad(s)}"
+      {_coarse?, 0, 0, m, s} -> "#{sign}#{m}:#{zero_pad(s)}"
+      {false, 0, h, m, s} -> "#{sign}#{h}:#{zero_pad(m)}:#{zero_pad(s)}"
+      {true, 0, h, m, _s} -> "#{sign}#{h}:#{zero_pad(m)}h"
+      {false, d, h, m, s} -> "#{sign}#{d}d #{h}:#{zero_pad(m)}:#{zero_pad(s)}"
+      {true, d, h, m, _s} -> "#{sign}#{d}d #{h}:#{zero_pad(m)}h"
     end
   end
 
@@ -153,16 +157,16 @@ defmodule HamsatWeb.ViewHelpers do
 
   def alert_next_workable_in(now, alert) do
     case Alert.next_event(alert, now) do
-      {:workable, :start, seconds} -> "in #{hms(seconds)}"
-      {:workable, :end, seconds} -> "for #{hms(seconds)}"
+      {:workable, :start, seconds} -> "in #{hms(seconds, coarse?: true)}"
+      {:workable, :end, seconds} -> "for #{hms(seconds, coarse?: true)}"
       _ -> "–"
     end
   end
 
   def pass_next_event_in(now, pass) do
     case Pass.next_event(pass, now) do
-      {:aos, duration} -> "AOS in #{hms(duration)}"
-      {:los, duration} -> "LOS in #{hms(duration)}"
+      {:aos, duration} -> "AOS in #{hms(duration, coarse?: true)}"
+      {:los, duration} -> "LOS in #{hms(duration, coarse?: true)}"
       :never -> "–"
     end
   end

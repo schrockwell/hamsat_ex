@@ -8,6 +8,9 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
   prop :context
   prop :now
 
+  state :row_class
+  state :next_workable_in
+
   defp alert_table_row_class(alert, now) do
     case Alert.progression(alert, now) do
       :upcoming ->
@@ -22,5 +25,15 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
       :passed ->
         "text-gray-400"
     end
+  end
+
+  @react to: [:alert, :now]
+  defp assign_row_class(socket) do
+    put_state(socket, row_class: alert_table_row_class(socket.assigns.alert, socket.assigns.now))
+  end
+
+  @react to: [:alert, :now]
+  defp assign_next_workable_in(socket) do
+    put_state(socket, next_workable_in: alert_next_workable_in(socket.assigns.now, socket.assigns.alert))
   end
 end
