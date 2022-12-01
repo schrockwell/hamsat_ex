@@ -26,6 +26,8 @@ defmodule Hamsat.Accounts.User do
     has_many :alerts, Hamsat.Schemas.Alert
     has_many :saved_alerts, Hamsat.Schemas.SavedAlert
 
+    has_one :pass_filter, Hamsat.Schemas.PassFilter
+
     # Needed for the LocationPicker on the user registration form
     field :home_grid, :string, virtual: true
 
