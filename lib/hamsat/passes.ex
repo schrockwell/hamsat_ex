@@ -63,11 +63,10 @@ defmodule Hamsat.Passes do
   end
 
   defp filter_sats(sats, pass_filter) do
-    Enum.filter(sats, fn
-      %{modulation: :fm} -> pass_filter.fm_mod
-      %{modulation: :linear} -> pass_filter.linear_mod
-      %{modulation: :digital} -> pass_filter.digital_mod
-      _ -> false
+    Enum.filter(sats, fn sat ->
+      (pass_filter.fm_mod and :fm in sat.modes) or
+        (pass_filter.linear_mod and :linear in sat.modes) or
+        (pass_filter.digital_mod and :digital in sat.modes)
     end)
   end
 

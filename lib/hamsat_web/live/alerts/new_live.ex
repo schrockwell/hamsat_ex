@@ -178,7 +178,7 @@ defmodule HamsatWeb.Alerts.NewLive do
     recommended != [] and Enum.sort(recommended) != Enum.sort(actual)
   end
 
-  defp mode_options(sat), do: Modulation.alert_options(sat)
+  defp mode_options(sat), do: Modulation.alert_options(sat.modes)
 
   defp sat_freq_ranges(sat, changeset) do
     field =
@@ -187,8 +187,14 @@ defmodule HamsatWeb.Alerts.NewLive do
         :down -> :downlinks
       end
 
+    modulations =
+      changeset
+      |> get_field(:mode)
+      |> Modulation.list_by_alert_option()
+
     sat
     |> Map.fetch!(field)
+    |> Enum.filter(fn subband -> subband.mode in modulations end)
     |> Enum.map(fn
       %{lower_mhz: mhz, upper_mhz: mhz} ->
         "#{mhz(mhz, 3)} MHz"
