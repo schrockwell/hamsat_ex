@@ -113,7 +113,7 @@ defmodule Hamsat.Schemas.AlertForm do
 
   defp put_valid_mode(changeset, sat) do
     mode = get_field(changeset, :mode)
-    valid_modes = Modulation.alert_options(sat.modes)
+    valid_modes = Modulation.alert_options(sat.modulations)
 
     if mode in valid_modes do
       changeset
@@ -149,7 +149,7 @@ defmodule Hamsat.Schemas.AlertForm do
   end
 
   defp preferred_mode(user, sat) do
-    case Modulation.alert_options(sat.modes) do
+    case Modulation.alert_options(sat.modulations) do
       [mode] ->
         mode
 

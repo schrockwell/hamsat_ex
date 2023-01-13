@@ -178,7 +178,7 @@ defmodule HamsatWeb.Alerts.NewLive do
     recommended != [] and Enum.sort(recommended) != Enum.sort(actual)
   end
 
-  defp mode_options(sat), do: Modulation.alert_options(sat.modes)
+  defp mode_options(sat), do: Modulation.alert_options(sat.modulations)
 
   defp sat_freq_ranges(sat, changeset) do
     field =

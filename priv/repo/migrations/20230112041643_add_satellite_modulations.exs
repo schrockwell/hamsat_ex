@@ -1,12 +1,12 @@
-defmodule Hamsat.Repo.Migrations.AddSatelliteModes do
+defmodule Hamsat.Repo.Migrations.AddSatelliteModulations do
   use Ecto.Migration
 
   def up do
     alter table(:satellites) do
-      add :modes, {:array, :string}
+      add :modulations, {:array, :string}
     end
 
-    execute("update satellites set modes = array[modulation]")
+    execute("update satellites set modulations = array[modulation]")
 
     alter table(:satellites) do
       remove :modulation
@@ -18,10 +18,10 @@ defmodule Hamsat.Repo.Migrations.AddSatelliteModes do
       add :modulation, :string
     end
 
-    execute("update satellites set modulation = modes[1]")
+    execute("update satellites set modulation = modulations[1]")
 
     alter table(:satellites) do
-      remove :modes
+      remove :modulations
     end
   end
 end
