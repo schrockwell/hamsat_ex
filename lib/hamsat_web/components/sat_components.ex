@@ -35,19 +35,11 @@ defmodule HamsatWeb.SatComponents do
 
         <%= if @event == :start, do: "in", else: "for" %>
 
-        <%= hms(@seconds) %>
+        <%= hms(@seconds, coarse?: true) %>
         """
 
       :never ->
         ~H"passed"
-    end
-  end
-
-  def pass_event_description(%{pass: _, now: _} = assigns) do
-    case Pass.next_event(assigns.pass, assigns.now) do
-      {:aos, duration} -> ~H"AOS in <%= hms(duration) %>"
-      {:los, duration} -> ~H"LOS in <%= hms(duration) %>"
-      :never -> ~H"passed"
     end
   end
 end
