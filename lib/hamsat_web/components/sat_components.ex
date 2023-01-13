@@ -7,12 +7,14 @@ defmodule HamsatWeb.SatComponents do
 
   def sat_modulation_label(%{sat: _sat} = assigns) do
     ~H"""
-    <span
-      title={Modulation.name(@sat)}
-      class={[Modulation.css_class(@sat), "text-xs px-1.5 py-0.5 font-semibold uppercase rounded w-8 inline-block"]}
-    >
-      <%= Modulation.short_name(@sat) %>
-    </span>
+    <%= for modulation <- @sat.modulations do %>
+      <span
+        title={Modulation.name(modulation)}
+        class={[Modulation.css_class(modulation), "text-xs px-1.5 py-0.5 font-semibold uppercase rounded w-8 inline-block"]}
+      >
+        <%= Modulation.short_name(modulation) %>
+      </span>
+    <% end %>
     """
   end
 

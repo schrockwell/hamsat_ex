@@ -58,7 +58,19 @@
       <% end %>
     </.form_row>
 
-    <%= if Modulation.fixed_downlink?(@sat) do %>
+    <%= if length(mode_options(@sat)) == 1 do %>
+      <.form_row label="Mode">
+        <%= hidden_input(f, :mode) %>
+        <%= get_field(@changeset, :mode) %>
+      </.form_row>
+    <% else %>
+      <.form_row label="Mode" input?={true}>
+        <%= select(f, :mode, mode_options(@sat)) %>
+        <%= error_tag(f, :mode) %>
+      </.form_row>
+    <% end %>
+
+    <%= if AlertForm.fixed_freq?(@sat, @changeset) do %>
       <.form_row label="MHz">
         <div class="flex items-center space-x-4">
           <span><%= sat_freq_ranges(@sat, @changeset) %></span>
@@ -71,25 +83,7 @@
           </label>
         </div>
       </.form_row>
-    <% end %>
-
-    <%= if length(mode_options(@sat)) == 1 do %>
-      <.form_row label="Mode">
-        <%= hd(mode_options(@sat)) %>
-      </.form_row>
     <% else %>
-      <.form_row label="Mode" input?={true}>
-        <%= select(f, :mode, mode_options(@sat)) %>
-        <%= error_tag(f, :mode) %>
-      </.form_row>
-    <% end %>
-
-    <.form_row label="Callsign" input?={true}>
-      <%= text_input(f, :callsign, class: "input-text", required: true, minlength: 3, placeholder: "Required") %>
-      <%= error_tag(f, :callsign) %>
-    </.form_row>
-
-    <%= if not Modulation.fixed_downlink?(@sat) do %>
       <.form_row label="MHz" input?={true}>
         <div class="flex items-center space-x-4">
           <%= text_input(f, :mhz, class: "input-text", placeholder: "Optional") %>
@@ -108,6 +102,11 @@
         </div>
       </.form_row>
     <% end %>
+
+    <.form_row label="Callsign" input?={true}>
+      <%= text_input(f, :callsign, class: "input-text", required: true, minlength: 3, placeholder: "Required") %>
+      <%= error_tag(f, :callsign) %>
+    </.form_row>
 
     <.form_row label="Comment" input?={true}>
       <%= text_input(f, :comment, class: "input-text", placeholder: "Optional", maxlength: 50) %>

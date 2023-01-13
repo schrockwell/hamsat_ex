@@ -61,7 +61,6 @@ defmodule HamsatWeb.UserSettingsController do
         |> UserAuth.log_in_user(user)
 
       {:error, changeset} ->
-        IO.inspect(changeset)
         render(conn, "edit.html", match_preferences_changeset: changeset)
     end
   end

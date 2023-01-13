@@ -105,25 +105,51 @@ defmodule Hamsat.Schemas.AlertForm do
     |> validate_required([:callsign, :grid_1, :satellite_id, :observer_lat, :observer_lon])
     |> validate_and_format_grids()
     # |> validate_grids()
+    |> put_valid_mode(sat)
     |> put_forced_mhz(sat)
     |> validate_length(:callsign, min: 3)
     |> validate_length(:comment, max: 50)
   end
 
+  defp put_valid_mode(changeset, sat) do
+    mode = get_field(changeset, :mode)
+    valid_modes = Modulation.alert_options(sat.modulations)
+
+    if mode in valid_modes do
+      changeset
+    else
+      put_change(changeset, :mode, hd(valid_modes))
+    end
+  end
+
   defp put_forced_mhz(changeset, sat) do
-    if mhz = forced_mhz(sat, get_field(changeset, :mhz_direction)) do
+    if mhz = forced_mhz(changeset, sat) do
       put_change(changeset, :mhz, mhz)
     else
       changeset
     end
   end
 
-  defp forced_mhz(%Sat{downlinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :down), do: mhz
-  defp forced_mhz(%Sat{uplinks: [%{lower_mhz: mhz, upper_mhz: mhz}]}, :up), do: mhz
-  defp forced_mhz(_sat, _direction), do: nil
+  defp forced_mhz(changeset, sat) do
+    direction = get_field(changeset, :mhz_direction)
+    mode = get_field(changeset, :mode)
+
+    subbands_field = if direction == :down, do: :downlinks, else: :uplinks
+    modulations = Modulation.list_by_alert_option(mode)
+
+    sat
+    |> Map.fetch!(subbands_field)
+    |> Enum.filter(fn subband ->
+      subband.mode in modulations and subband.lower_mhz == subband.upper_mhz
+    end)
+    |> case do
+      [subband] -> subband.lower_mhz
+      _ -> nil
+    end
+  end
 
   defp preferred_mode(user, sat) do
-    case Modulation.alert_options(sat) do
+    case Modulation.alert_options(sat.modulations) do
       [mode] ->
         mode
 
@@ -187,6 +213,10 @@ defmodule Hamsat.Schemas.AlertForm do
           add_error(cs, field, "is invalid")
       end
     end)
+  end
+
+  def fixed_freq?(sat, changeset) do
+    !!forced_mhz(changeset, sat)
   end
 
   # defp validate_grids(changeset) do
