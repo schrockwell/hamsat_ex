@@ -163,6 +163,13 @@ satellites =
         %{mode: :linear, lower_mhz: 145.805, upper_mhz: 145.835},
         %{mode: :fm, lower_mhz: 145.925, upper_mhz: 145.925}
       ]
+    },
+    %{
+      name: "HO-119",
+      number: 54816,
+      modulations: [:linear],
+      downlinks: [%{mode: :linear, lower_mhz: 435.165, upper_mhz: 435.195}],
+      uplinks: [%{mode: :linear, lower_mhz: 145.855, upper_mhz: 145.885}]
     }
   ]
   |> Enum.map(&Map.put_new(&1, :slug, &1.name))
