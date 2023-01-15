@@ -1,7 +1,6 @@
 defmodule HamsatWeb.SatComponents do
   use HamsatWeb, :component
 
-  alias Hamsat.Alerts.Pass
   alias Hamsat.Modulation
   alias Hamsat.Schemas.Alert
 
