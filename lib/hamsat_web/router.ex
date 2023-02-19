@@ -25,21 +25,21 @@ defmodule HamsatWeb.Router do
 
   scope "/", HamsatWeb do
     pipe_through [:browser, :require_authenticated_user]
-    live "/alerts/new", Alerts.NewLive, :new, as: :alerts
-    live "/alerts/:id/edit", Alerts.NewLive, :edit, as: :alerts
+    live "/alerts/new", AlertsLive.New, :new, as: :alerts
+    live "/alerts/:id/edit", AlertsLive.New, :edit, as: :alerts
   end
 
   scope "/", HamsatWeb do
     pipe_through :browser
 
-    live "/", Dashboard.ShowLive, :show, as: :dashboard
+    live "/", DashboardLive.Show, :show, as: :dashboard
 
-    live "/alerts", Alerts.IndexLive, :index, as: :alerts
-    live "/alerts/:id", Alerts.ShowLive, :show, as: :alerts
+    live "/alerts", AlertsLive.Index, :index, as: :alerts
+    live "/alerts/:id", AlertsLive.Show, :show, as: :alerts
 
-    live "/passes", Passes.IndexLive, :index, as: :passes
+    live "/passes", PassesLive.Index, :index, as: :passes
 
-    live "/location", Location.EditLive, :edit, as: :location
+    live "/location", LocationLive.Edit, :edit, as: :location
     post "/session_location", SessionLocationController, :update
   end
 
@@ -75,7 +75,7 @@ defmodule HamsatWeb.Router do
   scope "/", HamsatWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 
-    live "/users/register", UserRegistration.NewLive, :new, as: :user_registration
+    live "/users/register", UserRegistrationLive.New, :new, as: :user_registration
 
     get "/users/log_in", UserSessionController, :new
     post "/users/log_in", UserSessionController, :create

@@ -1,4 +1,4 @@
-defmodule HamsatWeb.Alerts.NewLive do
+defmodule HamsatWeb.AlertsLive.New do
   use HamsatWeb, :live_view
 
   import Ecto.Changeset

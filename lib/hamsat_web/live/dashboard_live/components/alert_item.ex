@@ -1,4 +1,4 @@
-defmodule HamsatWeb.Dashboard.Components.AlertItem do
+defmodule HamsatWeb.DashboardLive.Components.AlertItem do
   use HamsatWeb, :live_component
 
   alias Hamsat.Schemas.Alert

@@ -1,8 +1,8 @@
-defmodule HamsatWeb.Dashboard.ShowLive do
+defmodule HamsatWeb.DashboardLive.Show do
   use HamsatWeb, :live_view
 
   alias Hamsat.Alerts
-  alias HamsatWeb.Dashboard.Components.AlertsList
+  alias HamsatWeb.DashboardLive.Components.AlertsList
 
   state :my_alerts
   state :now, default: DateTime.utc_now()

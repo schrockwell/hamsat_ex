@@ -1,4 +1,4 @@
-defmodule HamsatWeb.Alerts.ShowLive do
+defmodule HamsatWeb.AlertsLive.Show do
   use HamsatWeb, :live_view
 
   alias Hamsat.Alerts
