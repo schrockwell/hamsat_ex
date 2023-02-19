@@ -135,6 +135,10 @@ defmodule Hamsat.Passes do
   @doc """
   Returns the latest PassFilter for the user, or creates a new one if it does not yet exist.
   """
+  def get_pass_filter(:guest) do
+    %PassFilter{}
+  end
+
   def get_pass_filter(user) do
     user
     |> assoc(:pass_filter)
@@ -155,7 +159,17 @@ defmodule Hamsat.Passes do
   @doc """
   Updates a PassFilter.
   """
-  def update_pass_filter(pass_filter, params \\ %{}) do
+  def update_pass_filter(pass_filter, params \\ %{})
+
+  # Guest user case - just update in-memory
+  def update_pass_filter(%{id: nil} = pass_filter, params) do
+    pass_filter
+    |> change_pass_filter(params)
+    |> Ecto.Changeset.apply_action(:update)
+  end
+
+  # Authenticated user case - save to DB
+  def update_pass_filter(pass_filter, params) do
     pass_filter
     |> change_pass_filter(params)
     |> Repo.update()
