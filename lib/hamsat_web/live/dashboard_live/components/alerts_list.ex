@@ -1,7 +1,7 @@
-defmodule HamsatWeb.Dashboard.Components.AlertsList do
+defmodule HamsatWeb.DashboardLive.Components.AlertsList do
   use HamsatWeb, :live_component
 
-  alias HamsatWeb.Dashboard.Components.AlertItem
+  alias HamsatWeb.DashboardLive.Components.AlertItem
 
   prop :alerts
   prop :context

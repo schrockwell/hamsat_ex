@@ -1,4 +1,4 @@
-defmodule HamsatWeb.Passes.IndexLive do
+defmodule HamsatWeb.PassesLive.Index do
   use HamsatWeb, :live_view
 
   import HamsatWeb.LayoutComponents
@@ -7,7 +7,7 @@ defmodule HamsatWeb.Passes.IndexLive do
   alias Hamsat.Passes
   alias Hamsat.Satellites
   alias Hamsat.Util
-  alias HamsatWeb.Passes.Components.PassTableRow
+  alias HamsatWeb.PassesLive.Components.PassTableRow
   alias HamsatWeb.LocationSetter
 
   @set_now_interval :timer.seconds(1)

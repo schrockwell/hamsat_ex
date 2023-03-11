@@ -1,4 +1,4 @@
-defmodule HamsatWeb.Passes.Components.PassTableRow do
+defmodule HamsatWeb.PassesLive.Components.PassTableRow do
   use HamsatWeb, :live_component
 
   alias Hamsat.Alerts

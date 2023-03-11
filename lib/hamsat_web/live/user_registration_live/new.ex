@@ -1,4 +1,4 @@
-defmodule HamsatWeb.UserRegistration.NewLive do
+defmodule HamsatWeb.UserRegistrationLive.New do
   use HamsatWeb, :live_view
 
   alias Hamsat.Accounts

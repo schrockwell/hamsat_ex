@@ -1,4 +1,4 @@
-defmodule HamsatWeb.Location.EditLive do
+defmodule HamsatWeb.LocationLive.Edit do
   use HamsatWeb, :live_view
 
   alias HamsatWeb.LocationSetter

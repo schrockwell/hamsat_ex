@@ -1,4 +1,4 @@
-defmodule HamsatWeb.Alerts.IndexLive do
+defmodule HamsatWeb.AlertsLive.Index do
   use HamsatWeb, :live_view
 
   import HamsatWeb.LayoutComponents
