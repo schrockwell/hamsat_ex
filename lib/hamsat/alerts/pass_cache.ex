@@ -103,18 +103,24 @@ defmodule Hamsat.Alerts.PassCache do
         Logger.debug("PassCache MISS for #{bucket.key}")
 
         passes =
-          Satellite.list_passes_until(
-            Sat.get_satrec(sat),
-            Coord.to_observer(coord),
-            Util.utc_datetime_to_erl(bucket.starting),
-            Util.utc_datetime_to_erl(bucket.ending),
-            # These are the pass_opts that I added to satellite_ex to improve the performance
-            # of these pass calculations
-            magnitude?: false,
-            geodetic?: false,
-            coarse_increment: 60,
-            fine_increment: 5
-          )
+          try do
+            Satellite.list_passes_until(
+              Sat.get_satrec(sat),
+              Coord.to_observer(coord),
+              Util.utc_datetime_to_erl(bucket.starting),
+              Util.utc_datetime_to_erl(bucket.ending),
+              # These are the pass_opts that I added to satellite_ex to improve the performance
+              # of these pass calculations
+              magnitude?: false,
+              geodetic?: false,
+              coarse_increment: 60,
+              fine_increment: 5
+            )
+          rescue
+            error in RuntimeError ->
+              Logger.warn("Error listing passes for bucket #{bucket.key}: #{error.message}")
+              []
+          end
 
         :ets.insert(@table, {bucket.key, System.monotonic_time(:millisecond), passes})
 
