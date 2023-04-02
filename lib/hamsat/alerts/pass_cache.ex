@@ -117,7 +117,7 @@ defmodule Hamsat.Alerts.PassCache do
               fine_increment: 5
             )
           rescue
-            error in RuntimeError ->
+            error ->
               Logger.warn("Error listing passes for bucket #{bucket.key}: #{error.message}")
               []
           end
