@@ -98,37 +98,42 @@ defmodule Hamsat.Alerts.PassCache do
   end
 
   defp get_or_calculate_passes(sat, coord, bucket) do
-    case :ets.lookup(@table, bucket.key) do
-      [] ->
-        Logger.debug("PassCache MISS for #{bucket.key}")
+    # When a sat burns up, it is no longer in the AMSAT TLEs
+    if satrec = Sat.get_satrec(sat) do
+      case :ets.lookup(@table, bucket.key) do
+        [] ->
+          Logger.debug("PassCache MISS for #{bucket.key}")
+          passes = try_list_passes(satrec, coord, bucket)
+          :ets.insert(@table, {bucket.key, System.monotonic_time(:millisecond), passes})
+          passes
 
-        passes =
-          try do
-            Satellite.list_passes_until(
-              Sat.get_satrec(sat),
-              Coord.to_observer(coord),
-              Util.utc_datetime_to_erl(bucket.starting),
-              Util.utc_datetime_to_erl(bucket.ending),
-              # These are the pass_opts that I added to satellite_ex to improve the performance
-              # of these pass calculations
-              magnitude?: false,
-              geodetic?: false,
-              coarse_increment: 60,
-              fine_increment: 5
-            )
-          rescue
-            error in RuntimeError ->
-              Logger.warn("Error listing passes for bucket #{bucket.key}: #{error.message}")
-              []
-          end
+        [{_key, _inserted_at, cached_passes}] ->
+          Logger.debug("PassCache HIT for #{bucket.key}")
+          cached_passes
+      end
+    else
+      []
+    end
+  end
 
-        :ets.insert(@table, {bucket.key, System.monotonic_time(:millisecond), passes})
-
-        passes
-
-      [{_key, _inserted_at, cached_passes}] ->
-        Logger.debug("PassCache HIT for #{bucket.key}")
-        cached_passes
+  defp try_list_passes(satrec, coord, bucket) do
+    try do
+      Satellite.list_passes_until(
+        satrec,
+        Coord.to_observer(coord),
+        Util.utc_datetime_to_erl(bucket.starting),
+        Util.utc_datetime_to_erl(bucket.ending),
+        # These are the pass_opts that I added to satellite_ex to improve the performance
+        # of these pass calculations
+        magnitude?: false,
+        geodetic?: false,
+        coarse_increment: 60,
+        fine_increment: 5
+      )
+    rescue
+      error ->
+        Logger.warn("Error listing passes for bucket #{bucket.key}: #{error.message}")
+        []
     end
   end
 end
