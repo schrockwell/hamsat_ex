@@ -72,6 +72,7 @@ satellites =
     },
     %{
       name: "GREENCUBE",
+      nasa_name: "IO-117",
       number: 53106,
       modulations: [:digital],
       downlinks: [%{mode: :digital, lower_mhz: 435.310, upper_mhz: 435.310}],
