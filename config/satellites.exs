@@ -171,6 +171,48 @@ satellites =
       modulations: [:linear],
       downlinks: [%{mode: :linear, lower_mhz: 435.165, upper_mhz: 435.195}],
       uplinks: [%{mode: :linear, lower_mhz: 145.855, upper_mhz: 145.885}]
+    },
+    %{
+      name: "Tevel-2",
+      number: 51069,
+      modulations: [:fm],
+      downlinks: [%{mode: :fm, lower_mhz: 436.400, upper_mhz: 436.400}],
+      uplinks: [%{mode: :fm, lower_mhz: 145.970, upper_mhz: 145.970}]
+    },
+    %{
+      name: "Tevel-3",
+      number: 50988,
+      modulations: [:fm],
+      downlinks: [%{mode: :fm, lower_mhz: 436.400, upper_mhz: 436.400}],
+      uplinks: [%{mode: :fm, lower_mhz: 145.970, upper_mhz: 145.970}]
+    },
+    %{
+      name: "Tevel-4",
+      number: 51063,
+      modulations: [:fm],
+      downlinks: [%{mode: :fm, lower_mhz: 436.400, upper_mhz: 436.400}],
+      uplinks: [%{mode: :fm, lower_mhz: 145.970, upper_mhz: 145.970}]
+    },
+    %{
+      name: "Tevel-5",
+      number: 50998,
+      modulations: [:fm],
+      downlinks: [%{mode: :fm, lower_mhz: 436.400, upper_mhz: 436.400}],
+      uplinks: [%{mode: :fm, lower_mhz: 145.970, upper_mhz: 145.970}]
+    },
+    %{
+      name: "Tevel-6",
+      number: 50999,
+      modulations: [:fm],
+      downlinks: [%{mode: :fm, lower_mhz: 436.400, upper_mhz: 436.400}],
+      uplinks: [%{mode: :fm, lower_mhz: 145.970, upper_mhz: 145.970}]
+    },
+    %{
+      name: "Tevel-7",
+      number: 51062,
+      modulations: [:fm],
+      downlinks: [%{mode: :fm, lower_mhz: 436.400, upper_mhz: 436.400}],
+      uplinks: [%{mode: :fm, lower_mhz: 145.970, upper_mhz: 145.970}]
     }
   ]
   |> Enum.map(&Map.put_new(&1, :slug, &1.name))
