@@ -21,7 +21,7 @@ defmodule HamsatWeb.UserSessionController do
       _ ->
         conn
         |> put_flash(:error, "There was a problem signing in. Please try again.")
-        |> redirect(to: Routes.user_session_path(conn, :new))
+        |> redirect(to: ~p"/users/log_in")
     end
   end
 

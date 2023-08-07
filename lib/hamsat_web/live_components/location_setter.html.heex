@@ -2,7 +2,7 @@
   <div class="mb-8">
     <%= if @show_log_in_link? do %>
       To view satellite predictions at your current location, you must <%= link("log in to your account",
-        to: Routes.user_session_path(@socket, :new),
+        to: ~p"/users/log_in",
         class: "link not-italic"
       ) %>,
       or select your station location by entering a grid square, coordinates, or by clicking the map.
@@ -14,12 +14,12 @@
   <.form
     :let={f}
     for={@changeset}
-    action={Routes.session_location_path(@socket, :update)}
+    action={~p"/session_location"}
     phx-change="form-changed"
     phx-target={@myself}
     autocomplete="off"
   >
-    <%= csrf_input_tag(Routes.session_location_path(@socket, :update)) %>
+    <%= csrf_input_tag(~p"/session_location") %>
     <%= if @redirect do %>
       <input type="hidden" name="redirect" value={@redirect} />
     <% end %>

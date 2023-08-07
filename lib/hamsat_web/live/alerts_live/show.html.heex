@@ -54,7 +54,7 @@
         <span class="hidden md:inline">Post a</span> Tweet
       </a>
       <%= if Alert.owned?(@alert, @context.user) do %>
-        <%= link to: Routes.alerts_path(@socket, :edit, @alert.id), class: "btn btn-link" do %>
+        <%= link to: ~p"/alerts/#{@alert.id}/edit", class: "btn btn-link" do %>
           Edit <span class="hidden md:inline">Activation</span>
         <% end %>
       <% end %>
@@ -262,7 +262,7 @@
           module={LocationSetter}
           id="location-setter"
           context={@context}
-          redirect={Routes.alerts_path(@socket, :show, @alert.id)}
+          redirect={~p"/alerts/#{@alert.id}"}
           show_log_in_link?={true}
         />
       </div>

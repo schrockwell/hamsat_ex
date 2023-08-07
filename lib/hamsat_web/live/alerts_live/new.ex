@@ -27,7 +27,7 @@ defmodule HamsatWeb.AlertsLive.New do
     existing_alert = Alerts.my_alert_during_pass(socket.assigns.context, pass)
 
     if existing_alert do
-      {:ok, redirect(socket, to: Routes.alerts_path(socket, :edit, existing_alert.id))}
+      {:ok, redirect(socket, to: ~p"/alerts/#{existing_alert.id}/edit")}
     else
       {:ok,
        socket
@@ -101,7 +101,7 @@ defmodule HamsatWeb.AlertsLive.New do
         {:noreply,
          socket
          |> put_flash(:info, "Created activation.")
-         |> redirect(to: Routes.alerts_path(socket, :show, alert.id))}
+         |> redirect(to: ~p"/alerts/#{alert.id}")}
 
       {:error, changeset} ->
         {:noreply, put_state(socket, changeset: changeset)}
@@ -116,7 +116,7 @@ defmodule HamsatWeb.AlertsLive.New do
         {:noreply,
          socket
          |> put_flash(:info, "Updated activation.")
-         |> redirect(to: Routes.alerts_path(socket, :show, alert.id))}
+         |> redirect(to: ~p"/alerts/#{alert.id}")}
 
       {:error, changeset} ->
         {:noreply, put_state(socket, changeset: changeset)}
@@ -133,7 +133,7 @@ defmodule HamsatWeb.AlertsLive.New do
     {:noreply,
      socket
      |> put_flash(:info, "Activation deleted.")
-     |> redirect(to: Routes.passes_path(socket, :index))}
+     |> redirect(to: ~p"/passes")}
   end
 
   def handle_info({:fetch_passes, pass_list_params}, socket) do

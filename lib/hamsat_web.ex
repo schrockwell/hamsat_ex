@@ -23,7 +23,8 @@ defmodule HamsatWeb do
 
       import Plug.Conn
       import HamsatWeb.Gettext
-      alias HamsatWeb.Router.Helpers, as: Routes
+
+      unquote(verified_routes())
     end
   end
 
@@ -122,7 +123,19 @@ defmodule HamsatWeb do
       import HamsatWeb.ErrorHelpers
       import HamsatWeb.ViewHelpers
       import HamsatWeb.Gettext
-      alias HamsatWeb.Router.Helpers, as: Routes
+
+      unquote(verified_routes())
+    end
+  end
+
+  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+
+  def verified_routes do
+    quote do
+      use Phoenix.VerifiedRoutes,
+        endpoint: HamsatWeb.Endpoint,
+        router: HamsatWeb.Router,
+        statics: HamsatWeb.static_paths()
     end
   end
 

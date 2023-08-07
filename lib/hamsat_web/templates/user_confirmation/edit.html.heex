@@ -1,7 +1,7 @@
 <div class="p-3 md:p-6">
   <h1 class="text-h2 md:text-h1 mb-6">Confirm Account to Complete Registration</h1>
 
-  <.form :let={_f} for={:user} action={Routes.user_confirmation_path(@conn, :update, @token)}>
+  <.form :let={_f} for={:user} action={~p"/users/confirm/#{@token}"}>
     <div>
       <%= submit("Confirm My Account", class: "btn btn-default") %>
     </div>

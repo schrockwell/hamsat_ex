@@ -72,7 +72,7 @@
       <%= live_component(LocationSetter,
         id: "location-setter",
         context: @context,
-        redirect: Routes.passes_path(@socket, :index),
+        redirect: ~p"/passes",
         show_log_in_link?: true
       ) %>
     </div>
@@ -86,7 +86,7 @@
         </button>
       <% else %>
         <div class="text-gray-500">
-          <.link patch={browse_url(@socket)} class="link">Browse</.link>
+          <.link patch={browse_path()} class="link">Browse</.link>
           to see more passes
         </div>
       <% end %>

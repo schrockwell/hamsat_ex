@@ -37,8 +37,8 @@
     </div>
   </.form>
 
-  <form phx-hook="Registration" method="POST" action={Routes.user_session_path(@socket, :create)} id="sign-in-form">
-    <%= csrf_input_tag(Routes.user_session_path(@socket, :create)) %>
+  <form phx-hook="Registration" method="POST" action={~p"/users/log_in"} id="sign-in-form">
+    <%= csrf_input_tag(~p"/users/log_in") %>
     <input type="hidden" name="token" value={@sign_in_token} />
   </form>
 </div>

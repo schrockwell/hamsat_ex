@@ -45,16 +45,16 @@ defmodule HamsatWeb.AlertsLive.Index do
   end
 
   def handle_event("select", %{"id" => "interval", "selected" => "upcoming"}, socket) do
-    {:noreply, push_patch(socket, to: Routes.alerts_path(socket, :index))}
+    {:noreply, push_patch(socket, to: ~p"/alerts")}
   end
 
   def handle_event("select", %{"id" => "interval", "selected" => "browse"}, socket) do
-    {:noreply, push_patch(socket, to: browse_url(socket))}
+    {:noreply, push_patch(socket, to: browse_path())}
   end
 
   def handle_event("date-changed", params, socket) do
     params = Map.take(params, ["date"])
-    socket = push_patch(socket, to: Routes.alerts_path(socket, :index, params))
+    socket = push_patch(socket, to: ~p"/alerts?#{params}")
 
     {:noreply, socket}
   end
@@ -77,8 +77,8 @@ defmodule HamsatWeb.AlertsLive.Index do
     [upcoming: "Upcoming", browse: "Browse"]
   end
 
-  defp browse_url(socket) do
-    default_date = Date.utc_today() |> Date.to_iso8601()
-    Routes.alerts_path(socket, :index, date: default_date)
+  defp browse_path do
+    params = %{date: Date.utc_today() |> Date.to_iso8601()}
+    ~p"/alerts?#{params}"
   end
 end

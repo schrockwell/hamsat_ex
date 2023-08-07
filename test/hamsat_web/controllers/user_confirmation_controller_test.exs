@@ -11,7 +11,7 @@ defmodule HamsatWeb.UserConfirmationControllerTest do
 
   describe "GET /users/confirm" do
     test "renders the resend confirmation page", %{conn: conn} do
-      conn = get(conn, Routes.user_confirmation_path(conn, :new))
+      conn = get(conn, ~p"/users/confirm")
       response = html_response(conn, 200)
       assert response =~ "<h1>Resend confirmation instructions</h1>"
     end
@@ -21,7 +21,7 @@ defmodule HamsatWeb.UserConfirmationControllerTest do
     @tag :capture_log
     test "sends a new confirmation token", %{conn: conn, user: user} do
       conn =
-        post(conn, Routes.user_confirmation_path(conn, :create), %{
+        post(conn, ~p"/users/confirm", %{
           "user" => %{"email" => user.email}
         })
 
@@ -34,7 +34,7 @@ defmodule HamsatWeb.UserConfirmationControllerTest do
       Repo.update!(Accounts.User.confirm_changeset(user))
 
       conn =
-        post(conn, Routes.user_confirmation_path(conn, :create), %{
+        post(conn, ~p"/users/confirm", %{
           "user" => %{"email" => user.email}
         })
 
@@ -45,7 +45,7 @@ defmodule HamsatWeb.UserConfirmationControllerTest do
 
     test "does not send confirmation token if email is invalid", %{conn: conn} do
       conn =
-        post(conn, Routes.user_confirmation_path(conn, :create), %{
+        post(conn, ~p"/users/confirm", %{
           "user" => %{"email" => "unknown@example.com"}
         })
 
@@ -57,11 +57,11 @@ defmodule HamsatWeb.UserConfirmationControllerTest do
 
   describe "GET /users/confirm/:token" do
     test "renders the confirmation page", %{conn: conn} do
-      conn = get(conn, Routes.user_confirmation_path(conn, :edit, "some-token"))
+      conn = get(conn, ~p"/users/confirm/#{"some-token"}")
       response = html_response(conn, 200)
       assert response =~ "<h1>Confirm account</h1>"
 
-      form_action = Routes.user_confirmation_path(conn, :update, "some-token")
+      form_action = ~p"/users/confirm/#{"some-token"}"
       assert response =~ "action=\"#{form_action}\""
     end
   end
