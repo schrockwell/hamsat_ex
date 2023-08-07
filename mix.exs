@@ -35,15 +35,16 @@ defmodule Hamsat.MixProject do
     local_deps() ++
       [
         {:bcrypt_elixir, "~> 2.0"},
-        {:phoenix, "~> 1.6.7"},
+        {:phoenix, "~> 1.7.7"},
         {:phoenix_ecto, "~> 4.4"},
         {:ecto_sql, "~> 3.6"},
         {:postgrex, ">= 0.0.0"},
         {:phoenix_html, "~> 3.0"},
         {:phoenix_live_reload, "~> 1.2", only: :dev},
-        {:phoenix_live_view, "~> 0.17.5"},
+        {:phoenix_view, "~> 2.0"},
+        {:phoenix_live_view, "~> 0.18.18"},
+        {:phoenix_live_dashboard, "~> 0.7.2"},
         {:floki, ">= 0.30.0", only: :test},
-        {:phoenix_live_dashboard, "~> 0.6"},
         {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
         {:swoosh, "~> 1.3"},
         {:telemetry_metrics, "~> 0.6"},
@@ -54,8 +55,7 @@ defmodule Hamsat.MixProject do
         {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
         {:timex, "~> 3.7"},
         {:hackney, "~> 1.18"},
-        {:ex_heroicons, "~> 0.6.0"},
-        {:flame_on, "~> 0.5.2"}
+        {:ex_heroicons, "~> 0.6.0"}
       ]
   end
 
@@ -71,7 +71,7 @@ defmodule Hamsat.MixProject do
       [
         {:live_assign, "0.3.1"},
         {:live_inspect, "~> 0.2"},
-        {:live_event, "0.2.0"},
+        {:live_event, "0.3.0"},
         {:satellite_ex, git: "https://github.com/schrockwell/satelliteEx.git", branch: "hamsat"}
       ]
     end

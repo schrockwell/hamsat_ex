@@ -10,7 +10,7 @@
       </form>
     <% end %>
 
-    <.form for={@pass_filter_changeset} let={f} class="flex items-center space-x-8 text-sm" phx-change="filter-changed">
+    <.form for={@pass_filter_changeset} :let={f} class="flex items-center space-x-8 text-sm" phx-change="filter-changed">
       <div class="flex items-center space-x-4">
         <%= for {field, label} <- [fm_mod: "FM", linear_mod: "Linear", digital_mod: "Digital"] do %>
           <div class="flex items-center space-x-2">
@@ -86,7 +86,8 @@
         </button>
       <% else %>
         <div class="text-gray-500">
-          <%= live_patch("Browse", to: browse_url(@socket), class: "link") %> to see more passes
+          <.link patch={browse_url(@socket)} class="link">Browse</.link>
+          to see more passes
         </div>
       <% end %>
     </div>

@@ -47,7 +47,7 @@ defmodule HamsatWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {HamsatWeb.LayoutView, "live.html"}
+        layout: {HamsatWeb.LayoutView, :live}
 
       use LiveAssign.LiveView
       use LiveEvent.LiveView
@@ -116,6 +116,7 @@ defmodule HamsatWeb do
       import Phoenix.LiveView.Helpers
 
       # Import basic rendering functionality (render, render_layout, etc)
+      import Phoenix.Component
       import Phoenix.View
 
       import HamsatWeb.ErrorHelpers

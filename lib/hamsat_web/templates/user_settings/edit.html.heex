@@ -6,7 +6,7 @@
   </.form_row>
 
   <.form
-    let={f}
+    :let={f}
     for={@match_preferences_changeset}
     action={Routes.user_settings_path(@conn, :update)}
     id="update_match_preferences"
@@ -57,7 +57,7 @@
     <h2 class="text-h2 mt-12">Change Email</h2>
   </.form_row>
 
-  <.form let={f} for={@email_changeset} action={Routes.user_settings_path(@conn, :update)} id="update_email">
+  <.form :let={f} for={@email_changeset} action={Routes.user_settings_path(@conn, :update)} id="update_email">
     <%= if @email_changeset.action do %>
       <div class="text-red-500 my-2 text-sm font-medium">
         <p>Oops, something went wrong! Please check the errors below.</p>
@@ -90,7 +90,7 @@
     <h2 class="text-h2 mt-12">Change Password</h2>
   </.form_row>
 
-  <.form let={f} for={@password_changeset} action={Routes.user_settings_path(@conn, :update)} id="update_password">
+  <.form :let={f} for={@password_changeset} action={Routes.user_settings_path(@conn, :update)} id="update_password">
     <%= if @password_changeset.action do %>
       <div class="alert alert-danger">
         <p>Oops, something went wrong! Please check the errors below.</p>

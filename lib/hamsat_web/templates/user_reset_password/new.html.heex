@@ -1,7 +1,7 @@
 <div class="p-3 md:p-6">
   <h1 class="text-h2 md:text-h1 mb-6">Forgot your password?</h1>
 
-  <.form let={f} for={:user} action={Routes.user_reset_password_path(@conn, :create)}>
+  <.form :let={f} for={:user} action={Routes.user_reset_password_path(@conn, :create)}>
     <%= label(f, :email, class: "form-label") %>
     <%= email_input(f, :email, required: true, class: "input-text") %>
 

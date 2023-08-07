@@ -12,7 +12,7 @@
   </div>
 
   <.form
-    let={f}
+    :let={f}
     for={@changeset}
     action={Routes.session_location_path(@socket, :update)}
     phx-change="form-changed"

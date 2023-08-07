@@ -8,6 +8,6 @@ defmodule HamsatWeb.DashboardLive.Components.AlertsList do
   prop :mine?, default: false
   prop :now
 
-  slot :empty
-  slot :inner_block
+  LiveAssign.LiveComponent.slot(:empty)
+  LiveAssign.LiveComponent.slot(:inner_block)
 end

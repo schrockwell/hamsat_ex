@@ -3,7 +3,7 @@
     <%= action_verb(@live_action) %> an Activation For <%= @sat.name %>
   </h1>
 
-  <.form let={f} for={@changeset} phx-change="change" phx-submit="submit">
+  <.form :let={f} for={@changeset} phx-change="change" phx-submit="submit">
     <.form_row label="Satellite" input?={true}>
       <%= select(f, :satellite_id, Satellites.list_satellite_options()) %>
     </.form_row>
