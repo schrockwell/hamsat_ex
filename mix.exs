@@ -32,40 +32,49 @@ defmodule Hamsat.MixProject do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [
-      # {:live_assign, path: "../live_assign"},
-      {:live_assign, "0.3.1"},
-      {:live_inspect, "~> 0.2"},
-      # {:live_inspect, path: "../live_inspect"},
-      # {:live_dev_tools, path: "../live_dev_tools"},
-      {:live_event, "0.2.0"},
-      # {:live_event, path: "../live_event"},
-      {:bcrypt_elixir, "~> 2.0"},
-      {:phoenix, "~> 1.6.7"},
-      {:phoenix_ecto, "~> 4.4"},
-      {:ecto_sql, "~> 3.6"},
-      {:postgrex, ">= 0.0.0"},
-      {:phoenix_html, "~> 3.0"},
-      {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.17.5"},
-      {:floki, ">= 0.30.0", only: :test},
-      {:phoenix_live_dashboard, "~> 0.6"},
-      {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
-      {:swoosh, "~> 1.3"},
-      {:telemetry_metrics, "~> 0.6"},
-      {:telemetry_poller, "~> 1.0"},
-      {:gettext, "~> 0.18"},
-      {:jason, "~> 1.2"},
-      {:plug_cowboy, "~> 2.5"},
-      {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
-      {:satellite_ex, git: "https://github.com/schrockwell/satelliteEx.git", branch: "hamsat"},
-      # {:satellite_ex, path: "../satelliteEx"},
-      {:timex, "~> 3.7"},
-      {:hackney, "~> 1.18"},
-      {:ex_heroicons, "~> 0.6.0"},
-      # {:flame_on, path: "../flame_on"}
-      {:flame_on, "~> 0.5.2"}
-    ]
+    local_deps() ++
+      [
+        {:bcrypt_elixir, "~> 2.0"},
+        {:phoenix, "~> 1.6.7"},
+        {:phoenix_ecto, "~> 4.4"},
+        {:ecto_sql, "~> 3.6"},
+        {:postgrex, ">= 0.0.0"},
+        {:phoenix_html, "~> 3.0"},
+        {:phoenix_live_reload, "~> 1.2", only: :dev},
+        {:phoenix_live_view, "~> 0.17.5"},
+        {:floki, ">= 0.30.0", only: :test},
+        {:phoenix_live_dashboard, "~> 0.6"},
+        {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
+        {:swoosh, "~> 1.3"},
+        {:telemetry_metrics, "~> 0.6"},
+        {:telemetry_poller, "~> 1.0"},
+        {:gettext, "~> 0.18"},
+        {:jason, "~> 1.2"},
+        {:plug_cowboy, "~> 2.5"},
+        {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
+        {:timex, "~> 3.7"},
+        {:hackney, "~> 1.18"},
+        {:ex_heroicons, "~> 0.6.0"},
+        {:flame_on, "~> 0.5.2"}
+      ]
+  end
+
+  defp local_deps do
+    if path = System.get_env("LOCAL_DEPS_PATH") do
+      [
+        {:live_assign, path: Path.join(path, "live_assign")},
+        {:live_inspect, path: Path.join(path, "live_inspect")},
+        {:live_event, path: Path.join(path, "live_event")},
+        {:satellite_ex, path: Path.join(path, "satelliteEx")}
+      ]
+    else
+      [
+        {:live_assign, "0.3.1"},
+        {:live_inspect, "~> 0.2"},
+        {:live_event, "0.2.0"},
+        {:satellite_ex, git: "https://github.com/schrockwell/satelliteEx.git", branch: "hamsat"}
+      ]
+    end
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
