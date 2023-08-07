@@ -69,7 +69,7 @@ defmodule Hamsat.MixProject do
       ]
     else
       [
-        {:live_assign, "0.3.1"},
+        {:live_assign, "0.4.0"},
         {:live_inspect, "~> 0.2"},
         {:live_event, "0.3.0"},
         {:satellite_ex, git: "https://github.com/schrockwell/satelliteEx.git", branch: "hamsat"}
