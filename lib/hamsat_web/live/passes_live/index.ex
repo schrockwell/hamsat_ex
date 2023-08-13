@@ -198,17 +198,17 @@ defmodule HamsatWeb.PassesLive.Index do
   end
 
   def handle_event("select", %{"id" => "interval", "selected" => "upcoming"}, socket) do
-    {:noreply, push_patch(socket, to: Routes.passes_path(socket, :index))}
+    {:noreply, push_patch(socket, to: ~p"/passes")}
   end
 
   def handle_event("select", %{"id" => "interval", "selected" => "browse"}, socket) do
-    {:noreply, push_patch(socket, to: browse_url(socket))}
+    {:noreply, push_patch(socket, to: browse_path())}
   end
 
   def handle_event("date-changed", %{"date" => date}, socket) do
     case Date.from_iso8601(date) do
       {:ok, _date} ->
-        {:noreply, push_patch(socket, to: Routes.passes_path(socket, :index, date: date))}
+        {:noreply, push_patch(socket, to: ~p"/passes?date=#{date}")}
 
       _ ->
         {:noreply, socket}
@@ -247,9 +247,9 @@ defmodule HamsatWeb.PassesLive.Index do
     [upcoming: "Upcoming", browse: "Browse"]
   end
 
-  defp browse_url(socket) do
+  defp browse_path() do
     default_date = Date.utc_today() |> Date.to_iso8601()
-    Routes.passes_path(socket, :index, date: default_date)
+    ~p"/passes?date=#{default_date}"
   end
 
   @react to: [:needs_location?, :loading?, :duration]

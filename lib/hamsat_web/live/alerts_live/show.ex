@@ -145,7 +145,7 @@ defmodule HamsatWeb.AlertsLive.Show do
   @react to: :alert
   def assign_tweet_url(socket) do
     alert = socket.assigns.alert
-    url = URI.encode(Routes.alerts_url(socket, :show, alert.id))
+    url = URI.encode(url(socket, ~p"/alerts/#{alert.id}"))
     grids = alert_grids(alert)
 
     freq =

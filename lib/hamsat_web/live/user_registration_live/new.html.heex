@@ -1,7 +1,7 @@
 <div class="p-3 md:p-6">
   <h1 class="text-h2 md:text-h1 mb-4">Create a Hams.at Account</h1>
 
-  <.form let={f} for={@changeset} phx-submit="submit" phx-change="form-changed">
+  <.form :let={f} for={@changeset} phx-submit="submit" phx-change="form-changed">
     <%= if @changeset.action do %>
       <div class="form-error mb-4">
         <p>Oops, something went wrong! Please check the errors below.</p>
@@ -37,8 +37,8 @@
     </div>
   </.form>
 
-  <form phx-hook="Registration" method="POST" action={Routes.user_session_path(@socket, :create)} id="sign-in-form">
-    <%= csrf_input_tag(Routes.user_session_path(@socket, :create)) %>
+  <form phx-hook="Registration" method="POST" action={~p"/users/log_in"} id="sign-in-form">
+    <%= csrf_input_tag(~p"/users/log_in") %>
     <input type="hidden" name="token" value={@sign_in_token} />
   </form>
 </div>

@@ -5,7 +5,7 @@
         <h1 class="text-h2 md:text-h1">Upcoming <span class="hidden md:inline">Satellite</span> Activations</h1>
       </div>
       <div class="hidden md:block text-right">
-        <%= link("Browse", to: Routes.alerts_path(@socket, :index), class: "btn btn-link") %>
+        <%= link("Browse", to: ~p"/alerts", class: "btn btn-link") %>
       </div>
     </div>
 
@@ -23,7 +23,7 @@
 
     <%= if @upcoming_alert_count > 25 do %>
       <%= link("View #{pluralized_count(@upcoming_alert_count, "future activation", "future activations")}",
-        to: Routes.alerts_path(@socket, :index),
+        to: ~p"/alerts",
         class: "link block mt-6 mb-2 text-center"
       ) %>
     <% end %>
@@ -35,7 +35,7 @@
         <h1 class="text-h2 md:text-h1">My <span class="hidden md:inline">Satellite</span> Activations</h1>
       </div>
       <div class="hidden md:block text-right">
-        <%= link("Post an Activation", to: Routes.passes_path(@socket, :index), class: "btn btn-link") %>
+        <%= link("Post an Activation", to: ~p"/passes", class: "btn btn-link") %>
       </div>
     </div>
     <%= if @my_alerts do %>
@@ -53,9 +53,9 @@
       </.live_component>
     <% else %>
       <div class="panel p-6 text-center text-gray-400 italic">
-        <%= link("Log in", to: Routes.user_session_path(@socket, :new), class: "link not-italic") %> or <%= link(
+        <%= link("Log in", to: ~p"/users/log_in", class: "link not-italic") %> or <%= link(
           "Register",
-          to: Routes.user_registration_path(@socket, :new),
+          to: ~p"/users/register",
           class: "link not-italic"
         ) %> to post your own activation alerts.
       </div>

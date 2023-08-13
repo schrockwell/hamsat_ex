@@ -24,10 +24,10 @@ defmodule HamsatWeb.ConnCase do
       import Phoenix.ConnTest
       import HamsatWeb.ConnCase
 
-      alias HamsatWeb.Router.Helpers, as: Routes
-
       # The default endpoint for testing
       @endpoint HamsatWeb.Endpoint
+
+      use HamsatWeb, :verified_routes
     end
   end
 

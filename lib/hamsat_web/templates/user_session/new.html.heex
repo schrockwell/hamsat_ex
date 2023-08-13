@@ -2,10 +2,10 @@
   <h1 class="text-h2 md:text-h1 mb-1">Log In</h1>
 
   <div class="mb-6 text-gray-500">
-    Need an account? <%= link("Register now.", to: Routes.user_registration_path(@conn, :new), class: "link") %>
+    Need an account? <%= link("Register now.", to: ~p"/users/register", class: "link") %>
   </div>
 
-  <.form let={f} for={@conn} action={Routes.user_session_path(@conn, :create)} as={:user}>
+  <.form :let={f} for={@conn} action={~p"/users/log_in"} as={:user}>
     <%= if @error_message do %>
       <div class="mb-4 font-medium text-red-500">
         <p><%= @error_message %></p>
@@ -21,7 +21,7 @@
       <%= label(f, :password, class: "form-label") %>
       <%= password_input(f, :password, required: true, class: "input-text") %>
       <div>
-        <%= link("Forgot your password?", to: Routes.user_reset_password_path(@conn, :new), class: "link text-sm") %>
+        <%= link("Forgot your password?", to: ~p"/users/reset_password", class: "link text-sm") %>
       </div>
     </fieldset>
 
