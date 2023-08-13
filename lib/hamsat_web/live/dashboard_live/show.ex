@@ -57,33 +57,37 @@ defmodule HamsatWeb.DashboardLive.Show do
   def handle_info(_, socket), do: {:noreply, socket}
 
   defp assign_upcoming_alerts(socket) do
-    put_state(
+    assign_cached(
       socket,
-      upcoming_alerts:
+      :upcoming_alerts,
+      fn ->
         Alerts.list_alerts(socket.assigns.context,
           date: :upcoming,
           limit: 25
         )
+      end
     )
   end
 
   defp assign_my_alerts(%{assigns: %{context: %{user: :guest}}} = socket) do
-    put_state(socket, my_alerts: nil)
+    assign(socket, my_alerts: nil)
   end
 
   defp assign_my_alerts(socket) do
-    put_state(
+    assign_cached(
       socket,
-      my_alerts:
+      :my_alerts,
+      fn ->
         Alerts.list_alerts(socket.assigns.context,
           after: DateTime.utc_now(),
           user_id: socket.assigns.context.user.id
         )
+      end
     )
   end
 
   defp assign_upcoming_alert_count(socket) do
-    assign(socket, :upcoming_alert_count, Alerts.count_alerts(date: :upcoming))
+    assign_cached(socket, :upcoming_alert_count, fn -> Alerts.count_alerts(date: :upcoming) end)
   end
 
   defp schedule_reload_alerts do

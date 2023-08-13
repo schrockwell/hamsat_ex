@@ -35,8 +35,11 @@ const Hooks = {
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");
+let liveCacheKey = document
+  .querySelector("meta[name='live-cache-key']")
+  .getAttribute("content");
 let liveSocket = new LiveSocket("/live", Socket, {
-  params: { _csrf_token: csrfToken },
+  params: { _csrf_token: csrfToken, live_cache_key: liveCacheKey },
   hooks: Hooks,
 });
 

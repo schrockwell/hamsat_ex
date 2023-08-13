@@ -24,11 +24,10 @@ defmodule HamsatWeb.AlertsLive.Show do
   state :workable_start_marker_style
 
   def mount(%{"id" => alert_id}, _session, socket) do
-    alert = Alerts.get_alert!(socket.assigns.context, alert_id)
-
     socket =
       socket
-      |> put_state(alert: alert)
+      |> assign_cached(:alert, [scope: alert_id], fn -> Alerts.get_alert!(socket.assigns.context, alert_id) end)
+      |> then(fn s -> put_state(s, alert: s.assigns.alert) end)
       |> schedule_tick()
 
     {:ok, socket}

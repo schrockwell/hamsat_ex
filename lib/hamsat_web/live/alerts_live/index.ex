@@ -23,16 +23,18 @@ defmodule HamsatWeb.AlertsLive.Index do
 
   def handle_params(params, _uri, socket) do
     filter = [date: parse_date_filter(params)]
-    alerts = Alerts.list_alerts(socket.assigns.context, filter)
 
     duration = if filter[:date] == :upcoming, do: :upcoming, else: :browse
 
     {:noreply,
-     put_state(socket,
+     socket
+     |> put_state(
        filter: filter,
-       alerts: alerts,
        duration: duration
-     )}
+     )
+     |> assign_cached(:alerts, [scope: {filter, duration}], fn ->
+       Alerts.list_alerts(socket.assigns.context, filter)
+     end)}
   end
 
   defp parse_date_filter(params) do

@@ -9,6 +9,9 @@
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
+    <%= if assigns[:live_cache_key] do %>
+      <meta name="live-cache-key" content={@live_cache_key} />
+    <% end %>
   </head>
   <body class="text-gray-900 bg-gray-200">
     <div class="md:mt-4 md:mx-4 md:px-6 md:py-2 px-3 py-1 flex items-center justify-between md:rounded-t-xl bg-gray-700 text-white shadow-md">

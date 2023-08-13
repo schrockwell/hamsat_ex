@@ -53,7 +53,10 @@ defmodule HamsatWeb do
       use LiveAssign.LiveView
       use LiveEvent.LiveView
 
+      import LiveCache, only: [assign_cached: 3, assign_cached: 4]
+
       on_mount HamsatWeb.ContextHook
+      on_mount LiveCache
 
       unquote(view_helpers())
 

@@ -26,7 +26,7 @@ defmodule HamsatWeb.PassesLive.Index do
   state :passes
   state :passes_calculated_until
   state :results_description
-  state :sats, default: Satellites.list_satellites()
+  state :sats
 
   def mount(_params, _session, socket) do
     socket =
@@ -75,7 +75,7 @@ defmodule HamsatWeb.PassesLive.Index do
   end
 
   defp assign_sats(socket) do
-    put_state(socket, sats: Satellites.list_satellites())
+    assign_cached(socket, :sats, fn -> Satellites.list_satellites() end)
   end
 
   defp assign_pass_filter_changeset(socket) do
