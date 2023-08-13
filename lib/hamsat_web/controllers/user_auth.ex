@@ -1,10 +1,8 @@
 defmodule HamsatWeb.UserAuth do
-  import Plug.Conn
-  import Phoenix.Controller
+  use HamsatWeb, :controller
 
   alias Plug.Conn
   alias Hamsat.Accounts
-  alias HamsatWeb.Router.Helpers, as: Routes
 
   # Make the remember me cookie valid for 60 days.
   # If you want bump or reduce this value, also change
@@ -140,7 +138,7 @@ defmodule HamsatWeb.UserAuth do
       conn
       |> put_flash(:error, "Please log in or register to continue.")
       |> maybe_store_return_to()
-      |> redirect(to: Routes.user_session_path(conn, :new))
+      |> redirect(to: ~p"/users/log_in")
       |> halt()
     end
   end

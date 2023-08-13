@@ -35,10 +35,10 @@
       </div>
     <% end %>
     <div class="text-sm flex space-x-6 md:mt-1">
-      <%= link("Track", to: Routes.alerts_path(@socket, :show, @alert.id), class: "link") %>
+      <%= link("Track", to: ~p"/alerts/#{@alert.id}", class: "link") %>
 
       <%= if @mine? and Alert.owned?(@alert, @context.user) do %>
-        <%= link("Edit Activation", to: Routes.alerts_path(@socket, :edit, @alert.id), class: "link") %>
+        <%= link("Edit Activation", to: ~p"/alerts/#{@alert.id}/edit", class: "link") %>
       <% end %>
     </div>
   </div>

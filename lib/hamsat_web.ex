@@ -23,7 +23,8 @@ defmodule HamsatWeb do
 
       import Plug.Conn
       import HamsatWeb.Gettext
-      alias HamsatWeb.Router.Helpers, as: Routes
+
+      unquote(verified_routes())
     end
   end
 
@@ -47,7 +48,7 @@ defmodule HamsatWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {HamsatWeb.LayoutView, "live.html"}
+        layout: {HamsatWeb.LayoutView, :live}
 
       use LiveAssign.LiveView
       use LiveEvent.LiveView
@@ -116,12 +117,25 @@ defmodule HamsatWeb do
       import Phoenix.LiveView.Helpers
 
       # Import basic rendering functionality (render, render_layout, etc)
+      import Phoenix.Component
       import Phoenix.View
 
       import HamsatWeb.ErrorHelpers
       import HamsatWeb.ViewHelpers
       import HamsatWeb.Gettext
-      alias HamsatWeb.Router.Helpers, as: Routes
+
+      unquote(verified_routes())
+    end
+  end
+
+  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+
+  def verified_routes do
+    quote do
+      use Phoenix.VerifiedRoutes,
+        endpoint: HamsatWeb.Endpoint,
+        router: HamsatWeb.Router,
+        statics: HamsatWeb.static_paths()
     end
   end
 
