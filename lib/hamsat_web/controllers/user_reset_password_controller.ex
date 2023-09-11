@@ -14,7 +14,7 @@ defmodule HamsatWeb.UserResetPasswordController do
     if user = Accounts.get_user_by_email(email) do
       Accounts.deliver_user_reset_password_instructions(
         user,
-        &~p"/users/reset_password/#{&1}"
+        &url(~p"/users/reset_password/#{&1}")
       )
     end
 
