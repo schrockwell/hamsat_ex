@@ -19,7 +19,7 @@ defmodule HamsatWeb.UserSettingsController do
         Accounts.deliver_update_email_instructions(
           applied_user,
           user.email,
-          &~p"/users/settings/confirm_email/#{&1}"
+          &url(~p"/users/settings/confirm_email/#{&1}")
         )
 
         conn
