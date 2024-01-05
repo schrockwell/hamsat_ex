@@ -11,7 +11,7 @@ defmodule HamsatWeb.LocationSetter do
   state :changeset
   state :clicked_coord, initial: nil
   state :form
-  state :form_params, initial: %{}
+  state :changes, initial: %{}
 
   defmodule Form do
     use Ecto.Schema
@@ -21,38 +21,42 @@ defmodule HamsatWeb.LocationSetter do
       field :grid, :string
       field :lat, :float
       field :lon, :float
+      field :timezone, :string, default: "Etc/UTC"
     end
 
-    def changeset(form, params \\ %{}) do
-      Hamsat.Util.location_picker_changeset(form, params)
+    def changeset(form, params \\ %{}, opts \\ []) do
+      Hamsat.Util.location_picker_changeset(form, params, opts)
     end
 
-    def from_coord(nil) do
-      changeset(%__MODULE__{})
-    end
-
-    def from_coord(coord) do
-      %__MODULE__{lat: coord.lat, lon: coord.lon}
+    def from_context(context) do
+      coord = context.location || %Coord{lat: 0.0, lon: 0.0}
+      %__MODULE__{lat: coord.lat, lon: coord.lon, timezone: context.timezone}
     end
   end
 
   def handle_emit(:on_map_clicked, _, {lat, lon}, socket) do
-    form = Form.from_coord(%Coord{lat: lat, lon: lon})
-    changeset = Form.changeset(form)
-    {:ok, put_state(socket, changeset: changeset, form: form)}
+    changes = %{lat: lat, lon: lon}
+    changeset = Form.changeset(socket.assigns.changeset, changes)
+
+    {:ok, put_state(socket, changeset: changeset)}
   end
 
-  def handle_event("form-changed", %{"form" => params}, socket) do
-    changeset = Form.changeset(socket.assigns.form, params)
-    form = Ecto.Changeset.apply_changes(changeset)
+  def handle_event("form-changed", %{"_target" => target, "form" => params}, socket) do
+    # When the user touches the grid input, recalculate the coordinate fields
+    opts = if target == ["form", "grid"], do: [update: :coord], else: []
 
-    {:noreply, put_state(socket, changeset: changeset, form: form)}
+    changeset = Form.changeset(socket.assigns.changeset, params, opts)
+
+    {:noreply, put_state(socket, changeset: changeset)}
   end
 
   @react to: :context
-  def put_initial_form(socket) do
-    form = Form.from_coord(socket.assigns.context.location)
-    changeset = Form.changeset(form)
-    put_state(socket, changeset: changeset, form: form)
+  def put_initial_changeset(socket) do
+    changeset =
+      socket.assigns.context
+      |> Form.from_context()
+      |> Form.changeset()
+
+    put_state(socket, changeset: changeset)
   end
 end

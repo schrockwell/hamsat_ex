@@ -9,7 +9,8 @@ defmodule Hamsat.Context do
 
     %Hamsat.Context{
       user: user,
-      location: get_session_location(user, session)
+      location: get_session_location(user, session),
+      timezone: get_session_timezone(user, session)
     }
   end
 
@@ -29,4 +30,14 @@ defmodule Hamsat.Context do
   end
 
   defp get_session_location(_user, _session), do: nil
+
+  defp get_session_timezone(%User{} = user, _session) do
+    user.timezone
+  end
+
+  defp get_session_timezone(:guest, %{"timezone" => timezone} = _session) when is_binary(timezone) do
+    timezone
+  end
+
+  defp get_session_timezone(_user, _session), do: "Etc/UTC"
 end

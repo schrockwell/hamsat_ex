@@ -24,8 +24,16 @@
       <input type="hidden" name="redirect" value={@redirect} />
     <% end %>
 
-    <div class="w-full">
+    <div class="w-full mb-4">
       <.live_component module={LocationPicker} id="location-picker" form={f} on_map_clicked={{__MODULE__, @id}} />
+    </div>
+
+    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
+      <div class="flex-1">
+        <%= label(f, :timezone, "Time Zone", class: "form-label") %>
+        <%= select(f, :timezone, Hamsat.Util.list_timezone_options()) %>
+        <%= error_tag(f, :timezone) %>
+      </div>
     </div>
 
     <input type="submit" value="Set Location" class="btn btn-default mt-6" />

@@ -4,13 +4,14 @@ defmodule HamsatWeb.SessionLocationController do
   alias Hamsat.Accounts
   alias Hamsat.Accounts.User
 
-  def update(conn, %{"form" => %{"lat" => lat, "lon" => lon}} = params) do
+  def update(conn, %{"form" => %{"lat" => lat, "lon" => lon, "timezone" => timezone}} = params) do
     with {lat, _} <- Float.parse(lat),
          {lon, _} <- Float.parse(lon) do
       conn
       |> put_session("lat", lat)
       |> put_session("lon", lon)
-      |> maybe_update_user_home_location(%{home_lat: lat, home_lon: lon})
+      |> put_session("timezone", timezone)
+      |> maybe_update_user_home_location(%{home_lat: lat, home_lon: lon, timezone: timezone})
       |> put_flash(:info, "Location updated to #{Hamsat.Grid.encode!({lat, lon}, 6)}.")
       |> redirect(to: params["redirect"] || ~p"/location")
     else
