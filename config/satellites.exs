@@ -4,6 +4,7 @@ import Config
 # SOURCES:
 # https://www.amsat.org/two-way-satellites/
 # https://www.amsat.org/linear-satellite-frequency-summary/
+# https://www.amsat.org/tle/daily-bulletin.txt
 #
 satellites =
   [
@@ -30,6 +31,7 @@ satellites =
     },
     %{
       name: "AO-73",
+      aliases: ["FUNcube-1"],
       number: 39444,
       modulations: [:linear],
       downlinks: [%{mode: :linear, lower_mhz: 145.950, upper_mhz: 145.970}],
@@ -37,10 +39,19 @@ satellites =
     },
     %{
       name: "AO-91",
+      aliaes: ["Fox-1B", "RadFxSat"],
       number: 43017,
       modulations: [:fm],
       downlinks: [%{mode: :fm, lower_mhz: 145.96, upper_mhz: 145.96}],
       uplinks: [%{mode: :fm, lower_mhz: 435.250, upper_mhz: 435.250}]
+    },
+    %{
+      name: "AO-92",
+      aliases: ["Fox-1D"],
+      number: 43137,
+      modulations: [:fm],
+      downlinks: [%{mode: :fm, lower_mhz: 145.880, upper_mhz: 145.880}],
+      uplinks: [%{mode: :fm, lower_mhz: 435.350, upper_mhz: 435.350}]
     },
     %{
       name: "CAS-4A",
@@ -58,6 +69,7 @@ satellites =
     },
     %{
       name: "FO-29",
+      aliases: ["JAS-2"],
       number: 24278,
       modulations: [:linear],
       downlinks: [%{mode: :linear, lower_mhz: 435.800, upper_mhz: 435.900}],
@@ -94,6 +106,7 @@ satellites =
     },
     %{
       name: "LilacSat-2",
+      aliases: ["CAS-3H"],
       nasa_name: "LILACSAT-2",
       number: 40908,
       modulations: [:fm],
@@ -103,6 +116,7 @@ satellites =
     # %{name: "MO-112", number: 48868, modulations: [:fm]},
     %{
       name: "PO-101",
+      aliases: ["Diwata-2"],
       number: 43678,
       modulations: [:fm],
       downlinks: [%{mode: :fm, lower_mhz: 145.9, upper_mhz: 145.9}],
@@ -117,10 +131,19 @@ satellites =
     },
     %{
       name: "SO-50",
+      aliases: ["SaudiSat-1C"],
       number: 27607,
       modulations: [:fm],
       downlinks: [%{mode: :fm, lower_mhz: 436.795, upper_mhz: 436.795}],
       uplinks: [%{mode: :fm, lower_mhz: 145.850, upper_mhz: 145.850}]
+    },
+    %{
+      name: "SO-115",
+      aliases: ["HADES"],
+      number: 51080,
+      modulations: [:fm],
+      downlinks: [%{mode: :fm, lower_mhz: 436.888, upper_mhz: 436.888}],
+      uplinks: [%{mode: :fm, lower_mhz: 145.925, upper_mhz: 145.925}]
     },
     %{
       name: "TO-108",
@@ -131,6 +154,7 @@ satellites =
     },
     %{
       name: "XW-2A",
+      aliases: ["CAS-3A"],
       number: 40903,
       modulations: [:linear],
       downlinks: [%{mode: :linear, lower_mhz: 145.665, upper_mhz: 145.685}],
@@ -138,6 +162,7 @@ satellites =
     },
     %{
       name: "XW-2C",
+      aliases: ["CAS-3C"],
       number: 40906,
       modulations: [:linear],
       downlinks: [%{mode: :linear, lower_mhz: 145.795, upper_mhz: 145.815}],
@@ -145,6 +170,7 @@ satellites =
     },
     %{
       name: "EO-88",
+      aliases: ["Nayif-1"],
       number: 42017,
       modulations: [:linear],
       downlinks: [%{mode: :linear, lower_mhz: 145.960, upper_mhz: 145.990}],
@@ -152,6 +178,7 @@ satellites =
     },
     %{
       name: "FO-118",
+      aliases: ["CAS-5A"],
       number: 54684,
       modulations: [:linear, :fm],
       downlinks: [
