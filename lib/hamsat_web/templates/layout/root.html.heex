@@ -13,9 +13,9 @@
   <body class="text-gray-900 bg-gray-200">
     <div class="md:mt-4 md:mx-4 md:px-6 md:py-2 px-3 py-1 flex items-center justify-between md:rounded-t-xl bg-gray-700 text-white shadow-md">
       <div class="flex items-center">
-        <%= link to: ~p"/", class: "text-lg font-medium md:mr-8" do %>
-          Hams.at
-          <span class="hidden md:inline uppercase rounded bg-orange-600 text-white text-sm px-2 py-1 ml-1 font-semibold">
+        <%= link to: ~p"/", class: "text-lg font-medium md:mr-8 flex items-center gap-2" do %>
+          <img src={~s"/images/logo.png"} alt="Hamsat" class="h-8 w-8" /> Hams.at
+          <span class="hidden md:inline uppercase rounded bg-orange-600 text-white text-xs px-1 py-px ml-1 font-semibold">
             Beta
           </span>
         <% end %>
