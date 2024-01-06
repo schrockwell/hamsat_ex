@@ -191,4 +191,7 @@ defmodule HamsatWeb.ViewHelpers do
     offset = datetime.utc_offset + datetime.std_offset
     Hamsat.Util.format_offset(offset)
   end
+
+  def subband_range(%{lower_mhz: mhz, upper_mhz: mhz}), do: "#{mhz(mhz, 3)} MHz"
+  def subband_range(subband), do: "#{mhz(subband.lower_mhz, 3)} – #{mhz(subband.upper_mhz, 3)} MHz"
 end

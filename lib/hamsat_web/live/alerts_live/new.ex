@@ -47,9 +47,15 @@ defmodule HamsatWeb.AlertsLive.New do
      |> update_form(AlertForm.initial_params(socket.assigns.context, alert))}
   end
 
-  def mount(_params, _session, socket) do
-    sat = Satellites.first_satellite()
+  def mount(%{"sat" => sat_id}, _session, socket) do
+    mount_with_sat(socket, Satellites.get_satellite_by_number!(sat_id))
+  end
 
+  def mount(_params, _session, socket) do
+    mount_with_sat(socket, Satellites.first_satellite())
+  end
+
+  defp mount_with_sat(socket, sat) do
     {:ok,
      socket
      |> put_state(sat: sat)
@@ -203,13 +209,7 @@ defmodule HamsatWeb.AlertsLive.New do
     sat
     |> Map.fetch!(field)
     |> Enum.filter(fn subband -> subband.mode in modulations end)
-    |> Enum.map(fn
-      %{lower_mhz: mhz, upper_mhz: mhz} ->
-        "#{mhz(mhz, 3)} MHz"
-
-      downlink ->
-        "#{mhz(downlink.lower_mhz, 3)} – #{mhz(downlink.upper_mhz, 3)} MHz"
-    end)
+    |> Enum.map(&subband_range/1)
     |> Enum.join(", ")
   end
 

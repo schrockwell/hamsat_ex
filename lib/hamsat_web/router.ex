@@ -39,6 +39,8 @@ defmodule HamsatWeb.Router do
 
     live "/passes", PassesLive.Index, :index, as: :passes
 
+    live "/sats", SatsLive.Index, :index, as: :sats
+
     live "/location", LocationLive.Edit, :edit, as: :location
     post "/session_location", SessionLocationController, :update
   end

@@ -23,6 +23,23 @@ defmodule Hamsat.Satellites do
     Repo.all(from s in Sat, order_by: s.name)
   end
 
+  def list_satellites_and_stats do
+    Repo.all(select_stats(from s in Sat, order_by: s.name))
+  end
+
+  def search_satellites_and_stats(query) do
+    Repo.all(select_stats(from s in Sat, order_by: s.name, where: ilike(s.name, ^"%#{query}%")))
+  end
+
+  defp select_stats(query) do
+    from s in query,
+      select: %{
+        s
+        | total_activation_count:
+            fragment("coalesce((SELECT count(*) FROM alerts WHERE alerts.satellite_id = ?), 0)", s.id)
+      }
+  end
+
   def list_satellite_options do
     for sat <- list_satellites(), do: {sat.name, sat.id}
   end

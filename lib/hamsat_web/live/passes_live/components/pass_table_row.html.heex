@@ -5,7 +5,7 @@
   </td>
   <td class="whitespace-nowrap px-1 text-center"><%= @next_event_in %></td>
   <td class="whitespace-nowrap px-1 text-center whitespace-nowrap"><%= pass_sat_name(@pass) %></td>
-  <td class="whitespace-nowrap px-1 text-center"><SatComponents.sat_modulation_label sat={@pass.sat} /></td>
+  <td class="whitespace-nowrap px-1 text-center"><SatComponents.sat_modulation_labels sat={@pass.sat} /></td>
   <td class="whitespace-nowrap px-1 text-center"><%= pass_duration(@pass) %></td>
   <td class="whitespace-nowrap px-1 text-center"><%= pass_max_el(@pass) %></td>
   <td class="whitespace-nowrap px-1 text-right"><%= pass_aos_direction(@pass) %></td>
@@ -16,7 +16,7 @@
       <%= link(alert.callsign, to: ~p"/alerts/#{alert.id}", class: "link") %>
     <% end %>
   </td>
-  <td class="whitespace-nowrap px-1 text-right pr-6 whitespace-nowrap">
+  <td class="whitespace-nowrap px-1 text-right pr-6">
     <%= if @show_create_button? do %>
       <%= link("Post an Activation",
         to: ~p"/alerts/new?pass=#{Pass.encode_hash(@pass)}",

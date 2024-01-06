@@ -1,0 +1,56 @@
+<.filter_panel>
+  <h2 class="block md:hidden mb-2 text-h2">
+    Satellites
+  </h2>
+
+  <form phx-change="search">
+    <input type="search" name="query" value={@query} placeholder="Search" phx-debounce="200" />
+  </form>
+</.filter_panel>
+
+<div class="mt-2 overflow-x-auto">
+  <table class="table w-full">
+    <thead>
+      <tr>
+        <th class="whitespace-nowrap px-1 text-left pl-6" title="Satellite name">Satellite</th>
+        <th class="whitespace-nowrap px-1 text-left" title="Uplinks">Uplinks</th>
+        <th class="whitespace-nowrap px-1 text-left" title="Downlinks">Downlinks</th>
+        <th class="whitespace-nowrap px-1" title="Total activation count">Activations</th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      <%= for sat <- @sats do %>
+        <tr>
+          <th class="whitespace-nowrap px-1 pl-6 text-left"><%= sat.name %></th>
+          <td class="whitespace-nowrap px-1">
+            <div class="flex flex-col gap-1">
+              <%= for uplink <- sat.uplinks do %>
+                <div>
+                  <SatComponents.sat_modulation_label modulation={uplink.mode} />
+                  <%= subband_range(uplink) %>
+                </div>
+              <% end %>
+            </div>
+          </td>
+          <td class="whitespace-nowrap px-1">
+            <div class="flex flex-col gap-1">
+              <%= for downlink <- sat.downlinks do %>
+                <div>
+                  <SatComponents.sat_modulation_label modulation={downlink.mode} />
+                  <%= subband_range(downlink) %>
+                </div>
+              <% end %>
+            </div>
+          </td>
+          <td class="whitespace-nowrap px-1 text-center">
+            <%= sat.total_activation_count %>
+          </td>
+          <td class="whitespace-nowrap px-1 text-right pr-6">
+            <.link href={~p"/alerts/new?sat=#{sat.number}"} class="link">Post an Activation</.link>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
