@@ -9,6 +9,7 @@ defmodule Hamsat.Schemas.Sat do
     field :number, :integer
     field :slug, :string
     field :modulations, {:array, Ecto.Enum}, values: Hamsat.Modulation.sat_values()
+    field :aliases, {:array, :string}, default: []
 
     embeds_many :downlinks, FreqRange, on_replace: :delete
     embeds_many :uplinks, FreqRange, on_replace: :delete
@@ -21,7 +22,7 @@ defmodule Hamsat.Schemas.Sat do
 
   def upsert_changeset(sat \\ %__MODULE__{}, attrs) do
     sat
-    |> cast(attrs, [:name, :number, :slug, :nasa_name, :modulations])
+    |> cast(attrs, [:name, :number, :slug, :nasa_name, :modulations, :aliases])
     |> put_nasa_name()
     |> validate_required([:name, :number, :slug, :nasa_name, :modulations])
     |> cast_embed(:downlinks, with: &FreqRange.changeset/2)

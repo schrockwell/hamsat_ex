@@ -4,7 +4,6 @@ defmodule HamsatWeb.PassesLive.Index do
   import HamsatWeb.LayoutComponents
 
   alias Hamsat.Alerts.Pass
-  alias Hamsat.LocalTime
   alias Hamsat.Passes
   alias Hamsat.Satellites
   alias Hamsat.Util

@@ -4,7 +4,7 @@
   </h2>
 
   <form phx-change="search">
-    <input type="search" name="query" value={@query} placeholder="Search" phx-debounce="200" />
+    <input type="search" name="query" value={@query} placeholder="Search" />
   </form>
 </.filter_panel>
 
@@ -12,17 +12,17 @@
   <table class="table w-full">
     <thead>
       <tr>
-        <th class="whitespace-nowrap px-1 text-left pl-6" title="Satellite name">Satellite</th>
-        <th class="whitespace-nowrap px-1 text-left" title="Uplinks">Uplinks</th>
-        <th class="whitespace-nowrap px-1 text-left" title="Downlinks">Downlinks</th>
-        <th class="whitespace-nowrap px-1" title="Total activation count">Activations</th>
-        <th />
+        <th class="whitespace-nowrap px-1 text-left pl-6" title="Satellite name" width="20%">Satellite</th>
+        <th class="whitespace-nowrap px-1 text-left" title="Uplinks" width="30%">Uplinks</th>
+        <th class="whitespace-nowrap px-1 text-left" title="Downlinks" width="30%">Downlinks</th>
+        <th class="whitespace-nowrap px-1" title="Total activation count" width="10%">Activations</th>
+        <th width="10%" />
       </tr>
     </thead>
     <tbody>
       <%= for sat <- @sats do %>
         <tr>
-          <th class="whitespace-nowrap px-1 pl-6 text-left"><%= sat.name %></th>
+          <th class="whitespace-nowrap px-1 pl-6 text-left"><%= sat_names(sat) %></th>
           <td class="whitespace-nowrap px-1">
             <div class="flex flex-col gap-1">
               <%= for uplink <- sat.uplinks do %>
@@ -53,4 +53,11 @@
       <% end %>
     </tbody>
   </table>
+
+  <%= if @sats == [] do %>
+    <div class="text-center text-gray-500 py-8">
+      <div class="mb-4">No satellites found.</div>
+      <.link patch={~p"/sats"} class="link">Clear search</.link>
+    </div>
+  <% end %>
 </div>
