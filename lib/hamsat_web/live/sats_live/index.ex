@@ -5,7 +5,7 @@ defmodule HamsatWeb.SatsLive.Index do
   alias HamsatWeb.SatComponents
 
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    {:ok, assign(socket, page_title: "Satellites")}
   end
 
   def handle_params(params, _url, socket) do

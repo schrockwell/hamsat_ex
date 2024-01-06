@@ -1,25 +1,27 @@
-<main>
-  <%= if live_flash(@flash, :info) do %>
-    <p
-      class="bg-emerald-600 text-white px-6 py-2 cursor-pointer"
-      role="alert"
-      phx-click="lv:clear-flash"
-      phx-value-key="info"
-    >
-      <%= live_flash(@flash, :info) %>
-    </p>
-  <% end %>
+<.page_layout context={@context}>
+  <main>
+    <%= if live_flash(@flash, :info) do %>
+      <p
+        class="bg-emerald-600 text-white px-6 py-2 cursor-pointer"
+        role="alert"
+        phx-click="lv:clear-flash"
+        phx-value-key="info"
+      >
+        <%= live_flash(@flash, :info) %>
+      </p>
+    <% end %>
 
-  <%= if live_flash(@flash, :error) do %>
-    <p
-      class="bg-red-600 text-white px-6 py-2 cursor-pointer"
-      role="alert"
-      phx-click="lv:clear-flash"
-      phx-value-key="error"
-    >
-      <%= live_flash(@flash, :error) %>
-    </p>
-  <% end %>
+    <%= if live_flash(@flash, :error) do %>
+      <p
+        class="bg-red-600 text-white px-6 py-2 cursor-pointer"
+        role="alert"
+        phx-click="lv:clear-flash"
+        phx-value-key="error"
+      >
+        <%= live_flash(@flash, :error) %>
+      </p>
+    <% end %>
 
-  <%= @inner_content %>
-</main>
+    <%= @inner_content %>
+  </main>
+</.page_layout>

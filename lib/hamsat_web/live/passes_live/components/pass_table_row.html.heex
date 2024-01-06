@@ -13,21 +13,21 @@
   <td class="whitespace-nowrap px-1 text-left"><%= pass_los_direction(@pass) %></td>
   <td class="whitespace-nowrap px-1 text-center">
     <%= for alert <- @pass.alerts do %>
-      <%= link(alert.callsign, to: ~p"/alerts/#{alert.id}", class: "link") %>
+      <.link navigate={~p"/alerts/#{alert.id}"} class="link">
+        <%= alert.callsign %>
+      </.link>
     <% end %>
   </td>
   <td class="whitespace-nowrap px-1 text-right pr-6">
     <%= if @show_create_button? do %>
-      <%= link("Post an Activation",
-        to: ~p"/alerts/new?pass=#{Pass.encode_hash(@pass)}",
-        class: "link"
-      ) %>
+      <.link navigate={~p"/alerts/new?pass=#{Pass.encode_hash(@pass)}"} class="link">
+        Post an Activation
+      </.link>
     <% end %>
     <%= if @show_edit_button? do %>
-      <%= link("Edit Activation",
-        to: ~p"/alerts/#{Alerts.my_alert_during_pass(@context, @pass).id}/edit",
-        class: "link"
-      ) %>
+      <.link navigate={~p"/alerts/#{Alerts.my_alert_during_pass(@context, @pass)}/edit"} class="link">
+        Edit Activation
+      </.link>
     <% end %>
   </td>
 </tr>

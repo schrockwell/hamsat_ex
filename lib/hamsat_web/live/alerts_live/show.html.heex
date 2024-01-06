@@ -54,9 +54,9 @@
         <span class="hidden md:inline">Post a</span> Tweet
       </a>
       <%= if Alert.owned?(@alert, @context.user) do %>
-        <%= link to: ~p"/alerts/#{@alert.id}/edit", class: "btn btn-link" do %>
+        <.link navigate={~p"/alerts/#{@alert.id}/edit"} class="btn btn-link">
           Edit <span class="hidden md:inline">Activation</span>
-        <% end %>
+        </.link>
       <% end %>
     </div>
   </div>
@@ -235,9 +235,10 @@
                 <div class="text-gray-500">Azimuth</div>
               </div>
               <div class="text-center">
-                <div class={
-                  [elevation_class(@alert.activator_closest_position.elevation_in_degrees), "text-xl md:text-3xl"]
-                }>
+                <div class={[
+                  elevation_class(@alert.activator_closest_position.elevation_in_degrees),
+                  "text-xl md:text-3xl"
+                ]}>
                   <%= deg(@alert.activator_closest_position.elevation_in_degrees) %>
                 </div>
                 <div class="text-gray-500">Elevation</div>

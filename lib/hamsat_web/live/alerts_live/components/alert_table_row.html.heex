@@ -38,9 +38,9 @@
   </td>
   <td class="whitespace-nowrap px-1 text-right px-3 md:pr-6">
     <%= if Alert.owned?(@alert, @context.user) do %>
-      <%= link("Edit", to: ~p"/alerts/#{@alert.id}/edit", class: "link mr-2 md:mr-4") %>
+      <.link navigate={~p"/alerts/#{@alert.id}/edit"} class="link mr-2 md:mr-4">Edit</.link>
     <% end %>
 
-    <%= link("Track", to: ~p"/alerts/#{@alert.id}", class: "link") %>
+    <.link navigate={~p"/alerts/#{@alert.id}"} class="link">Track</.link>
   </td>
 </tr>
