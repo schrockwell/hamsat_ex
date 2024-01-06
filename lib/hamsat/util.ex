@@ -76,11 +76,12 @@ defmodule Hamsat.Util do
     "#{timezone} (#{format_offset(offset)})"
   end
 
-  defp format_offset(offset) do
+  def format_offset(offset) do
     sign = if offset < 0, do: "-", else: "+"
 
-    hours = div(abs(offset), 3600) |> Integer.to_string() |> String.pad_leading(2, "0")
+    hours = div(abs(offset), 3600) |> Integer.to_string()
     minutes = div(rem(abs(offset), 3600), 60) |> Integer.to_string() |> String.pad_leading(2, "0")
+
     "UTC#{sign}#{hours}:#{minutes}"
   end
 end

@@ -83,7 +83,7 @@ defmodule HamsatWeb.DashboardLive.Show do
   end
 
   defp assign_upcoming_alert_count(socket) do
-    assign(socket, :upcoming_alert_count, Alerts.count_alerts(date: :upcoming))
+    assign(socket, :upcoming_alert_count, Alerts.count_alerts(socket.assigns.context, date: :upcoming))
   end
 
   defp schedule_reload_alerts do
