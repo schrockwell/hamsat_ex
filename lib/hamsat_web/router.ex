@@ -13,6 +13,7 @@ defmodule HamsatWeb.Router do
     plug :put_secure_browser_headers
     plug :fetch_current_user
     plug HamsatWeb.ContextPlug
+    plug HamsatWeb.NavPlug
   end
 
   pipeline :api do

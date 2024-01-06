@@ -22,10 +22,6 @@ defmodule HamsatWeb.LayoutView do
     end
   end
 
-  defp is_active(_path, _regex) do
-    false
-  end
-
   def page_layout(assigns) do
     ~H"""
     <div class="md:mt-4 md:mx-4 md:px-6 md:py-2 px-3 py-1 flex items-center justify-between md:rounded-t-xl bg-gray-700 text-white shadow-md">
@@ -38,16 +34,16 @@ defmodule HamsatWeb.LayoutView do
         </.link>
 
         <div class="hidden md:flex items-center">
-          <.nav_pill_button navigate={~p"/sats"} active={is_active("", ~r/^(\/sats)/)}>
+          <.nav_pill_button navigate={~p"/sats"} active={@active_nav_item == :sats}>
             Sats
           </.nav_pill_button>
-          <.nav_pill_button navigate={~p"/alerts"} active={is_active("", ~r/^(\/alerts)/)}>
+          <.nav_pill_button navigate={~p"/alerts"} active={@active_nav_item == :alerts}>
             Activations
           </.nav_pill_button>
-          <.nav_pill_button navigate={~p"/passes"} active={is_active("", ~r/^\/passes/)}>
+          <.nav_pill_button navigate={~p"/passes"} active={@active_nav_item == :passes}>
             Passes
           </.nav_pill_button>
-          <.nav_pill_button navigate={~p"/location"} active={is_active("", ~r/^\/location/)}>
+          <.nav_pill_button navigate={~p"/location"} active={@active_nav_item == :location}>
             <.location_nav_button_text context={@context} />
           </.nav_pill_button>
         </div>
@@ -55,33 +51,33 @@ defmodule HamsatWeb.LayoutView do
 
       <div class="hidden md:flex items-center">
         <%= if @context.user != :guest do %>
-          <.nav_pill_button navigate={~p"/users/settings"} active={is_active("", ~r/^\/users\/settings/)}>
+          <.nav_pill_button navigate={~p"/users/settings"} active={@active_nav_item == :settings}>
             <Heroicons.LiveView.icon name="cog" type="solid" class="h-6 w-6" />
           </.nav_pill_button>
           <.nav_pill_button href={~p"/users/log_out"} method="delete">
             Log Out
           </.nav_pill_button>
         <% else %>
-          <.nav_pill_button navigate={~p"/users/register"} active={is_active("", ~r/^\/users\/register/)}>
+          <.nav_pill_button navigate={~p"/users/register"} active={@active_nav_item == :register}>
             Register
           </.nav_pill_button>
-          <.nav_pill_button navigate={~p"/users/log_in"} active={is_active("", ~r/^\/users\/log_in/)}>
+          <.nav_pill_button navigate={~p"/users/log_in"} active={@active_nav_item == :log_in}>
             Log In
           </.nav_pill_button>
         <% end %>
       </div>
 
       <div class="md:hidden flex items-center">
-        <.nav_pill_button navigate={~p"/sats"} active={is_active("", ~r/^(\/sats)/)}>
+        <.nav_pill_button navigate={~p"/sats"} active={@active_nav_item == :sats}>
           <Heroicons.LiveView.icon name="globe-alt" type="outline" class="h-6 w-6" />
         </.nav_pill_button>
-        <.nav_pill_button navigate={~p"/alerts"} active={is_active("", ~r/^(\/alerts)/)}>
+        <.nav_pill_button navigate={~p"/alerts"} active={@active_nav_item == :alerts}>
           <Heroicons.LiveView.icon name="calendar" type="outline" class="h-6 w-6" />
         </.nav_pill_button>
-        <.nav_pill_button navigate={~p"/passes"} active={is_active("", ~r/^\/passes/)}>
+        <.nav_pill_button navigate={~p"/passes"} active={@active_nav_item == :passes}>
           <Heroicons.LiveView.icon name="table" type="outline" class="h-6 w-6" />
         </.nav_pill_button>
-        <.nav_pill_button navigate={~p"/location"} active={is_active("", ~r/^\/location/)}>
+        <.nav_pill_button navigate={~p"/location"} active={@active_nav_item == :location}>
           <.location_nav_button_text context={@context} />
         </.nav_pill_button>
 

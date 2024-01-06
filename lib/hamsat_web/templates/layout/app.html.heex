@@ -1,4 +1,4 @@
-<.page_layout context={@context}>
+<.page_layout context={@context} active_nav_item={@active_nav_item}>
   <main>
     <p class="bg-emerald-600 text-white px-6 py-2 empty:hidden" role="alert"><%= Phoenix.Flash.get(@flash, :info) %></p>
     <p class="bg-red-600 text-white px-6 py-2 empty:hidden" role="alert"><%= Phoenix.Flash.get(@flash, :error) %></p>
