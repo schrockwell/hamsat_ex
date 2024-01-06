@@ -40,7 +40,7 @@ defmodule Hamsat.Schemas.AlertForm do
     %{
       # Pass selection
       "satellite_id" => sat.id,
-      "pass_filter_date" => Date.utc_today(),
+      "pass_filter_date" => Timex.today(context.timezone),
       "observer_lat" => context.location.lat,
       "observer_lon" => context.location.lon,
 
@@ -56,18 +56,18 @@ defmodule Hamsat.Schemas.AlertForm do
     |> initial_params(pass.sat)
     |> Map.merge(%{
       "pass_hash" => pass.hash,
-      "pass_filter_date" => Timex.to_date(pass.info.max.datetime),
+      "pass_filter_date" => to_local_date(pass.info.max.datetime, context.timezone),
       "observer_lat" => pass.observer.latitude_deg,
       "observer_lon" => pass.observer.longitude_deg
     })
   end
 
-  def initial_params(%Context{} = _context, %Alert{} = alert) do
+  def initial_params(%Context{} = context, %Alert{} = alert) do
     pass = Passes.get_pass_by_alert(alert)
 
     %{
       "satellite_id" => alert.satellite_id,
-      "pass_filter_date" => Timex.to_date(alert.max_at),
+      "pass_filter_date" => to_local_date(alert.max_at, context.timezone),
       "pass_hash" => pass.hash,
       "observer_lat" => alert.observer_lat,
       "observer_lon" => alert.observer_lon,
@@ -81,6 +81,13 @@ defmodule Hamsat.Schemas.AlertForm do
       "callsign" => alert.callsign,
       "comment" => alert.comment
     }
+  end
+
+  defp to_local_date(utc_datetime, timezone) do
+    utc_datetime
+    |> Timex.to_datetime("Etc/UTC")
+    |> Timex.to_datetime(timezone)
+    |> Timex.to_date()
   end
 
   def changeset(context, sat, pass, params \\ %{}) do

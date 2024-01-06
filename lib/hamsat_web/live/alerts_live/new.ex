@@ -141,8 +141,16 @@ defmodule HamsatWeb.AlertsLive.New do
 
     passes =
       Passes.list_passes(coord, socket.assigns.sat,
-        starting: pass_list_params.date |> Timex.to_datetime() |> Timex.beginning_of_day(),
-        ending: pass_list_params.date |> Timex.to_datetime() |> Timex.end_of_day()
+        starting:
+          pass_list_params.date
+          |> Timex.to_datetime(socket.assigns.context.timezone)
+          |> Timex.beginning_of_day()
+          |> Timex.to_datetime("Etc/UTC"),
+        ending:
+          pass_list_params.date
+          |> Timex.to_datetime(socket.assigns.context.timezone)
+          |> Timex.end_of_day()
+          |> Timex.to_datetime("Etc/UTC")
       )
 
     {:noreply, put_state(socket, passes: passes)}
@@ -232,9 +240,9 @@ defmodule HamsatWeb.AlertsLive.New do
     end
   end
 
-  defp pass_options(passes) do
+  defp pass_options(passes, timezone) do
     Enum.map(passes, fn pass ->
-      {time_span(pass.info.aos.datetime, pass.info.los.datetime), pass.hash}
+      {time_span(pass.info.aos.datetime, pass.info.los.datetime, timezone), pass.hash}
     end)
   end
 end

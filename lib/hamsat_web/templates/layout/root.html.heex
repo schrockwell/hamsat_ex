@@ -9,13 +9,18 @@
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
   </head>
   <body class="text-gray-900 bg-gray-200">
     <div class="md:mt-4 md:mx-4 md:px-6 md:py-2 px-3 py-1 flex items-center justify-between md:rounded-t-xl bg-gray-700 text-white shadow-md">
       <div class="flex items-center">
-        <%= link to: ~p"/", class: "text-lg font-medium md:mr-8" do %>
-          Hams.at
-          <span class="hidden md:inline uppercase rounded bg-orange-600 text-white text-sm px-2 py-1 ml-1 font-semibold">
+        <%= link to: ~p"/", class: "text-lg font-medium md:mr-8 flex items-center gap-2" do %>
+          <img src={~s"/images/logo.png"} alt="Hamsat" class="h-8 w-8" /> Hams.at
+          <span class="hidden md:inline uppercase rounded bg-orange-600 text-white text-xs px-1 py-px ml-1 font-semibold">
             Beta
           </span>
         <% end %>
@@ -92,7 +97,14 @@
     </div>
 
     <div class="my-6 text-center text-sm text-gray-500">
-      by WW1X · <%= link("About", to: ~p"/about", class: "hover:underline hover:text-gray-700") %>
+      DE WW1X · <%= link(timezone_name(@context.timezone),
+        to: ~p"/location",
+        class: "hover:underline hover:text-gray-700"
+      ) %> · <%= link("Changelog", to: ~p"/changelog", class: "hover:underline hover:text-gray-700") %> · <%= link(
+        "About",
+        to: ~p"/about",
+        class: "hover:underline hover:text-gray-700"
+      ) %>
     </div>
   </body>
 </html>

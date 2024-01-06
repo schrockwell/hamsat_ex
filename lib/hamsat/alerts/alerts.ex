@@ -66,7 +66,7 @@ defmodule Hamsat.Alerts do
   """
   def list_alerts(context, filter \\ []) do
     filter
-    |> Enum.reduce(Alert, &apply_alert_filter/2)
+    |> Enum.reduce(Alert, &apply_alert_filter(&1, &2, context))
     |> order_by([a], a.aos_at)
     |> Repo.all()
     |> Repo.preload([:sat])
@@ -78,9 +78,9 @@ defmodule Hamsat.Alerts do
   @doc """
   Returns an integer count of alerts based on the filter.
   """
-  def count_alerts(filter \\ []) do
+  def count_alerts(context, filter \\ []) do
     filter
-    |> Enum.reduce(Alert, &apply_alert_filter/2)
+    |> Enum.reduce(Alert, &apply_alert_filter(&1, &2, context))
     |> Repo.aggregate(:count)
   end
 
@@ -109,21 +109,21 @@ defmodule Hamsat.Alerts do
     from(a in queryable, where: a.user_id == ^user.id)
   end
 
-  defp apply_alert_filter({:date, :upcoming}, query) do
+  defp apply_alert_filter({:date, :upcoming}, query, _context) do
     where(query, [a], a.los_at >= ^DateTime.utc_now())
   end
 
-  defp apply_alert_filter({:after, datetime}, query) do
+  defp apply_alert_filter({:after, datetime}, query, _context) do
     where(query, [a], a.los_at >= ^datetime)
   end
 
-  defp apply_alert_filter({:before, datetime}, query) do
+  defp apply_alert_filter({:before, datetime}, query, _context) do
     where(query, [a], a.los_at <= ^datetime)
   end
 
-  defp apply_alert_filter({:date, %Date{} = date}, query) do
-    bod = date |> Timex.to_datetime() |> Timex.beginning_of_day()
-    eod = date |> Timex.to_datetime() |> Timex.end_of_day()
+  defp apply_alert_filter({:date, %Date{} = date}, query, context) do
+    bod = date |> Timex.to_datetime(context.timezone) |> Timex.beginning_of_day()
+    eod = date |> Timex.to_datetime(context.timezone) |> Timex.end_of_day()
 
     where(
       query,
@@ -132,11 +132,11 @@ defmodule Hamsat.Alerts do
     )
   end
 
-  defp apply_alert_filter({:limit, limit}, query) do
+  defp apply_alert_filter({:limit, limit}, query, _context) do
     limit(query, ^limit)
   end
 
-  defp apply_alert_filter({:user_id, user_id}, query) do
+  defp apply_alert_filter({:user_id, user_id}, query, _context) do
     where(query, [a], a.user_id == ^user_id)
   end
 

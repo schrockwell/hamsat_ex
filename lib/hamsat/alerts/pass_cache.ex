@@ -84,7 +84,7 @@ defmodule Hamsat.Alerts.PassCache do
         ending: bucket_ending
       }
 
-      new_starting = Timex.shift(starting, hours: @hours_per_bucket)
+      new_starting = Timex.shift(bucket_starting, hours: @hours_per_bucket)
       buckets(sat, coord, new_starting, ending, [new_bucket | acc])
     end
   end

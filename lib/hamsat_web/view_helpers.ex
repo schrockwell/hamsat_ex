@@ -105,16 +105,10 @@ defmodule HamsatWeb.ViewHelpers do
     cardinal_direction(pass.info.los.azimuth_in_degrees)
   end
 
-  def date_span(start_datetime, end_datetime) do
-    if Timex.to_date(start_datetime) == Timex.to_date(end_datetime) do
-      Timex.format!(start_datetime, @date_format)
-    else
-      Timex.format!(start_datetime, @date_format) <>
-        " – " <> Timex.format!(end_datetime, @date_format)
-    end
-  end
+  def time_span(start_datetime, end_datetime, timezone \\ "Etc/UTC") do
+    start_datetime = start_datetime |> Timex.to_datetime("Etc/UTC") |> Timex.to_datetime(timezone)
+    end_datetime = end_datetime |> Timex.to_datetime("Etc/UTC") |> Timex.to_datetime(timezone)
 
-  def time_span(start_datetime, end_datetime) do
     if Timex.to_date(start_datetime) == Timex.to_date(end_datetime) do
       Timex.format!(start_datetime, @time_format) <>
         " – " <> Timex.format!(end_datetime, @time_format)
@@ -122,21 +116,6 @@ defmodule HamsatWeb.ViewHelpers do
       Timex.format!(start_datetime, @datetime_format) <>
         " – " <> Timex.format!(end_datetime, @datetime_format)
     end
-  end
-
-  def datetime_span(start_datetime, end_datetime) do
-    start_string = Timex.format!(start_datetime, "{YYYY}-{0M}-{0D} {h24}:{m}:{s}")
-
-    end_format =
-      if Timex.to_date(start_datetime) == Timex.to_date(end_datetime) do
-        "{h24}:{m}:{s}"
-      else
-        "{YYYY}-{0M}-{0D} {h24}:{m}:{s}"
-      end
-
-    end_string = Timex.format!(end_datetime, end_format)
-
-    "#{start_string} – #{end_string} UTC"
   end
 
   def mhz(float, precision \\ 3, default \\ "–")
@@ -204,4 +183,12 @@ defmodule HamsatWeb.ViewHelpers do
 
   def direction(:up), do: "↑"
   def direction(:down), do: "↓"
+
+  def timezone_name("Etc/UTC"), do: "UTC"
+
+  def timezone_name(timezone) do
+    datetime = DateTime.now!(timezone)
+    offset = datetime.utc_offset + datetime.std_offset
+    Hamsat.Util.format_offset(offset)
+  end
 end
