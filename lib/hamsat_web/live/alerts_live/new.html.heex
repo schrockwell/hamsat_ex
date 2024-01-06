@@ -19,14 +19,14 @@
       />
     </.form_row>
 
-    <.form_row label="UTC" input?={true}>
+    <.form_row label={"Time (#{timezone_name(@context.timezone)})"} input?={true}>
       <div class="flex items-center space-x-2">
         <%= date_input(f, :pass_filter_date, class: "input-text text-sm") %>
 
         <%= if @passes == [] do %>
           <div class="italic text-gray-500">No passes found</div>
         <% else %>
-          <%= select(f, :pass_hash, pass_options(@passes)) %>
+          <%= select(f, :pass_hash, pass_options(@passes, @context.timezone)) %>
         <% end %>
       </div>
     </.form_row>

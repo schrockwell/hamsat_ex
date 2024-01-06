@@ -90,12 +90,12 @@ defmodule Hamsat.Accounts do
       %Ecto.Changeset{data: %User{}}
 
   """
-  def change_user_registration(%User{} = user, attrs \\ %{}) do
+  def change_user_registration(user, attrs \\ %{}, opts \\ []) do
+    opts = Keyword.merge(opts, fields: %{lat: :home_lat, lon: :home_lon, grid: :home_grid, timezone: :timezone})
+
     user
     |> User.registration_changeset(attrs, hash_password: false)
-    |> Util.location_picker_changeset(attrs,
-      fields: %{lat: :home_lat, lon: :home_lon, grid: :home_grid}
-    )
+    |> Util.location_picker_changeset(attrs, opts)
   end
 
   ## Settings

@@ -10,7 +10,7 @@
       </form>
     <% end %>
 
-    <.form for={@pass_filter_changeset} :let={f} class="flex items-center space-x-8 text-sm" phx-change="filter-changed">
+    <.form :let={f} for={@pass_filter_changeset} class="flex items-center space-x-8 text-sm" phx-change="filter-changed">
       <div class="flex items-center space-x-4">
         <%= for {field, label} <- [fm_mod: "FM", linear_mod: "Linear", digital_mod: "Digital"] do %>
           <div class="flex items-center space-x-2">
@@ -34,7 +34,7 @@
   <table class="table w-full">
     <thead>
       <tr>
-        <th class="whitespace-nowrap px-1" title="Time of acquisition of signal">AOS (UTC)</th>
+        <th class="whitespace-nowrap px-1" title="Time of acquisition of signal">AOS</th>
         <th class="whitespace-nowrap px-1" title="Time until acquisition or loss of signal">Next Event</th>
         <th class="whitespace-nowrap px-1" title="Satellite name">Sat</th>
         <th class="whitespace-nowrap px-1" title="Satellite modulation">Mod</th>
@@ -86,8 +86,7 @@
         </button>
       <% else %>
         <div class="text-gray-500">
-          <.link patch={browse_path()} class="link">Browse</.link>
-          to see more passes
+          <.link patch={browse_path(@context.timezone)} class="link">Browse</.link> to see more passes
         </div>
       <% end %>
     </div>

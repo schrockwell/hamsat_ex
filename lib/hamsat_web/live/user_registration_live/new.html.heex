@@ -32,6 +32,12 @@
       />
     </fieldset>
 
+    <fieldset>
+      <%= label(f, :timezone, "Time Zone", class: "form-label") %>
+      <%= select(f, :timezone, Hamsat.Util.list_timezone_options()) %>
+      <%= error_tag(f, :timezone) %>
+    </fieldset>
+
     <div>
       <%= submit("Register", class: "btn btn-default") %>
     </div>

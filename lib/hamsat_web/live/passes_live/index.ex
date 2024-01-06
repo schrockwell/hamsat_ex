@@ -4,6 +4,7 @@ defmodule HamsatWeb.PassesLive.Index do
   import HamsatWeb.LayoutComponents
 
   alias Hamsat.Alerts.Pass
+  alias Hamsat.LocalTime
   alias Hamsat.Passes
   alias Hamsat.Satellites
   alias Hamsat.Util
@@ -46,7 +47,7 @@ defmodule HamsatWeb.PassesLive.Index do
     socket =
       case Date.from_iso8601(date) do
         {:ok, date} -> put_state(socket, date: date)
-        {:error, _} -> put_state(socket, date: Date.utc_today())
+        {:error, _} -> put_state(socket, date: Timex.today(socket.assigns.context.timezone))
       end
 
     {:noreply,
@@ -122,16 +123,16 @@ defmodule HamsatWeb.PassesLive.Index do
     )
   end
 
-  defp append_upcoming_passes(%{assigns: %{date: date}} = socket) do
+  defp append_upcoming_passes(%{assigns: %{date: date, context: context}} = socket) do
     parent = self()
-    starting = date |> Timex.to_datetime() |> Timex.beginning_of_day()
-    ending = date |> Timex.to_datetime() |> Timex.end_of_day()
+    starting = date |> Timex.to_datetime(context.timezone) |> Timex.beginning_of_day()
+    ending = date |> Timex.to_datetime(context.timezone) |> Timex.end_of_day()
 
     Task.start(fn ->
       send(
         parent,
         {:daily_passes_loaded,
-         Passes.list_all_passes(socket.assigns.context, socket.assigns.sats,
+         Passes.list_all_passes(context, socket.assigns.sats,
            starting: starting,
            ending: ending,
            filter: socket.assigns.pass_filter
@@ -202,7 +203,7 @@ defmodule HamsatWeb.PassesLive.Index do
   end
 
   def handle_event("select", %{"id" => "interval", "selected" => "browse"}, socket) do
-    {:noreply, push_patch(socket, to: browse_path())}
+    {:noreply, push_patch(socket, to: browse_path(socket.assigns.context.timezone))}
   end
 
   def handle_event("date-changed", %{"date" => date}, socket) do
@@ -247,8 +248,8 @@ defmodule HamsatWeb.PassesLive.Index do
     [upcoming: "Upcoming", browse: "Browse"]
   end
 
-  defp browse_path() do
-    default_date = Date.utc_today() |> Date.to_iso8601()
+  defp browse_path(timezone) do
+    default_date = timezone |> Timex.today() |> Date.to_iso8601()
     ~p"/passes?date=#{default_date}"
   end
 
