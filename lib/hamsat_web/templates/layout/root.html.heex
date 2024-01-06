@@ -92,11 +92,14 @@
     </div>
 
     <div class="my-6 text-center text-sm text-gray-500">
-      All times <%= link(timezone_name(@context.timezone),
+      DE WW1X · <%= link(timezone_name(@context.timezone),
         to: ~p"/location",
         class: "hover:underline hover:text-gray-700"
-      ) %> ·
-      By WW1X · <%= link("About", to: ~p"/about", class: "hover:underline hover:text-gray-700") %>
+      ) %> · <%= link("Changelog", to: ~p"/changelog", class: "hover:underline hover:text-gray-700") %> · <%= link(
+        "About",
+        to: ~p"/about",
+        class: "hover:underline hover:text-gray-700"
+      ) %>
     </div>
   </body>
 </html>

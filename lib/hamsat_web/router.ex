@@ -93,6 +93,7 @@ defmodule HamsatWeb.Router do
     pipe_through [:browser]
 
     get "/about", PageController, :about
+    get "/changelog", PageController, :changelog
 
     delete "/users/log_out", UserSessionController, :delete
     get "/users/confirm", UserConfirmationController, :new
