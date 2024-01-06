@@ -191,4 +191,20 @@ defmodule HamsatWeb.ViewHelpers do
     offset = datetime.utc_offset + datetime.std_offset
     Hamsat.Util.format_offset(offset)
   end
+
+  def subband_range(%{lower_mhz: mhz, upper_mhz: mhz}), do: "#{mhz(mhz, 3)} MHz"
+  def subband_range(subband), do: "#{mhz(subband.lower_mhz, 3)} – #{mhz(subband.upper_mhz, 3)} MHz"
+
+  def active_nav_item(path) do
+    cond do
+      Regex.match?(~r/^(\/sats)/, path) -> :sats
+      Regex.match?(~r/^(\/alerts)/, path) -> :alerts
+      Regex.match?(~r/^\/passes/, path) -> :passes
+      Regex.match?(~r/^\/location/, path) -> :location
+      Regex.match?(~r/^\/users\/settings/, path) -> :settings
+      Regex.match?(~r/^\/users\/register/, path) -> :register
+      Regex.match?(~r/^\/users\/log_in/, path) -> :log_in
+      :else -> nil
+    end
+  end
 end

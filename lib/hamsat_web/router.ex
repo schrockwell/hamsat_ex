@@ -13,6 +13,7 @@ defmodule HamsatWeb.Router do
     plug :put_secure_browser_headers
     plug :fetch_current_user
     plug HamsatWeb.ContextPlug
+    plug HamsatWeb.NavPlug
   end
 
   pipeline :api do
@@ -38,6 +39,8 @@ defmodule HamsatWeb.Router do
     live "/alerts/:id", AlertsLive.Show, :show, as: :alerts
 
     live "/passes", PassesLive.Index, :index, as: :passes
+
+    live "/sats", SatsLive.Index, :index, as: :sats
 
     live "/location", LocationLive.Edit, :edit, as: :location
     post "/session_location", SessionLocationController, :update

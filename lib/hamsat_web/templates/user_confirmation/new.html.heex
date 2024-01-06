@@ -10,7 +10,5 @@
 </.form>
 
 <p>
-  <%= link("Register", to: ~p"/users/register") %> | <%= link("Log in",
-    to: ~p"/users/log_in"
-  ) %>
+  <.link navigate={~p"/users/register"}>Register</.link> | <.link navigate={~p"/users/log_in"}>Log in</.link>
 </p>

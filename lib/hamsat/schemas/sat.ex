@@ -13,6 +13,9 @@ defmodule Hamsat.Schemas.Sat do
     embeds_many :downlinks, FreqRange, on_replace: :delete
     embeds_many :uplinks, FreqRange, on_replace: :delete
 
+    # Aggregate fields
+    field :total_activation_count, :integer, virtual: true
+
     timestamps()
   end
 

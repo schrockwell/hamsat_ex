@@ -54,6 +54,7 @@ defmodule HamsatWeb do
       use LiveEvent.LiveView
 
       on_mount HamsatWeb.ContextHook
+      on_mount HamsatWeb.NavHook
 
       unquote(view_helpers())
 

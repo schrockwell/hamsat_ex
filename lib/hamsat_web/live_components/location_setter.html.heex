@@ -1,10 +1,10 @@
 <div>
   <div class="mb-8">
     <%= if @show_log_in_link? do %>
-      To view satellite predictions at your current location, you must <%= link("log in to your account",
-        to: ~p"/users/log_in",
-        class: "link not-italic"
-      ) %>,
+      To view satellite predictions at your current location, you must <.link
+        navigate={~p"/users/log_in"}
+        class="link not-italic"
+      >log in to your account</.link>,
       or select your station location by entering a grid square, coordinates, or by clicking the map.
     <% else %>
       Select your station location by entering a grid square, coordinates, or by clicking the map.

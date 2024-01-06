@@ -26,7 +26,7 @@
         <span class="font-medium">
           <%= @alert.callsign %> on <%= @alert.sat.name %>
         </span>
-        <SatComponents.sat_modulation_label sat={@alert.sat} />
+        <SatComponents.sat_modulation_labels sat={@alert.sat} />
       </div>
     </div>
     <%= if @alert.comment do %>
@@ -35,10 +35,12 @@
       </div>
     <% end %>
     <div class="text-sm flex space-x-6 md:mt-1">
-      <%= link("Track", to: ~p"/alerts/#{@alert.id}", class: "link") %>
+      <.link navigate={~p"/alerts/#{@alert.id}"} class="link">Track</.link>
 
       <%= if @mine? and Alert.owned?(@alert, @context.user) do %>
-        <%= link("Edit Activation", to: ~p"/alerts/#{@alert.id}/edit", class: "link") %>
+        <.link navigate={~p"/alerts/#{@alert.id}/edit"} class="link">
+          Edit Activation
+        </.link>
       <% end %>
     </div>
   </div>
