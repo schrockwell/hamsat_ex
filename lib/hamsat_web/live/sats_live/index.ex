@@ -14,7 +14,7 @@ defmodule HamsatWeb.SatsLive.Index do
     if query == "" do
       {:noreply, assign(socket, query: query, sats: Satellites.list_satellites_and_stats())}
     else
-      {:noreply, assign(socket, query: query, sats: Satellites.search_satellites(query))}
+      {:noreply, assign(socket, query: query, sats: Satellites.search_satellites_and_stats(query))}
     end
   end
 
