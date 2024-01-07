@@ -4,8 +4,9 @@
     <span class="mr-4"><%= time(@context, @pass.info.aos.datetime) %></span>
   </td>
   <td class="whitespace-nowrap px-1 text-center"><%= @next_event_in %></td>
-  <td class="whitespace-nowrap px-1 text-center whitespace-nowrap"><%= pass_sat_name(@pass) %></td>
-  <td class="whitespace-nowrap px-1 text-center"><SatComponents.sat_modulation_labels sat={@pass.sat} /></td>
+  <td class="whitespace-nowrap px-1 text-center whitespace-nowrap">
+    <%= pass_sat_name(@pass) %>&nbsp;&nbsp;<SatComponents.sat_modulation_labels sat={@pass.sat} />
+  </td>
   <td class="whitespace-nowrap px-1 text-center"><%= pass_duration(@pass) %></td>
   <td class="whitespace-nowrap px-1 text-center"><%= pass_max_el(@pass) %></td>
   <td class="whitespace-nowrap px-1 text-right"><%= pass_aos_direction(@pass) %></td>
