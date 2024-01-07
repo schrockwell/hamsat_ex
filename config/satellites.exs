@@ -105,6 +105,13 @@ satellites =
       uplinks: [%{mode: :linear, lower_mhz: 435.100, upper_mhz: 435.120}]
     },
     %{
+      name: "LEDSAT",
+      number: 49069,
+      modulations: [:digital],
+      downlinks: [%{mode: :digital, lower_mhz: 435.190, upper_mhz: 435.190}],
+      uplinks: [%{mode: :digital, lower_mhz: 435.310, upper_mhz: 435.310}]
+    },
+    %{
       name: "LilacSat-2",
       aliases: ["CAS-3H"],
       nasa_name: "LILACSAT-2",
