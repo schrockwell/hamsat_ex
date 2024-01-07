@@ -24,6 +24,7 @@ defmodule Hamsat.Accounts.User do
     field :prefer_fm_mode, :integer
     field :prefer_dx_el, :integer
     field :prefer_my_el, :integer
+    field :feed_key, :string
 
     has_many :alerts, Hamsat.Schemas.Alert
     has_many :saved_alerts, Hamsat.Schemas.SavedAlert

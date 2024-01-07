@@ -25,11 +25,13 @@ import "../vendor/leaflet-great-circle";
 import LeafletPicker from "./leaflet-picker-hook";
 import LeafletTracker from "./leaflet-tracker-hook";
 import Registration from "./registration-hook";
+import CopyToClipboard from "./copy-to-clipboard-hook";
 
 const Hooks = {
   LeafletPicker,
   LeafletTracker,
   Registration,
+  CopyToClipboard,
 };
 
 let csrfToken = document
