@@ -110,14 +110,22 @@ defmodule HamsatWeb.LayoutView do
       <%= render_slot(@inner_block) %>
     </div>
 
-    <div class="my-6 text-center text-sm text-gray-500">
-      DE WW1X ·
+    <div class="my-6 text-sm text-gray-500 flex gap-1 justify-center">
+      DE
+      <.link href="https://mastodon.hams.social/@ww1x" class="hover:underline hover:text-gray-700">
+        WW1X
+      </.link>
+      ·
       <.link navigate={~p"/location"} class="hover:underline hover:text-gray-700">
         <%= timezone_name(@context.timezone) %>
       </.link>
       ·
       <.link navigate={~p"/changelog"} class="hover:underline hover:text-gray-700">
         Changelog
+      </.link>
+      ·
+      <.link href="https://github.com/schrockwell/hamsat_ex/" class="hover:underline hover:text-gray-700">
+        Source
       </.link>
       ·
       <.link navigate={~p"/about"} class="hover:underline hover:text-gray-700">
