@@ -6,6 +6,7 @@
       </div>
       <div class="hidden md:block text-right">
         <.link navigate={~p"/alerts"} class="btn btn-link">Browse</.link>
+        <.link navigate={~p"/alerts/new"} class="btn btn-link">Post</.link>
       </div>
     </div>
 
@@ -29,34 +30,7 @@
   </div>
 
   <div class="flex-1">
-    <div class="flex items-center justify-between mb-4 md:mb-6">
-      <div>
-        <h1 class="text-h2 md:text-h1">My <span class="hidden md:inline">Satellite</span> Activations</h1>
-      </div>
-      <div class="hidden md:block text-right">
-        <.link navigate={~p"/alerts/new"} class="btn btn-link">Post an Activation</.link>
-      </div>
-    </div>
-    <%= if @my_alerts do %>
-      <.live_component
-        module={AlertsList}
-        id="my-alerts-list"
-        now={@now}
-        context={@context}
-        alerts={@my_alerts}
-        mine?={true}
-      >
-        <:empty>
-          <div class="p-6 text-gray-400 italic text-center">You haven't posted any upcoming activations.</div>
-        </:empty>
-      </.live_component>
-    <% else %>
-      <div class="panel p-6 text-center text-gray-400 italic">
-        <.link navigate={~p"/users/log_in"} class="link not-italic">Log in</.link>
-        or <.link navigate={~p"/users/register"} class="link not-italic">register</.link>
-        to post your own activation alerts.
-      </div>
-    <% end %>
+    <%!-- TBD --%>
   </div>
 </div>
 

@@ -9,7 +9,7 @@
       alert={alert}
       now={@now}
       context={@context}
-      mine?={@mine?}
+      mine?={Alert.owned?(alert, @context.user)}
     />
   <% end %>
 </div>
