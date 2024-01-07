@@ -200,6 +200,14 @@ satellites =
       ]
     },
     %{
+      name: "HO-113",
+      aliases: ["CAS-9", "XW-3"],
+      number: 50466,
+      modulations: [:linear],
+      downlinks: [%{mode: :linear, lower_mhz: 435.165, upper_mhz: 435.195}],
+      uplinks: [%{mode: :linear, lower_mhz: 145.855, upper_mhz: 145.885}]
+    },
+    %{
       name: "HO-119",
       number: 54816,
       modulations: [:linear],
