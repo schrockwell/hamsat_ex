@@ -2,6 +2,7 @@ defmodule HamsatWeb.AlertsLive.Show do
   use HamsatWeb, :live_view
 
   alias Hamsat.Alerts
+  alias Hamsat.Context
   alias Hamsat.Coord
   alias Hamsat.Grid
   alias Hamsat.Schemas.Alert
@@ -161,10 +162,12 @@ defmodule HamsatWeb.AlertsLive.Show do
         "📢 #{alert.comment}"
       end
 
+    utc_context = %Context{}
+
     text =
       [
         "🛰 #{alert.callsign} on #{alert.sat.name}",
-        "⏰ #{date(:utc, alert.aos_at)} from #{short_time(:utc, alert.aos_at)}Z to #{short_time(:utc, alert.los_at)}Z",
+        "⏰ #{date(utc_context, alert.aos_at)} from #{short_time(utc_context, alert.aos_at)}Z to #{short_time(utc_context, alert.los_at)}Z",
         "🗺 #{grids}",
         freq,
         comment,

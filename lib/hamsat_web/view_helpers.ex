@@ -4,33 +4,39 @@ defmodule HamsatWeb.ViewHelpers do
   alias Hamsat.Schemas.Alert
 
   @date_format "{YYYY}-{0M}-{0D}"
-  @time_format "{h24}:{m}:{s}"
-  @short_time_format "{h24}:{m}"
-  @datetime_format @date_format <> " " <> @time_format
+  @time_formats %{
+    "12h" => "{h12}:{m}:{s} {AM}",
+    "24h" => "{h24}:{m}:{s}"
+  }
+  @short_time_formats %{
+    "12h" => "{h12}:{m} {AM}",
+    "24h" => "{h24}:{m}"
+  }
+  @datetime_formats %{
+    "12h" => @date_format <> " " <> @time_formats["12h"],
+    "24h" => @date_format <> " " <> @time_formats["24h"]
+  }
 
-  def date(context_or_timezone, utc_datetime) do
+  def date(%Context{} = context, utc_datetime) do
     utc_datetime
     |> normalize_datetime()
-    |> Timex.to_datetime(timezone(context_or_timezone))
+    |> Timex.to_datetime(context.timezone)
     |> Timex.format!(@date_format)
   end
 
-  def time(context_or_timezone, utc_datetime) do
+  def time(%Context{} = context, utc_datetime) do
     utc_datetime
     |> normalize_datetime()
-    |> Timex.to_datetime(timezone(context_or_timezone))
-    |> Timex.format!(@time_format)
+    |> Timex.to_datetime(context.timezone)
+    |> Timex.format!(@time_formats[context.time_format])
   end
 
-  def short_time(context_or_timezone, utc_datetime) do
+  def short_time(%Context{} = context, utc_datetime) do
     utc_datetime
     |> normalize_datetime()
-    |> Timex.to_datetime(timezone(context_or_timezone))
-    |> Timex.format!(@short_time_format)
+    |> Timex.to_datetime(context.timezone)
+    |> Timex.format!(@short_time_formats[context.time_format])
   end
-
-  defp timezone(:utc), do: "Etc/UTC"
-  defp timezone(%Context{timezone: timezone}), do: timezone
 
   defp normalize_datetime(%DateTime{} = datetime), do: datetime
   defp normalize_datetime(erl_datetime), do: Hamsat.Util.erl_to_utc_datetime(erl_datetime)
@@ -105,16 +111,16 @@ defmodule HamsatWeb.ViewHelpers do
     cardinal_direction(pass.info.los.azimuth_in_degrees)
   end
 
-  def time_span(start_datetime, end_datetime, timezone \\ "Etc/UTC") do
-    start_datetime = start_datetime |> Timex.to_datetime("Etc/UTC") |> Timex.to_datetime(timezone)
-    end_datetime = end_datetime |> Timex.to_datetime("Etc/UTC") |> Timex.to_datetime(timezone)
+  def time_span(context, start_datetime, end_datetime) do
+    start_datetime = start_datetime |> Timex.to_datetime("Etc/UTC") |> Timex.to_datetime(context.timezone)
+    end_datetime = end_datetime |> Timex.to_datetime("Etc/UTC") |> Timex.to_datetime(context.timezone)
 
     if Timex.to_date(start_datetime) == Timex.to_date(end_datetime) do
-      Timex.format!(start_datetime, @time_format) <>
-        " – " <> Timex.format!(end_datetime, @time_format)
+      Timex.format!(start_datetime, @time_formats[context.time_format]) <>
+        " – " <> Timex.format!(end_datetime, @time_formats[context.time_format])
     else
-      Timex.format!(start_datetime, @datetime_format) <>
-        " – " <> Timex.format!(end_datetime, @datetime_format)
+      Timex.format!(start_datetime, @datetime_formats[context.time_format]) <>
+        " – " <> Timex.format!(end_datetime, @datetime_formats[context.time_format])
     end
   end
 

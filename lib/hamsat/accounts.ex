@@ -61,6 +61,10 @@ defmodule Hamsat.Accounts do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  def get_user_by_feed_key(feed_key) do
+    Repo.get_by(User, feed_key: feed_key)
+  end
+
   ## User registration
 
   @doc """

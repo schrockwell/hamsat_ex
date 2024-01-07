@@ -64,15 +64,22 @@ defmodule Hamsat.Alerts do
   @doc """
   Lists all upcoming alerts.
   """
-  def list_alerts(context, filter \\ []) do
-    filter
-    |> Enum.reduce(Alert, &apply_alert_filter(&1, &2, context))
-    |> order_by([a], a.aos_at)
-    |> Repo.all()
-    |> Repo.preload([:sat])
-    |> amend_visible_passes(context)
-    |> amend_matches(context)
-    |> preload_saved_fields(context)
+  def list_alerts(context, filter \\ [], opts \\ []) do
+    alerts =
+      filter
+      |> Enum.reduce(Alert, &apply_alert_filter(&1, &2, context))
+      |> order_by([a], a.aos_at)
+      |> Repo.all()
+      |> Repo.preload([:sat])
+
+    if opts[:plain] do
+      alerts
+    else
+      alerts
+      |> amend_visible_passes(context)
+      |> amend_matches(context)
+      |> preload_saved_fields(context)
+    end
   end
 
   @doc """

@@ -240,9 +240,9 @@ defmodule HamsatWeb.AlertsLive.New do
     end
   end
 
-  defp pass_options(passes, timezone) do
+  defp pass_options(context, passes) do
     Enum.map(passes, fn pass ->
-      {time_span(pass.info.aos.datetime, pass.info.los.datetime, timezone), pass.hash}
+      {time_span(context, pass.info.aos.datetime, pass.info.los.datetime), pass.hash}
     end)
   end
 end

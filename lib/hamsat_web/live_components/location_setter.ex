@@ -22,6 +22,7 @@ defmodule HamsatWeb.LocationSetter do
       field :lat, :float
       field :lon, :float
       field :timezone, :string, default: "Etc/UTC"
+      field :time_format, :string, default: "24h"
     end
 
     def changeset(form, params \\ %{}, opts \\ []) do
@@ -30,7 +31,7 @@ defmodule HamsatWeb.LocationSetter do
 
     def from_context(context) do
       coord = context.location || %Coord{lat: 0.0, lon: 0.0}
-      %__MODULE__{lat: coord.lat, lon: coord.lon, timezone: context.timezone}
+      %__MODULE__{lat: coord.lat, lon: coord.lon, timezone: context.timezone, time_format: context.time_format}
     end
   end
 

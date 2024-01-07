@@ -14,6 +14,7 @@ defmodule Hamsat.Accounts.User do
     field :home_lat, :float
     field :home_lon, :float
     field :timezone, :string, default: "Etc/UTC"
+    field :time_format, :string, default: "24h"
     field :latest_callsign, :string
     field :latest_modes, {:array, :string}
     field :latest_mhz_direction, Ecto.Enum, values: [:up, :down]
@@ -23,6 +24,7 @@ defmodule Hamsat.Accounts.User do
     field :prefer_fm_mode, :integer
     field :prefer_dx_el, :integer
     field :prefer_my_el, :integer
+    field :feed_key, :string
 
     has_many :alerts, Hamsat.Schemas.Alert
     has_many :saved_alerts, Hamsat.Schemas.SavedAlert
@@ -173,8 +175,8 @@ defmodule Hamsat.Accounts.User do
 
   def home_location_changeset(user, attrs) do
     user
-    |> cast(attrs, [:home_lat, :home_lon, :timezone])
-    |> validate_required([:home_lat, :home_lon, :timezone])
+    |> cast(attrs, [:home_lat, :home_lon, :timezone, :time_format])
+    |> validate_required([:home_lat, :home_lon, :timezone, :time_format])
     |> validate_home_location()
     |> validate_inclusion(:timezone, Tzdata.zone_list())
   end

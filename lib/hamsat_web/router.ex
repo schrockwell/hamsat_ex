@@ -104,4 +104,9 @@ defmodule HamsatWeb.Router do
     get "/users/confirm/:token", UserConfirmationController, :edit
     post "/users/confirm/:token", UserConfirmationController, :update
   end
+
+  scope "/feeds", HamsatWeb do
+    get "/upcoming_alerts", FeedController, :upcoming_alerts
+    get "/upcoming_alerts/:feed_key", FeedController, :upcoming_alerts
+  end
 end

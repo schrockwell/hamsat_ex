@@ -55,7 +55,8 @@ defmodule Hamsat.MixProject do
         {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
         {:timex, "~> 3.7"},
         {:hackney, "~> 1.18"},
-        {:ex_heroicons, "~> 0.6.0"}
+        {:ex_heroicons, "~> 0.6.0"},
+        {:atomex, "~> 0.5.1"}
       ]
   end
 
