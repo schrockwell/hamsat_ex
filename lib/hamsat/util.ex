@@ -16,10 +16,14 @@ defmodule Hamsat.Util do
   end
 
   def location_picker_changeset(form, params \\ %{}, opts \\ []) do
-    fields = Map.merge(%{lat: :lat, lon: :lon, grid: :grid, timezone: :timezone}, opts[:fields] || %{})
+    fields =
+      Map.merge(
+        %{lat: :lat, lon: :lon, grid: :grid, timezone: :timezone, time_format: :time_format},
+        opts[:fields] || %{}
+      )
 
     form
-    |> cast(params, [fields.grid, fields.lat, fields.lon])
+    |> cast(params, [fields.grid, fields.lat, fields.lon, fields.time_format])
     |> validate_number(fields.lat, greater_than_or_equal_to: -90, less_than_or_equal_to: 90)
     |> validate_number(fields.lon, greater_than_or_equal_to: -180, less_than_or_equal_to: 180)
     |> maybe_update_coord_from_grid(fields, opts)
@@ -69,6 +73,13 @@ defmodule Hamsat.Util do
 
       {format_offset(offset), options}
     end)
+  end
+
+  def time_format_options do
+    [
+      {"12-hour", "12h"},
+      {"24-hour", "24h"}
+    ]
   end
 
   defp format_timezone(timezone, offset) do

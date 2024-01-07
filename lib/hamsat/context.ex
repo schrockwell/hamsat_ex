@@ -1,5 +1,5 @@
 defmodule Hamsat.Context do
-  defstruct user: :guest, location: nil, timezone: "Etc/UTC"
+  defstruct user: :guest, location: nil, timezone: "Etc/UTC", time_format: "24h"
 
   alias Hamsat.Accounts
   alias Hamsat.Accounts.User
@@ -10,7 +10,8 @@ defmodule Hamsat.Context do
     %Hamsat.Context{
       user: user,
       location: get_session_location(user, session),
-      timezone: get_session_timezone(user, session)
+      timezone: get_session_timezone(user, session),
+      time_format: get_session_time_format(user, session)
     }
   end
 
@@ -40,4 +41,11 @@ defmodule Hamsat.Context do
   end
 
   defp get_session_timezone(_user, _session), do: "Etc/UTC"
+
+  defp get_session_time_format(%User{time_format: time_format}, _session), do: time_format
+
+  defp get_session_time_format(:guest, %{"time_format" => time_format} = _session) when is_binary(time_format),
+    do: time_format
+
+  defp get_session_time_format(_user, _session), do: "24h"
 end

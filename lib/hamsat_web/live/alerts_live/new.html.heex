@@ -26,7 +26,7 @@
         <%= if @passes == [] do %>
           <div class="italic text-gray-500">No passes found</div>
         <% else %>
-          <%= select(f, :pass_hash, pass_options(@passes, @context.timezone)) %>
+          <%= select(f, :pass_hash, pass_options(@context, @passes)) %>
         <% end %>
       </div>
     </.form_row>

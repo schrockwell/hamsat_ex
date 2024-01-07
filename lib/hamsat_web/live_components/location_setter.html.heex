@@ -34,6 +34,11 @@
         <%= select(f, :timezone, Hamsat.Util.list_timezone_options()) %>
         <%= error_tag(f, :timezone) %>
       </div>
+      <div class="flex-1">
+        <%= label(f, :time_format, "Time Format", class: "form-label") %>
+        <%= select(f, :time_format, Hamsat.Util.time_format_options()) %>
+        <%= error_tag(f, :time_format) %>
+      </div>
     </div>
 
     <input type="submit" value="Set Location" class="btn btn-default mt-6" />
