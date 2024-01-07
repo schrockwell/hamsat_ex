@@ -80,7 +80,7 @@
 
     <%= if @events[:before_workable] do %>
       <div class="text-center my-1">
-        <div class={progression_class(@progression, :before_workable)}>Before Workable</div>
+        <div class={progression_class(@progression, :before_workable)}>Before Visible</div>
         <div class="mt-1"><%= event_timer(@events[:before_workable], @now) %></div>
       </div>
 
@@ -89,7 +89,7 @@
 
     <%= if @events[:workable] do %>
       <div class="text-center my-1">
-        <div class={progression_class(@progression, :workable)}>Workable</div>
+        <div class={progression_class(@progression, :workable)}>Visible</div>
         <%= if @progression == :workable do %>
           <div class="mt-1 text-emerald-600 font-medium"><%= event_timer(@events[:workable], @now) %></div>
         <% else %>
@@ -102,7 +102,7 @@
 
     <%= if @events[:after_workable] do %>
       <div class="text-center my-1">
-        <div class={progression_class(@progression, :after_workable)}>After Workable</div>
+        <div class={progression_class(@progression, :after_workable)}>After Visible</div>
         <div class="mt-1"><%= event_timer(@events[:after_workable], @now) %></div>
       </div>
 

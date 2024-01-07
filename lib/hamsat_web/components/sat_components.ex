@@ -34,8 +34,8 @@ defmodule HamsatWeb.SatComponents do
           )
 
         ~H"""
-        <%= if @workability == :workable and not @mine? do %>
-          <span class="text-xs font-medium bg-emerald-100 text-emerald-600 px-1.5 py-0.5 uppercase">Workable</span>
+        <%= if @workability == :workable do %>
+          <span class="text-xs font-medium bg-emerald-100 text-emerald-600 px-1.5 py-0.5 uppercase">Visible</span>
         <% end %>
 
         <%= if @event == :start, do: "in", else: "for" %>
