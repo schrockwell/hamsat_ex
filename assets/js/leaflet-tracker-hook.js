@@ -3,13 +3,22 @@ import leaflet from "../vendor/leaflet/leaflet";
 // Images live in priv/static/images/leaflet
 leaflet.Icon.Default.imagePath = "/images/leaflet/";
 
+const satIcon = leaflet.icon({
+  iconUrl: "/images/sat-marker.png",
+  iconSize: [64, 64],
+  iconAnchor: [32, 32],
+  shadowUrl: "/images/sat-marker-shadow.png",
+  shadowSize: [64, 64],
+  shadowAnchor: [29, 29],
+});
+
 export default {
   mounted() {
     this.satCoord = null;
     this.observerCoord = null;
     this.activatorCoord = null;
     this.map = leaflet.map(this.el).setView([0, 0], 1);
-    this.satMarker = leaflet.marker([0, 0]);
+    this.satMarker = leaflet.marker([0, 0], { icon: satIcon });
     this.observerMarker = leaflet.marker([0, 0]);
     this.activatorMarker = leaflet.marker([0, 0]);
     this.circle = leaflet.greatCircle([0, 0], { radius: 0 });
