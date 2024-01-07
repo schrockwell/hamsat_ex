@@ -27,10 +27,6 @@ defmodule Hamsat.Satellites do
     Repo.all(select_stats(from s in Sat, order_by: s.name))
   end
 
-  def search_satellites_and_stats(query) do
-    Repo.all(select_stats(from s in Sat, order_by: s.name, where: ilike(s.name, ^"%#{query}%")))
-  end
-
   defp select_stats(query) do
     from s in query,
       select: %{
