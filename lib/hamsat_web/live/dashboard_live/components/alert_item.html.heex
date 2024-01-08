@@ -16,10 +16,10 @@
           <AlertComponents.match_percentage alert={@alert} />
         <% end %>
         <SatComponents.alert_event_description alert={@alert} now={@now} mine?={@mine?} />
+        <%= if sat_visible?(@alert, @now) do %>
+          <span class="uppercase text-xs bg-red-100 text-red-700 px-1.5 py-0.5 font-medium">Visible Now!</span>
+        <% end %>
       </div>
-      <%= if sat_visible?(@alert, @now) do %>
-        <div class="uppercase text-xs bg-red-100 text-red-700 px-1.5 py-0.5 font-medium">Visible Now!</div>
-      <% end %>
     </div>
     <div class="flex w-full items-center justify-between">
       <div class="md:text-lg">
@@ -37,7 +37,7 @@
     <div class="text-sm flex space-x-6 md:mt-1">
       <.link navigate={~p"/alerts/#{@alert.id}"} class="link">Track</.link>
 
-      <%= if @mine? and Alert.owned?(@alert, @context.user) do %>
+      <%= if @mine? do %>
         <.link navigate={~p"/alerts/#{@alert.id}/edit"} class="link">
           Edit Activation
         </.link>

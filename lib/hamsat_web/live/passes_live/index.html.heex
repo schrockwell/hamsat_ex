@@ -2,7 +2,7 @@
   <h2 class="block md:hidden mb-2 text-h2">
     Passes
   </h2>
-  <div class="flex space-x-4 items-center">
+  <div class="flex flex-col md:flex-row gap-2 md:gap-4 items-start md:items-center">
     <.pill_picker id="interval" options={duration_options()} value={@duration} />
     <%= if @date do %>
       <form phx-change="date-changed">
@@ -36,8 +36,7 @@
       <tr>
         <th class="whitespace-nowrap px-1" title="Time of acquisition of signal">AOS</th>
         <th class="whitespace-nowrap px-1" title="Time until acquisition or loss of signal">Next Event</th>
-        <th class="whitespace-nowrap px-1" title="Satellite name">Sat</th>
-        <th class="whitespace-nowrap px-1" title="Satellite modulation">Mod</th>
+        <th class="whitespace-nowrap px-1" title="Satellite name and modulation">Sat</th>
         <th class="whitespace-nowrap px-1" title="Duration of visible pass">Length</th>
         <th class="whitespace-nowrap px-1" title="Max elevation during pass">Max El</th>
         <th class="whitespace-nowrap px-1" colspan="3" title="Azimuth of satellite during pass">Az</th>
@@ -53,9 +52,15 @@
   </table>
 </div>
 
-<%= if @passes == [] and not @loading? do %>
+<%= if @passes == [] and not @loading? and not @failed? do %>
   <div class="text-center py-8 italic text-gray-400">
     No passes found. Try enabling more filters.
+  </div>
+<% end %>
+
+<%= if @failed? do %>
+  <div class="text-center py-8 italic text-red-500">
+    Sorry, a problem occurred while calculating passes.
   </div>
 <% end %>
 

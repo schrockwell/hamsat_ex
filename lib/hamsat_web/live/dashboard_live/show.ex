@@ -6,7 +6,6 @@ defmodule HamsatWeb.DashboardLive.Show do
   alias Hamsat.Context
   alias HamsatWeb.DashboardLive.Components.AlertsList
 
-  state :my_alerts
   state :now, default: DateTime.utc_now()
   state :page_title, default: "Home"
   state :upcoming_alert_count
@@ -22,7 +21,6 @@ defmodule HamsatWeb.DashboardLive.Show do
 
     {:ok,
      socket
-     |> assign_my_alerts()
      |> assign_upcoming_alerts()
      |> assign_upcoming_alert_count()}
   end
@@ -41,20 +39,13 @@ defmodule HamsatWeb.DashboardLive.Show do
 
     {:noreply,
      socket
-     |> assign_my_alerts()
      |> assign_upcoming_alerts()}
   end
 
   def handle_info({event, _info} = message, socket)
       when event in [:alert_saved, :alert_unsaved] do
-    patched_my_alerts =
-      if my_alerts = socket.assigns.my_alerts do
-        Alerts.patch_alerts(my_alerts, socket.assigns.context, message)
-      end
-
     socket =
       put_state(socket,
-        my_alerts: patched_my_alerts,
         upcoming_alerts: Alerts.patch_alerts(socket.assigns.upcoming_alerts, socket.assigns.context, message)
       )
 
@@ -70,21 +61,6 @@ defmodule HamsatWeb.DashboardLive.Show do
         Alerts.list_alerts(socket.assigns.context,
           date: :upcoming,
           limit: 25
-        )
-    )
-  end
-
-  defp assign_my_alerts(%{assigns: %{context: %{user: :guest}}} = socket) do
-    put_state(socket, my_alerts: nil)
-  end
-
-  defp assign_my_alerts(socket) do
-    put_state(
-      socket,
-      my_alerts:
-        Alerts.list_alerts(socket.assigns.context,
-          after: DateTime.utc_now(),
-          user_id: socket.assigns.context.user.id
         )
     )
   end

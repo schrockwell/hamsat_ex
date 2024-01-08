@@ -18,6 +18,7 @@ defmodule HamsatWeb.PassesLive.Index do
   state :duration
   state :hours
   state :loading?, default: true
+  state :failed?, default: false
   state :needs_location?, default: false
   state :now, default: DateTime.utc_now()
   state :page_title, default: "Passes"
@@ -27,6 +28,7 @@ defmodule HamsatWeb.PassesLive.Index do
   state :passes_calculated_until
   state :results_description
   state :sats, default: Satellites.list_satellites()
+  state :task_pid
 
   def mount(_params, _session, socket) do
     socket =
@@ -35,6 +37,7 @@ defmodule HamsatWeb.PassesLive.Index do
       |> assign_pass_filter_changeset()
 
     if connected?(socket) do
+      Process.flag(:trap_exit, true)
       Process.send_after(self(), :set_now, @set_now_interval)
       Process.send_after(self(), :reload_passes, @reload_passes_interval)
     end
@@ -103,22 +106,25 @@ defmodule HamsatWeb.PassesLive.Index do
     starting = socket.assigns[:passes_calculated_until] || DateTime.utc_now()
     ending = Timex.shift(DateTime.utc_now(), hours: socket.assigns.hours)
 
-    Task.start(fn ->
-      send(
-        parent,
-        {:more_upcoming_passes_loaded,
-         Passes.list_all_passes(socket.assigns.context, socket.assigns.sats,
-           starting: starting,
-           ending: ending,
-           filter: socket.assigns.pass_filter
-         )}
-      )
-    end)
+    {:ok, task_pid} =
+      Task.start_link(fn ->
+        send(
+          parent,
+          {:more_upcoming_passes_loaded,
+           Passes.list_all_passes(socket.assigns.context, socket.assigns.sats,
+             starting: starting,
+             ending: ending,
+             filter: socket.assigns.pass_filter
+           )}
+        )
+      end)
 
     socket
     |> put_state(
       passes_calculated_until: Timex.shift(DateTime.utc_now(), hours: socket.assigns.hours),
-      loading?: true
+      loading?: true,
+      failed?: false,
+      task_pid: task_pid
     )
   end
 
@@ -127,19 +133,20 @@ defmodule HamsatWeb.PassesLive.Index do
     starting = date |> Timex.to_datetime(context.timezone) |> Timex.beginning_of_day()
     ending = date |> Timex.to_datetime(context.timezone) |> Timex.end_of_day()
 
-    Task.start(fn ->
-      send(
-        parent,
-        {:daily_passes_loaded,
-         Passes.list_all_passes(context, socket.assigns.sats,
-           starting: starting,
-           ending: ending,
-           filter: socket.assigns.pass_filter
-         )}
-      )
-    end)
+    {:ok, task_pid} =
+      Task.start_link(fn ->
+        send(
+          parent,
+          {:daily_passes_loaded,
+           Passes.list_all_passes(context, socket.assigns.sats,
+             starting: starting,
+             ending: ending,
+             filter: socket.assigns.pass_filter
+           )}
+        )
+      end)
 
-    put_state(socket, loading?: true)
+    put_state(socket, loading?: true, failed?: false, task_pid: task_pid)
   end
 
   defp purge_passed_passes(socket) do
@@ -191,6 +198,12 @@ defmodule HamsatWeb.PassesLive.Index do
       |> purge_passed_passes()
 
     {:noreply, put_state(socket, now: DateTime.utc_now())}
+  end
+
+  def handle_info({:EXIT, _, :normal}, socket), do: {:noreply, socket}
+
+  def handle_info({:EXIT, task_pid, _reason}, %{assigns: %{task_pid: task_pid}} = socket) do
+    {:noreply, put_state(socket, loading?: false, failed?: true, task_pid: false)}
   end
 
   def handle_event("load-more", _, socket) do
