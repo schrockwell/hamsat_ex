@@ -42,9 +42,12 @@ defmodule Hamsat.Alerts.PassCache do
       ) do
     sat
     |> buckets(coord, starting, ending)
-    |> Task.async_stream(fn bucket ->
-      get_or_calculate_passes(sat, coord, bucket)
-    end)
+    |> Task.async_stream(
+      fn bucket ->
+        get_or_calculate_passes(sat, coord, bucket)
+      end,
+      timeout: 60_000
+    )
     |> Enum.flat_map(fn
       {:ok, passes} -> passes
       _ -> []
