@@ -49,7 +49,7 @@ defmodule HamsatWeb.AlertsLive.Index do
   end
 
   def handle_event("select", %{"id" => "interval", "selected" => "browse"}, socket) do
-    {:noreply, push_patch(socket, to: browse_path())}
+    {:noreply, push_patch(socket, to: browse_path(socket.assigns.context.timezone))}
   end
 
   def handle_event("date-changed", params, socket) do
@@ -77,8 +77,8 @@ defmodule HamsatWeb.AlertsLive.Index do
     [upcoming: "Upcoming", browse: "Browse"]
   end
 
-  defp browse_path do
-    params = %{date: Date.utc_today() |> Date.to_iso8601()}
+  defp browse_path(timezone) do
+    params = %{date: timezone |> Timex.today() |> Date.to_iso8601()}
     ~p"/alerts?#{params}"
   end
 end
