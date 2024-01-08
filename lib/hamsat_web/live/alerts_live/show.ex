@@ -5,10 +5,12 @@ defmodule HamsatWeb.AlertsLive.Show do
   alias Hamsat.Context
   alias Hamsat.Coord
   alias Hamsat.Grid
+  alias Hamsat.PassMatch
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.Sat
   alias HamsatWeb.LocationSetter
   alias HamsatWeb.SatTracker
+  alias HamsatWeb.LiveComponents.PassTracker
 
   state :activator_coord
   state :activator_sat_position
@@ -18,6 +20,7 @@ defmodule HamsatWeb.AlertsLive.Show do
   state :events
   state :my_sat_position
   state :now, default: DateTime.utc_now()
+  state :pass_match
   state :progression
   state :satmatch_url
   state :tweet_url
@@ -27,9 +30,19 @@ defmodule HamsatWeb.AlertsLive.Show do
   def mount(%{"id" => alert_id}, _session, socket) do
     alert = Alerts.get_alert!(socket.assigns.context, alert_id)
 
+    pass_match =
+      if socket.assigns.context.location do
+        locations = [
+          socket.assigns.context.location,
+          %Coord{lat: alert.observer_lat, lon: alert.observer_lon}
+        ]
+
+        PassMatch.new(alert.sat, locations, alert.aos_at)
+      end
+
     socket =
       socket
-      |> put_state(alert: alert)
+      |> put_state(alert: alert, pass_match: pass_match)
       |> schedule_tick()
 
     {:ok, socket}

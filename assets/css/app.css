@@ -41,7 +41,7 @@
 }
 
 .btn-link {
-  @apply text-sky-600;
+  @apply text-sky-600 bg-white;
 }
 
 .btn-nav {
