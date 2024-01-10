@@ -24,7 +24,7 @@ defmodule HamsatWeb.SatTracker do
         else: sat_position.longitude
 
     %{
-      "satId" => map.sat.id,
+      "satId" => map.sat_id,
       "coord" => [sat_position.latitude, wrapped_lon],
       "footprintRadius" => sat_position.footprint_radius
     }

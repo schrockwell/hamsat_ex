@@ -29,8 +29,13 @@
     <% end %>
   </div>
 
-  <div class="flex-1">
-    <%!-- TBD --%>
+  <div class="flex-1 md:mx-0 -mx-3">
+    <.live_component
+      module={SatTracker}
+      id="sat-tracker"
+      sat_positions={@sat_positions}
+      observer_positions={Enum.reject([@context.location], &is_nil/1)}
+    />
   </div>
 </div>
 

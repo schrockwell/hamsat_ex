@@ -4,12 +4,16 @@ defmodule HamsatWeb.DashboardLive.Show do
   alias Hamsat.Accounts.User
   alias Hamsat.Alerts
   alias Hamsat.Context
+  alias Hamsat.Satellites.PositionServer
+
   alias HamsatWeb.DashboardLive.Components.AlertsList
+  alias HamsatWeb.SatTracker
 
   state :now, default: DateTime.utc_now()
   state :page_title, default: "Home"
   state :upcoming_alert_count
   state :upcoming_alerts
+  state :sat_positions, default: []
   state :show_rss_feed, default: false
 
   def mount(_params, _session, socket) do
@@ -17,12 +21,14 @@ defmodule HamsatWeb.DashboardLive.Show do
       Process.send_after(self(), :set_now, 1_000)
       schedule_reload_alerts()
       Phoenix.PubSub.subscribe(Hamsat.PubSub, "alerts")
+      Phoenix.PubSub.subscribe(Hamsat.PubSub, "satellite_positions")
     end
 
     {:ok,
      socket
      |> assign_upcoming_alerts()
-     |> assign_upcoming_alert_count()}
+     |> assign_upcoming_alert_count()
+     |> put_state(sat_positions: PositionServer.get_sat_positions())}
   end
 
   def handle_event("toggle-rss-feed", _, socket) do
@@ -47,6 +53,15 @@ defmodule HamsatWeb.DashboardLive.Show do
     socket =
       put_state(socket,
         upcoming_alerts: Alerts.patch_alerts(socket.assigns.upcoming_alerts, socket.assigns.context, message)
+      )
+
+    {:noreply, socket}
+  end
+
+  def handle_info({:satellite_positions, positions}, socket) do
+    socket =
+      put_state(socket,
+        sat_positions: positions
       )
 
     {:noreply, socket}
