@@ -34,20 +34,15 @@ const satIconHover = leaflet.icon({
 const footprintStyle = {
   stroke: false,
   weight: 1,
+  opacity: 0.7,
   color: "rgb(55, 65, 81)", // gray-700
-  opacity: 0.1,
-  fill: true,
   fillOpacity: 0.1,
 };
 
 const highlightedFootprintStyle = {
   ...footprintStyle,
   stroke: true,
-  weight: 3,
-  color: "#3388ff",
-  fill: true,
-  opacity: 1.0,
-  fillOpacity: 0.5,
+  fillOpacity: 0.4,
 };
 
 //
@@ -80,7 +75,7 @@ export default {
           attribution:
             'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
           maxZoom: 18,
-          id: "mapbox/streets-v11",
+          id: "mapbox/outdoors-v12",
           tileSize: 512,
           zoomOffset: -1,
           accessToken: this.el.dataset.mapboxAccessToken,
