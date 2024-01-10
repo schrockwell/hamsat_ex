@@ -58,7 +58,10 @@ export default {
     this.sats = {};
 
     this.map = leaflet
-      .map(this.el, { worldCopyJump: true })
+      .map(this.el, {
+        worldCopyJump: true,
+        attributionControl: false,
+      })
       .setView([20, 0], 1);
 
     this.observers = JSON.parse(this.el.dataset.observers).map((coord) => {
