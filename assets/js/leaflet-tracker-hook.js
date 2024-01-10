@@ -100,38 +100,54 @@ export default {
     Object.assign(sat, params);
 
     // Update the layers
-    sat.marker.setLatLng(params.coord);
+    const [lat, lon] = params.coord;
+
+    [-360, 0, 360].forEach((offset, i) => {
+      sat.markers[i].setLatLng([lat, lon + offset]);
+    });
+
     sat.footprint.setRadius(params.footprintRadius * 1000);
     sat.footprint.setLatLng(params.coord);
   },
 
   createSat(params) {
-    const marker = leaflet.marker(params.coord, { icon: satIcon });
     const footprint = leaflet.greatCircle(params.coord, {
       ...footprintStyle,
       radius: params.footprintRadius * 1000,
     });
+    footprint.addTo(this.map);
 
-    marker.bindTooltip(params.satName, {
-      direction: "top",
-      offset: [0, -SAT_ICON_SIZE / 2],
+    const markers = [-360, 0, 360].map((offset) => {
+      const [lat, lon] = params.coord;
+      const marker = leaflet.marker([lat, lon + offset], { icon: satIcon });
+      marker.bindTooltip(params.satName, {
+        direction: "top",
+        offset: [0, -SAT_ICON_SIZE / 2],
+      });
+
+      // Make the marker bigger when hovered
+      marker.on("mouseover", () => {
+        marker.setIcon(satIconHover);
+        sat.hovered = true;
+        this.updateLayers();
+      });
+      marker.on("mouseout", () => {
+        marker.setIcon(satIcon);
+        sat.hovered = false;
+        this.updateLayers();
+      });
+      marker.addTo(this.map);
+
+      return marker;
     });
 
-    // Make the marker bigger when hovered
-    marker.on("mouseover", () => {
-      marker.setIcon(satIconHover);
-      sat.hovered = true;
-      this.updateLayers();
-    });
-    marker.on("mouseout", () => {
-      marker.setIcon(satIcon);
-      sat.hovered = false;
-      this.updateLayers();
-    });
+    const sat = {
+      ...params,
+      markers,
+      footprint,
+      hovered: false,
+    };
 
-    const sat = { ...params, marker, footprint, hovered: false };
-    sat.marker.addTo(this.map);
-    sat.footprint.addTo(this.map);
     this.sats[params.satId] = sat;
     return sat;
   },
