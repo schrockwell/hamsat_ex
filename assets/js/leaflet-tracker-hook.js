@@ -34,20 +34,15 @@ const satIconHover = leaflet.icon({
 const footprintStyle = {
   stroke: false,
   weight: 1,
+  opacity: 0.7,
   color: "rgb(55, 65, 81)", // gray-700
-  opacity: 0.1,
-  fill: true,
   fillOpacity: 0.1,
 };
 
 const highlightedFootprintStyle = {
   ...footprintStyle,
   stroke: true,
-  weight: 3,
-  color: "#3388ff",
-  fill: true,
-  opacity: 1.0,
-  fillOpacity: 0.5,
+  fillOpacity: 0.4,
 };
 
 //
@@ -58,7 +53,10 @@ export default {
     this.sats = {};
 
     this.map = leaflet
-      .map(this.el, { worldCopyJump: true })
+      .map(this.el, {
+        worldCopyJump: true,
+        attributionControl: false,
+      })
       .setView([20, 0], 1);
 
     this.observers = JSON.parse(this.el.dataset.observers).map((coord) => {
@@ -77,7 +75,7 @@ export default {
           attribution:
             'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
           maxZoom: 18,
-          id: "mapbox/streets-v11",
+          id: "mapbox/outdoors-v12",
           tileSize: 512,
           zoomOffset: -1,
           accessToken: this.el.dataset.mapboxAccessToken,
@@ -102,38 +100,54 @@ export default {
     Object.assign(sat, params);
 
     // Update the layers
-    sat.marker.setLatLng(params.coord);
+    const [lat, lon] = params.coord;
+
+    [-360, 0, 360].forEach((offset, i) => {
+      sat.markers[i].setLatLng([lat, lon + offset]);
+    });
+
     sat.footprint.setRadius(params.footprintRadius * 1000);
     sat.footprint.setLatLng(params.coord);
   },
 
   createSat(params) {
-    const marker = leaflet.marker(params.coord, { icon: satIcon });
     const footprint = leaflet.greatCircle(params.coord, {
       ...footprintStyle,
       radius: params.footprintRadius * 1000,
     });
+    footprint.addTo(this.map);
 
-    marker.bindTooltip(params.satName, {
-      direction: "top",
-      offset: [0, -SAT_ICON_SIZE / 2],
+    const markers = [-360, 0, 360].map((offset) => {
+      const [lat, lon] = params.coord;
+      const marker = leaflet.marker([lat, lon + offset], { icon: satIcon });
+      marker.bindTooltip(params.satName, {
+        direction: "top",
+        offset: [0, -SAT_ICON_SIZE / 2],
+      });
+
+      // Make the marker bigger when hovered
+      marker.on("mouseover", () => {
+        marker.setIcon(satIconHover);
+        sat.hovered = true;
+        this.updateLayers();
+      });
+      marker.on("mouseout", () => {
+        marker.setIcon(satIcon);
+        sat.hovered = false;
+        this.updateLayers();
+      });
+      marker.addTo(this.map);
+
+      return marker;
     });
 
-    // Make the marker bigger when hovered
-    marker.on("mouseover", () => {
-      marker.setIcon(satIconHover);
-      sat.hovered = true;
-      this.updateLayers();
-    });
-    marker.on("mouseout", () => {
-      marker.setIcon(satIcon);
-      sat.hovered = false;
-      this.updateLayers();
-    });
+    const sat = {
+      ...params,
+      markers,
+      footprint,
+      hovered: false,
+    };
 
-    const sat = { ...params, marker, footprint, hovered: false };
-    sat.marker.addTo(this.map);
-    sat.footprint.addTo(this.map);
     this.sats[params.satId] = sat;
     return sat;
   },
