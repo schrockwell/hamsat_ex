@@ -1,4 +1,5 @@
 import leaflet from "../vendor/leaflet/leaflet";
+import { GreatCircle } from "../vendor/arc";
 
 // Images live in priv/static/images/leaflet
 leaflet.Icon.Default.imagePath = "/images/leaflet/";
@@ -15,12 +16,16 @@ const satIcon = leaflet.icon({
 export default {
   mounted() {
     this.satCoord = null;
-    this.observerCoord = null;
-    this.activatorCoord = null;
     this.map = leaflet.map(this.el).setView([0, 0], 1);
+
+    this.observers = JSON.parse(this.el.dataset.observers).map((coord) => {
+      const marker = leaflet.marker(coord).addTo(this.map);
+      marker.addTo(this.map);
+      const polyline = leaflet.polyline([]);
+      return { coord, marker, polyline };
+    });
+
     this.satMarker = leaflet.marker([0, 0], { icon: satIcon });
-    this.observerMarker = leaflet.marker([0, 0]);
-    this.activatorMarker = leaflet.marker([0, 0]);
     this.circle = leaflet.greatCircle([0, 0], { radius: 0 });
     this.circle.addTo(this.map);
 
@@ -35,7 +40,7 @@ export default {
           tileSize: 512,
           zoomOffset: -1,
           accessToken: this.el.dataset.mapboxAccessToken,
-          noWrap: true,
+          noWrap: false,
           bounds: [
             [-90, -180],
             [90, 180],
@@ -46,7 +51,7 @@ export default {
 
     this.handleEvent("set-sat-position", ({ coord, footprintRadius }) => {
       this.satCoord = coord;
-      this.updateLines();
+      this.updateObserverLines();
 
       this.updateMarker("satMarker", coord);
 
@@ -58,17 +63,19 @@ export default {
         this.circle.removeFrom(this.map);
       }
     });
+  },
 
-    this.handleEvent("set-observer-position", ({ coord }) => {
-      this.observerCoord = coord;
-      this.updateMarker("observerMarker", coord);
-      this.updateLines();
-    });
-
-    this.handleEvent("set-activator-position", ({ coord }) => {
-      this.activatorCoord = coord;
-      this.updateMarker("activatorMarker", coord);
-      this.updateLines();
+  updateObserverLines() {
+    this.observers.forEach((observer) => {
+      if (this.satCoord) {
+        const coords = [observer.coord, [this.satCoord.lat, this.satCoord.lon]];
+        observer.polyline.setLatLngs(
+          greatCircleCoords(coords[0], coords[1], 30)
+        );
+        observer.polyline.addTo(this.map);
+      } else {
+        observer.polyline.removeFrom(this.map);
+      }
     });
   },
 
@@ -80,24 +87,28 @@ export default {
       this[name] && this[name].removeFrom(this.map);
     }
   },
-
-  updateLines() {
-    this.updateLineToSat("observerPolyline", this.observerCoord);
-    this.updateLineToSat("activatorPolyline", this.activatorCoord);
-  },
-
-  updateLineToSat(name, groundCoord) {
-    if (groundCoord && this.satCoord) {
-      const coords = [
-        [groundCoord.lat, groundCoord.lon],
-        [this.satCoord.lat, this.satCoord.lon],
-      ];
-      this[name] = this[name] || leaflet.polyline(coords);
-      this[name].setLatLngs(coords);
-      this[name].addTo(this.map);
-    } else {
-      this[name] && this[name].removeFrom(this.map);
-      this[name] = null;
-    }
-  },
 };
+
+function greatCircleCoords(start, end, count) {
+  // x is longitude, y is latitude
+  start = { x: start[1], y: start[0] };
+  end = { x: end[1], y: end[0] };
+
+  const generator = new GreatCircle(start, end);
+
+  // Swap (x, y) to (lat, lon)
+  const output = generator
+    .Arc(count)
+    .geometries[0].coords.map((xy) => [xy[1], xy[0]]);
+
+  // Unwrap longitude
+  for (let i = 1; i < output.length; i++) {
+    const [lat, lon] = output[i];
+    const [prevLat, prevLon] = output[i - 1];
+    if (Math.abs(lon - prevLon) > 180) {
+      output[i][1] += lon > prevLon ? -360 : 360;
+    }
+  }
+
+  return output;
+}
