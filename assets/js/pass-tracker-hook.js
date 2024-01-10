@@ -5,6 +5,7 @@ const PATH_COLOR = SATELLITE_COLOR; // emerald-500
 const CARDINAL_COLOR = "#000000";
 const TEXT_SIZE = "16px";
 const MIN_ELEVATION = -10;
+const START_HEAD_SIZE = 8;
 const ARROW_SIZE = 20;
 const PADDING = 60;
 const CARDINAL_LABEL_ELEVATION = -25;
@@ -130,6 +131,19 @@ function createSatelliteSVG(pathData, currentPosition) {
     svg.appendChild(path);
   }
 
+  function addStartHead() {
+    if (pathData.length == 0) return;
+    const firstPoint = convertCoords(pathData[0].az, pathData[0].el);
+
+    // Create a filled circle of radius 10 at the start of the path
+    const startHead = document.createElementNS(svgns, "circle");
+    startHead.setAttribute("cx", firstPoint.x);
+    startHead.setAttribute("cy", firstPoint.y);
+    startHead.setAttribute("r", START_HEAD_SIZE);
+    startHead.setAttribute("fill", PATH_COLOR);
+    svg.appendChild(startHead);
+  }
+
   function addArrowhead() {
     if (pathData.length < 2) return; // Need at least two points to define a direction
 
@@ -207,6 +221,7 @@ function createSatelliteSVG(pathData, currentPosition) {
   addElevationCircles();
   addPath();
   const moveSatellite = addSatellite();
+  addStartHead();
   addArrowhead();
 
   return { svg, moveSatellite };
