@@ -26,7 +26,7 @@ defmodule HamsatWeb.LiveComponents.PassTracker do
       sat_position =
         socket.assigns.sat
         |> Sat.get_satrec()
-        |> Satellite.current_position(Coord.to_observer(socket.assigns.pass_plot.location))
+        |> Satellite.current_position(Coord.to_observer(socket.assigns.pass_plot.location), magnitude?: false)
 
       socket
       |> assign(:sat_position, sat_position)

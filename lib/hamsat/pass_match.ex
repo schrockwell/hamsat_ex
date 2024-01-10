@@ -20,7 +20,7 @@ defmodule Hamsat.PassMatch do
 
   defp build_plot(satrec, location, time) do
     observer = Coord.to_observer(location)
-    pass = Satellite.next_pass(satrec, Timex.to_erl(time), observer)
+    pass = Satellite.next_pass(satrec, Timex.to_erl(time), observer, magnitude?: false)
 
     %PassPlot{location: location, pass: pass}
   end
@@ -57,7 +57,7 @@ defmodule Hamsat.PassMatch do
           coords =
             Enum.map(0..points, fn i ->
               time = Timex.shift(match_start, seconds: trunc(i * step))
-              pos = Satellite.Passes.current_position(satrec, observer, Timex.to_erl(time))
+              pos = Satellite.Passes.current_position(satrec, observer, Timex.to_erl(time), magnitude?: false)
               %{az: pos.azimuth_in_degrees, el: pos.elevation_in_degrees}
             end)
 
