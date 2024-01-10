@@ -43,13 +43,26 @@ let liveSocket = new LiveSocket("/live", Socket, {
   params: { _csrf_token: csrfToken },
   hooks: Hooks,
 });
+let didAddListeners = false;
 
 // Show progress bar on live navigation and form submits
 topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" });
-window.addEventListener("phx:page-loading-start", (info) => topbar.show());
-window.addEventListener("phx:page-loading-stop", (info) => topbar.hide());
+window.addEventListener("phx:page-loading-start", (info) => {
+  didAddListeners = false;
+  topbar.show();
+});
+window.addEventListener("phx:page-loading-stop", (info) => {
+  topbar.hide();
+  addListeners();
+});
 
-window.addEventListener("DOMContentLoaded", (event) => {
+function addListeners() {
+  if (didAddListeners) {
+    return;
+  }
+
+  didAddListeners = true;
+
   // data-toggle="some-other-id"
   document.querySelectorAll("[data-toggle]").forEach((el) => {
     const targetEl = document.querySelector("#" + el.dataset.toggle);
@@ -70,6 +83,10 @@ window.addEventListener("DOMContentLoaded", (event) => {
     });
     el.innerHTML = rangeEl.value;
   });
+}
+
+window.addEventListener("DOMContentLoaded", (event) => {
+  addListeners();
 });
 
 // connect if there are any LiveViews on the page
