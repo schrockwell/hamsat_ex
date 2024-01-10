@@ -48,7 +48,7 @@ defmodule Hamsat.Satellites.PositionServer do
 
   defp sat_position(sat) do
     if satrec = Sat.get_satrec(sat) do
-      %{sat_id: sat.id, position: Satellite.current_position(satrec, @observer, magnitude?: false)}
+      %{sat_id: sat.id, sat_name: sat.name, position: Satellite.current_position(satrec, @observer, magnitude?: false)}
     end
   end
 end

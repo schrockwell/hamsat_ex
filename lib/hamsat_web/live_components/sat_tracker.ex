@@ -25,8 +25,10 @@ defmodule HamsatWeb.SatTracker do
 
     %{
       "satId" => map.sat_id,
+      "satName" => map[:sat_name],
       "coord" => [sat_position.latitude, wrapped_lon],
-      "footprintRadius" => sat_position.footprint_radius
+      "footprintRadius" => sat_position.footprint_radius,
+      "selected" => !!map[:selected]
     }
   end
 
