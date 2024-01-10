@@ -4,13 +4,22 @@ import { GreatCircle } from "../vendor/arc";
 // Images live in priv/static/images/leaflet
 leaflet.Icon.Default.imagePath = "/images/leaflet/";
 
-const satIcon = leaflet.icon({
+const satIconOptions = {
   iconUrl: "/images/sat-marker.png",
   iconSize: [64, 64],
   iconAnchor: [32, 32],
   shadowUrl: "/images/sat-marker-shadow.png",
   shadowSize: [64, 64],
   shadowAnchor: [29, 29],
+};
+
+const satIcon = leaflet.icon(satIconOptions);
+const satIconHover = leaflet.icon({
+  ...satIconOptions,
+  iconSize: [72, 72],
+  iconAnchor: [36, 36],
+  shadowSize: [72, 72],
+  shadowAnchor: [33, 33],
 });
 
 export default {
@@ -66,6 +75,10 @@ export default {
 
     if (!sat) {
       const marker = leaflet.marker(coord, { icon: satIcon });
+
+      // Make the marker bigger when hovered
+      marker.on("mouseover", () => marker.setIcon(satIconHover));
+      marker.on("mouseout", () => marker.setIcon(satIcon));
 
       sat = {
         satId,
