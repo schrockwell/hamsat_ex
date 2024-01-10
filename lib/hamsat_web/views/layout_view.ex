@@ -87,21 +87,23 @@ defmodule HamsatWeb.LayoutView do
       </div>
     </div>
 
-    <div id="mobile-nav-extras" class="p-3 hidden md:hidden bg-gray-800 text-white font-medium">
-      <div class="flex justify-between items-start">
-        <div>
-          <%= if @context.user == :guest do %>
-            <.link navigate={~p"/users/register"} class="block py-2">Register</.link>
-            <.link navigate={~p"/users/log_in"} class="block py-2">Sign In</.link>
-          <% else %>
-            <.link navigate={~p"/users/settings"} class="block py-2">Settings</.link>
-            <.link href={~p"/users/log_out"} class="block py-2" , method="delete">Log Out</.link>
-          <% end %>
-        </div>
-        <div>
-          <button data-toggle="mobile-nav-extras">
-            <Heroicons.LiveView.icon name="x" type="solid" class="h-6 w-6 text-gray-400 m-2" />
-          </button>
+    <div id="mobile-nav-extras-wrapper" phx-update="ignore">
+      <div id="mobile-nav-extras" class="p-3 hidden md:hidden bg-gray-800 text-white font-medium">
+        <div class="flex justify-between items-start">
+          <div>
+            <%= if @context.user == :guest do %>
+              <.link navigate={~p"/users/register"} class="block py-2">Register</.link>
+              <.link navigate={~p"/users/log_in"} class="block py-2">Sign In</.link>
+            <% else %>
+              <.link navigate={~p"/users/settings"} class="block py-2">Settings</.link>
+              <.link href={~p"/users/log_out"} class="block py-2" , method="delete">Log Out</.link>
+            <% end %>
+          </div>
+          <div>
+            <button data-toggle="mobile-nav-extras">
+              <Heroicons.LiveView.icon name="x" type="solid" class="h-6 w-6 text-gray-400 m-2" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
