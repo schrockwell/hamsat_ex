@@ -8,4 +8,36 @@ defmodule HamsatWeb.PageView do
     </a>
     """
   end
+
+  def new(assigns) do
+    ~H"""
+    <span class="inline-block text-xs bg-green-500 uppercase text-white rounded px-1 py-px font-semibold">
+      New
+    </span>
+    """
+  end
+
+  def bug(assigns) do
+    ~H"""
+    <span class="inline-block text-xs bg-red-500 uppercase text-white rounded px-1 py-px font-semibold">
+      Bug
+    </span>
+    """
+  end
+
+  def fix(assigns) do
+    ~H"""
+    <span class="inline-block text-xs bg-blue-500 uppercase text-white rounded px-1 py-px font-semibold">
+      Fix
+    </span>
+    """
+  end
+
+  def sats(assigns) do
+    ~H"""
+    <span class="inline-block text-xs bg-amber-500 uppercase text-white rounded px-1 py-px font-semibold">
+      Sats
+    </span>
+    """
+  end
 end
