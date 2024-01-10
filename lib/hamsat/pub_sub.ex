@@ -20,4 +20,13 @@ defmodule Hamsat.PubSub do
 
     alert
   end
+
+  def broadcast_satellite_positions(positions) do
+    broadcast(
+      "satellite_positions",
+      {:satellite_positions, positions}
+    )
+
+    positions
+  end
 end

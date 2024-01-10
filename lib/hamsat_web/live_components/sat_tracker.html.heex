@@ -4,6 +4,7 @@
     style="height: 400px"
     phx-hook="LeafletTracker"
     data-mapbox-access-token={@mapbox_access_token}
+    data-observers={Jason.encode!(observer_coords(@observer_positions))}
   >
   </div>
 </div>

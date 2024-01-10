@@ -109,14 +109,16 @@ defmodule HamsatWeb.AlertsLive.Show do
       if socket.assigns.context.location do
         alert.sat
         |> Sat.get_satrec()
-        |> Satellite.current_position(Coord.to_observer(socket.assigns.context.location))
+        |> Satellite.current_position(Coord.to_observer(socket.assigns.context.location), magnitude?: false)
       end
 
     activator_sat_position =
       if socket.assigns.context.location do
         alert.sat
         |> Sat.get_satrec()
-        |> Satellite.current_position(Coord.to_observer(%Coord{lat: alert.observer_lat, lon: alert.observer_lon}))
+        |> Satellite.current_position(Coord.to_observer(%Coord{lat: alert.observer_lat, lon: alert.observer_lon}),
+          magnitude?: false
+        )
       end
 
     put_state(socket,
