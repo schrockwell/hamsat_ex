@@ -8,17 +8,12 @@ defmodule Hamsat.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Start the Ecto repository
       Hamsat.Repo,
-      # Start the Telemetry supervisor
       HamsatWeb.Telemetry,
-      # Start the PubSub system
       {Phoenix.PubSub, name: Hamsat.PubSub},
       Hamsat.Scheduler,
-      # Start the Endpoint (http/https)
+      Hamsat.Satellites.PositionServer,
       HamsatWeb.Endpoint
-      # Start a worker by calling: Hamsat.Worker.start_link(arg)
-      # {Hamsat.Worker, arg}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
