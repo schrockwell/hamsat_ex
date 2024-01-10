@@ -15,8 +15,10 @@ const satIcon = leaflet.icon({
 
 export default {
   mounted() {
-    this.satCoord = null;
-    this.map = leaflet.map(this.el).setView([0, 0], 1);
+    this.sats = {};
+    this.map = leaflet
+      .map(this.el, { worldCopyJump: true })
+      .setView([20, 0], 1);
 
     this.observers = JSON.parse(this.el.dataset.observers).map((coord) => {
       const marker = leaflet.marker(coord).addTo(this.map);
@@ -25,9 +27,7 @@ export default {
       return { coord, marker, polyline };
     });
 
-    this.satMarker = leaflet.marker([0, 0], { icon: satIcon });
-    this.circle = leaflet.greatCircle([0, 0], { radius: 0 });
-    this.circle.addTo(this.map);
+    this.selectedFootprint = leaflet.greatCircle([0, 0], { radius: 0 });
 
     leaflet
       .tileLayer(
@@ -49,26 +49,43 @@ export default {
       )
       .addTo(this.map);
 
-    this.handleEvent("set-sat-position", ({ coord, footprintRadius }) => {
-      this.satCoord = coord;
+    this.handleEvent("set-sat-positions", ({ positions }) => {
+      positions.forEach((position) => this.updateSatPosition(position));
       this.updateObserverLines();
-
-      this.updateMarker("satMarker", coord);
-
-      if (coord && footprintRadius) {
-        this.circle.setLatLng([coord.lat, coord.lon]);
-        this.circle.setRadius(footprintRadius * 1000);
-        this.circle.addTo(this.map);
-      } else {
-        this.circle.removeFrom(this.map);
-      }
+      this.updateSelectedSat();
     });
+  },
+
+  selectedSatPosition() {
+    // TODO: Make this configurable from the LiveComponent
+    return Object.values(this.sats)[0];
+  },
+
+  updateSatPosition({ satId, coord, footprintRadius }) {
+    let sat = this.sats[satId];
+
+    if (!sat) {
+      const marker = leaflet.marker(coord, { icon: satIcon });
+
+      sat = {
+        satId,
+        coord,
+        footprintRadius,
+        marker,
+      };
+      sat.marker.addTo(this.map);
+      this.sats[satId] = sat;
+    }
+
+    sat.coord = coord;
+    sat.footprintRadius = footprintRadius;
+    sat.marker.setLatLng(coord);
   },
 
   updateObserverLines() {
     this.observers.forEach((observer) => {
-      if (this.satCoord) {
-        const coords = [observer.coord, [this.satCoord.lat, this.satCoord.lon]];
+      if (this.selectedSatPosition()) {
+        const coords = [observer.coord, this.selectedSatPosition().coord];
         observer.polyline.setLatLngs(
           greatCircleCoords(coords[0], coords[1], 30)
         );
@@ -79,12 +96,15 @@ export default {
     });
   },
 
-  updateMarker(name, coord) {
-    if (coord) {
-      this[name].setLatLng([coord.lat, coord.lon]);
-      this[name].addTo(this.map);
+  updateSelectedSat() {
+    const sat = this.selectedSatPosition();
+
+    if (sat) {
+      this.selectedFootprint.addTo(this.map);
+      this.selectedFootprint.setLatLng(sat.coord);
+      this.selectedFootprint.setRadius(sat.footprintRadius * 1000);
     } else {
-      this[name] && this[name].removeFrom(this.map);
+      this.selectedFootprint.removeFrom(this.map);
     }
   },
 };

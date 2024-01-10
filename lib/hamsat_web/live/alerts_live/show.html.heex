@@ -201,9 +201,8 @@
           <.live_component
             module={SatTracker}
             id="sat-tracker"
-            sat_position={@activator_sat_position}
-            observer_position={@context.location}
-            activator_position={@activator_coord}
+            sat_positions={[%{sat: @alert.sat, position: @activator_sat_position, selected: true}]}
+            observer_positions={[@context.location, @activator_coord]}
           />
         </div>
       </div>
