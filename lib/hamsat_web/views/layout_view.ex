@@ -54,9 +54,6 @@ defmodule HamsatWeb.LayoutView do
           <.nav_pill_button navigate={~p"/users/settings"} active={@active_nav_item == :settings}>
             <Heroicons.LiveView.icon name="cog" type="solid" class="h-6 w-6" />
           </.nav_pill_button>
-          <.nav_pill_button href={~p"/users/log_out"} method="delete">
-            Log Out
-          </.nav_pill_button>
         <% else %>
           <.nav_pill_button navigate={~p"/users/register"} active={@active_nav_item == :register}>
             Register

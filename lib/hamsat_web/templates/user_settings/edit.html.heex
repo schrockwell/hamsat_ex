@@ -1,5 +1,10 @@
 <div class="p-3 md:p-6">
-  <h1 class="text-h2 md:text-h1 mb-6">Account Settings</h1>
+  <div class="flex md:flex-row flex-col justify-between items-start">
+    <h1 class="text-h2 md:text-h1 md:mb-6">Account Settings</h1>
+    <.link href={~p"/users/log_out"} class="text-red-500 hover:text-red-700 font-medium mb-4" , method="delete">
+      Log Out
+    </.link>
+  </div>
 
   <.form_row label="">
     <h2 class="text-h2">Activation Match Preferences</h2>
