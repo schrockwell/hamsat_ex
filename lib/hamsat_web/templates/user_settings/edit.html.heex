@@ -1,5 +1,10 @@
 <div class="p-3 md:p-6">
-  <h1 class="text-h2 md:text-h1 mb-6">Account Settings</h1>
+  <div class="flex md:flex-row flex-col justify-between items-start">
+    <h1 class="text-h2 md:text-h1 md:mb-6">Account Settings</h1>
+    <.link href={~p"/users/log_out"} class="text-red-500 hover:text-red-700 font-medium mb-4" , method="delete">
+      Log Out
+    </.link>
+  </div>
 
   <.form_row label="">
     <h2 class="text-h2">Activation Match Preferences</h2>
@@ -44,7 +49,7 @@
     </.form_row>
 
     <.form_row label="">
-      <%= submit("Save Preferences", class: "btn btn-default") %>
+      <%= submit("Save Match Preferences", class: "btn btn-default") %>
     </.form_row>
   </.form>
 
@@ -117,6 +122,29 @@
 
     <.form_row label="">
       <%= submit("Change Password", class: "btn btn-default") %>
+    </.form_row>
+  </.form>
+
+  <.form_row label="">
+    <h2 class="text-h2 mt-12">Change Callsign</h2>
+  </.form_row>
+
+  <.form :let={f} for={@callsign_changeset} action={~p"/users/settings"} id="update_callsign">
+    <%= if @callsign_changeset.action do %>
+      <div class="text-red-500 my-2 text-sm font-medium">
+        <p>Oops, something went wrong! Please check the errors below.</p>
+      </div>
+    <% end %>
+
+    <%= hidden_input(f, :action, name: "action", value: "update_callsign") %>
+
+    <.form_row label="Callsign" input?={true}>
+      <%= text_input(f, :callsign, class: "input-text uppercase", placeholder: "Optional") %>
+      <%= error_tag(f, :callsign) %>
+    </.form_row>
+
+    <.form_row label="">
+      <%= submit("Change Callsign", class: "btn btn-default") %>
     </.form_row>
   </.form>
 </div>

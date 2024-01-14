@@ -27,6 +27,39 @@
         View <%= pluralized_count(@upcoming_alert_count, "future activation", "future activations") %>
       </.link>
     <% end %>
+
+    <div class="mt-6">
+      <button class="text-gray-400 font-medium flex items-center" phx-click="toggle-rss-feed">
+        <%= if @show_rss_feed do %>
+          <Heroicons.LiveView.icon name="chevron-down" class="h-4 w-4" type="solid" /> RSS Feed
+        <% else %>
+          <Heroicons.LiveView.icon name="chevron-right" class="h-4 w-4" type="solid" /> RSS Feed
+        <% end %>
+      </button>
+      <%= if @show_rss_feed do %>
+        <div class="text-sm border bg-gray-100 text-gray-700 px-2 py-1 mt-2 flex items-center">
+          <div class="flex-1 font-mono"><%= upcoming_feed_url(@context) %></div>
+          <div class="flex-shrink">
+            <button
+              phx-update="ignore"
+              class="link"
+              phx-hook="CopyToClipboard"
+              id="copy-feed"
+              data-copy={upcoming_feed_url(@context)}
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <%= if @context.user == :guest do %>
+          <div class="mt-2 text-gray-500 flex items-center gap-1">
+            <Heroicons.LiveView.icon name="information-circle" class="inline h-4 w-4" type="outline" />
+            This is a generic public feed. Log in to access your personalized feed.
+          </div>
+        <% end %>
+      <% end %>
+    </div>
   </div>
 
   <div class="flex-1 md:mx-0 -mx-3">
@@ -37,37 +70,4 @@
       observer_positions={Enum.reject([@context.location], &is_nil/1)}
     />
   </div>
-</div>
-
-<div class="p-3 md:p-6 w-full md:w-1/2">
-  <button class="text-gray-400 font-medium flex items-center" phx-click="toggle-rss-feed">
-    <%= if @show_rss_feed do %>
-      <Heroicons.LiveView.icon name="chevron-down" class="h-4 w-4" type="solid" /> RSS Feed
-    <% else %>
-      <Heroicons.LiveView.icon name="chevron-right" class="h-4 w-4" type="solid" /> RSS Feed
-    <% end %>
-  </button>
-  <%= if @show_rss_feed do %>
-    <div class="text-sm border bg-gray-100 text-gray-700 px-2 py-1 mt-2 flex items-center">
-      <div class="flex-1 font-mono"><%= upcoming_feed_url(@context) %></div>
-      <div class="flex-shrink">
-        <button
-          phx-update="ignore"
-          class="link"
-          phx-hook="CopyToClipboard"
-          id="copy-feed"
-          data-copy={upcoming_feed_url(@context)}
-        >
-          Copy
-        </button>
-      </div>
-    </div>
-
-    <%= if @context.user == :guest do %>
-      <div class="mt-2 text-gray-500 flex items-center gap-1">
-        <Heroicons.LiveView.icon name="information-circle" class="inline h-4 w-4" type="outline" />
-        This is a generic public feed. Log in to access your personalized feed.
-      </div>
-    <% end %>
-  <% end %>
 </div>

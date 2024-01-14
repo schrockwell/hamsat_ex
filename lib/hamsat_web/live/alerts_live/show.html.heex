@@ -14,13 +14,27 @@
         </div>
       </div>
 
-      <div class="text-gray-500 md:text-lg"><%= date(@context, @alert.aos_at) %></div>
+      <div class="text-gray-500 md:text-lg">
+        <%= date(@context, @alert.aos_at) %>
 
-      <%= if @alert.comment do %>
-        <div class="text-gray-500 md:text-lg">
-          “<%= @alert.comment %>”
-        </div>
-      <% end %>
+        <%= if @alert.comment do %>
+          <span class="text-gray-500 md:text-lg">
+            &ndash; “<%= @alert.comment %>”
+          </span>
+        <% end %>
+      </div>
+
+      <div class="flex items-center gap-1 pt-1 text-sm md:text-base">
+        <.live_component
+          module={AlertSaver}
+          alert={@alert}
+          context={@context}
+          id={"alert-saver-#{@alert.id}"}
+          class="tabular-nums"
+          button_class="rounded bg-gray-200 hover:bg-gray-300 font-medium px-2 min-w-32"
+        />
+        <span>by <%= alert_saved_by(@saved_by) %></span>
+      </div>
     </div>
     <div class="flex items-center space-x-2 md:space-x-4 my-2 md:my-0">
       <a href={@satmatch_url} class="btn btn-link" target="_blank">

@@ -381,4 +381,14 @@ defmodule Hamsat.Accounts do
     |> User.match_preferences_changeset(alert)
     |> Repo.update()
   end
+
+  def change_user_callsign(user, params \\ %{}) do
+    User.callsign_changeset(user, params)
+  end
+
+  def update_callsign(user, callsign) do
+    user
+    |> User.callsign_changeset(callsign)
+    |> Repo.update()
+  end
 end

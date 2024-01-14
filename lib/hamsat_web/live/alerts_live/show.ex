@@ -10,6 +10,7 @@ defmodule HamsatWeb.AlertsLive.Show do
   alias Hamsat.Schemas.Sat
   alias HamsatWeb.LocationSetter
   alias HamsatWeb.SatTracker
+  alias HamsatWeb.LiveComponents.AlertSaver
   alias HamsatWeb.LiveComponents.PassTracker
 
   state :activator_coord
@@ -26,6 +27,7 @@ defmodule HamsatWeb.AlertsLive.Show do
   state :tweet_url
   state :workable_end_marker_style
   state :workable_start_marker_style
+  state :saved_by
 
   def mount(%{"id" => alert_id}, _session, socket) do
     alert = Alerts.get_alert!(socket.assigns.context, alert_id)
@@ -40,9 +42,16 @@ defmodule HamsatWeb.AlertsLive.Show do
         PassMatch.new(alert.sat, locations, alert.aos_at)
       end
 
+    saved_by = Alerts.list_saved_callsigns(alert)
+
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(Hamsat.PubSub, "alerts")
+    end
+
     socket =
       socket
-      |> put_state(alert: alert, pass_match: pass_match)
+      |> assign(:page_title, "#{alert.callsign} on #{alert.sat.name}")
+      |> put_state(alert: alert, pass_match: pass_match, saved_by: saved_by)
       |> schedule_tick()
 
     {:ok, socket}
@@ -56,6 +65,19 @@ defmodule HamsatWeb.AlertsLive.Show do
 
     {:noreply, socket}
   end
+
+  def handle_info({event, %{alert_id: id}}, %{assigns: %{alert: %{id: id}}} = socket)
+      when event in [:alert_saved, :alert_unsaved] do
+    socket =
+      put_state(socket,
+        saved_by: Alerts.list_saved_callsigns(socket.assigns.alert),
+        alert: Alerts.get_alert!(socket.assigns.context, id)
+      )
+
+    {:noreply, socket}
+  end
+
+  def handle_info(_msg, socket), do: {:noreply, socket}
 
   defp schedule_tick(socket) do
     # Stop ticking once alert LOS has passed

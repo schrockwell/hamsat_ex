@@ -15,6 +15,7 @@ defmodule Hamsat.Accounts.User do
     field :home_lon, :float
     field :timezone, :string, default: "Etc/UTC"
     field :time_format, :string, default: "24h"
+    field :callsign, :string
     field :latest_callsign, :string
     field :latest_modes, {:array, :string}
     field :latest_mhz_direction, Ecto.Enum, values: [:up, :down]
@@ -55,11 +56,15 @@ defmodule Hamsat.Accounts.User do
       Defaults to `true`.
   """
   def registration_changeset(user, attrs, opts \\ []) do
+    attrs = trim_params(attrs, [:callsign])
+
     user
-    |> cast(attrs, [:email, :password, :home_lat, :home_lon])
+    |> cast(attrs, [:email, :password, :home_lat, :home_lon, :callsign])
     |> validate_email(opts)
     |> validate_password(opts)
     |> validate_home_location()
+    |> format_callsign(:callsign)
+    |> validate_callsign_uniqueness(opts)
   end
 
   defp validate_email(changeset, opts \\ []) do
@@ -67,11 +72,19 @@ defmodule Hamsat.Accounts.User do
     |> validate_required([:email])
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
     |> validate_length(:email, max: 160)
-    |> maybe_validate_email_uniqueness(opts)
+    |> validate_email_uniqueness(opts)
     |> unique_constraint(:email)
   end
 
-  defp maybe_validate_email_uniqueness(changeset, opts) do
+  defp validate_callsign_uniqueness(changeset, opts) do
+    if opts[:repo] do
+      unsafe_validate_unique(changeset, :callsign, opts[:repo])
+    else
+      changeset
+    end
+  end
+
+  defp validate_email_uniqueness(changeset, opts) do
     if opts[:repo] do
       unsafe_validate_unique(changeset, :email, opts[:repo])
     else
@@ -110,6 +123,8 @@ defmodule Hamsat.Accounts.User do
   It requires the email to change otherwise an error is added.
   """
   def email_changeset(user, attrs) do
+    attrs = trim_params(attrs, [:email])
+
     user
     |> cast(attrs, [:email])
     |> validate_email()
@@ -229,5 +244,14 @@ defmodule Hamsat.Accounts.User do
     changeset
     |> validate_number(field, greater_than_or_equal_to: 0)
     |> validate_number(field, less_than_or_equal_to: 90)
+  end
+
+  def callsign_changeset(user, attrs) do
+    attrs = trim_params(attrs, [:callsign])
+
+    user
+    |> cast(attrs, [:callsign])
+    |> format_callsign(:callsign)
+    |> unique_constraint(:callsign)
   end
 end

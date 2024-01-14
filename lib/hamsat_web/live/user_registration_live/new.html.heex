@@ -21,6 +21,12 @@
       <div class="form-hint"><%= password_requirements() %></div>
     </fieldset>
 
+    <fieldset>
+      <%= label(f, :callsign, class: "form-label") %>
+      <%= text_input(f, :callsign, required: false, class: "input-text uppercase", placeholder: "Optional") %>
+      <%= error_tag(f, :callsign) %>
+    </fieldset>
+
     <h2 class="h2 mt-8 mb-4">Station location</h2>
     <fieldset class="w-full lg:w-1/2">
       <.live_component
