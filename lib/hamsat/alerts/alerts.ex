@@ -101,6 +101,7 @@ defmodule Hamsat.Alerts do
       [alert]
       |> amend_visible_passes(context)
       |> amend_matches(context)
+      |> preload_saved_fields(context)
 
     alert
   end
@@ -268,6 +269,21 @@ defmodule Hamsat.Alerts do
     alert
     |> preload_saved_fields(context)
     |> Hamsat.PubSub.broadcast_alert_unsaved(context.user)
+  end
+
+  def list_saved_callsigns(alert) do
+    callsigns =
+      Repo.all(
+        from(sa in SavedAlert,
+          where: sa.alert_id == ^alert.id,
+          join: u in assoc(sa, :user),
+          select: u.callsign
+        )
+      )
+
+    nils = Enum.count(callsigns, &is_nil/1)
+    callsigns = callsigns |> Enum.reject(&is_nil/1) |> Enum.sort()
+    {callsigns, nils}
   end
 
   defp preload_saved_fields(%Alert{} = alert, context) do

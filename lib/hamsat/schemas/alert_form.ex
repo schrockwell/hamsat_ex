@@ -45,7 +45,7 @@ defmodule Hamsat.Schemas.AlertForm do
       "observer_lon" => context.location.lon,
 
       # Alert info
-      "callsign" => context.user.latest_callsign,
+      "callsign" => context.user.latest_callsign || context.user.callsign,
       "mhz_direction" => preferred_mhz_direction(context.user),
       "mode" => preferred_mode(context.user, sat)
     }

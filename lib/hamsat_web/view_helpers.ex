@@ -213,4 +213,11 @@ defmodule HamsatWeb.ViewHelpers do
       :else -> nil
     end
   end
+
+  def alert_saved_by({[], 0}), do: "nobody"
+  def alert_saved_by({[], 1}), do: "somebody"
+  def alert_saved_by({[], _count}), do: "some people"
+  def alert_saved_by({callsigns, 0}), do: Enum.join(callsigns, ", ")
+  def alert_saved_by({callsigns, 1}), do: Enum.join(callsigns, ", ") <> ", and 1 other"
+  def alert_saved_by({callsigns, count}), do: Enum.join(callsigns, ", ") <> ", and #{count} others"
 end
