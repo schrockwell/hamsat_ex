@@ -54,6 +54,13 @@ satellites =
       uplinks: [%{mode: :fm, lower_mhz: 435.350, upper_mhz: 435.350}]
     },
     %{
+      name: "BeliefSat-0",
+      number: 58695,
+      modulations: [:fm],
+      downlinks: [%{mode: :fm, lower_mhz: 145.980, upper_mhz: 145.980}],
+      uplinks: [%{mode: :fm, lower_mhz: 437.000, upper_mhz: 437.000}]
+    },
+    %{
       name: "CAS-4A",
       number: 42761,
       modulations: [:linear],
