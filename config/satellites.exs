@@ -145,12 +145,12 @@ satellites =
       uplinks: [%{mode: :fm, lower_mhz: 145.850, upper_mhz: 145.850}]
     },
     %{
-      name: "SO-115",
-      aliases: ["HADES"],
-      number: 51080,
+      name: "SO-121",
+      aliases: ["HADES-D"],
+      number: 58567,
       modulations: [:fm],
-      downlinks: [%{mode: :fm, lower_mhz: 436.888, upper_mhz: 436.888}],
-      uplinks: [%{mode: :fm, lower_mhz: 145.925, upper_mhz: 145.925}]
+      downlinks: [%{mode: :fm, lower_mhz: 436.663, upper_mhz: 436.663}],
+      uplinks: [%{mode: :fm, lower_mhz: 145.875, upper_mhz: 145.875}]
     },
     %{
       name: "TO-108",
