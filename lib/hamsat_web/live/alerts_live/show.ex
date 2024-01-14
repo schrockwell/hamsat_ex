@@ -50,6 +50,7 @@ defmodule HamsatWeb.AlertsLive.Show do
 
     socket =
       socket
+      |> assign(:page_title, "#{alert.callsign} on #{alert.sat.name}")
       |> put_state(alert: alert, pass_match: pass_match, saved_by: saved_by)
       |> schedule_tick()
 
