@@ -32,16 +32,17 @@ const satIconHover = leaflet.icon({
 // Footprint
 //
 const footprintStyle = {
-  stroke: false,
+  stroke: true,
   weight: 1,
-  opacity: 0.7,
-  color: "rgb(55, 65, 81)", // gray-700
+  opacity: 0.3,
+  color: "#374151", // gray-700
   fillOpacity: 0.1,
 };
 
 const highlightedFootprintStyle = {
   ...footprintStyle,
   stroke: true,
+  opacity: 0.7,
   fillOpacity: 0.4,
 };
 
@@ -106,7 +107,8 @@ export default {
       sat.markers[i].setLatLng([lat, lon + offset]);
     });
 
-    sat.footprint.setRadius(params.footprintRadius * 1000);
+    // Don't bother updating the radius, it's mostly the same, and it's a lot of extra math and CPU
+    // sat.footprint.setRadius(params.footprintRadius * 1000);
     sat.footprint.setLatLng(params.coord);
   },
 
@@ -114,6 +116,7 @@ export default {
     const footprint = leaflet.greatCircle(params.coord, {
       ...footprintStyle,
       radius: params.footprintRadius * 1000,
+      degStep: 10.0,
     });
     footprint.addTo(this.map);
 
