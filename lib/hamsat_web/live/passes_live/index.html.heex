@@ -65,8 +65,8 @@
 <% end %>
 
 <%= if @loading? do %>
-  <div class="py-8 italic text-gray-400 text-center">
-    <div class="loader"></div>
+  <div class="py-8 italic text-gray-400 text-center flex items-center justify-center gap-3">
+    <div class="spinner w-8 h-8"></div>
     Calculating...
   </div>
 <% end %>
