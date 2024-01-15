@@ -135,7 +135,7 @@ defmodule Hamsat.Alerts.PassCache do
       )
     rescue
       error ->
-        Logger.warn("Error listing passes for bucket #{bucket.key}: #{error.message}")
+        Logger.warning("Error listing passes for bucket #{bucket.key}: #{error.message}")
         []
     end
   end

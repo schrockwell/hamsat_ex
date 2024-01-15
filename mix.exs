@@ -37,7 +37,7 @@ defmodule Hamsat.MixProject do
         {:bcrypt_elixir, "~> 2.0"},
         {:phoenix, "~> 1.7.7"},
         {:phoenix_ecto, "~> 4.4"},
-        {:ecto_sql, "~> 3.6"},
+        {:ecto_sql, "~> 3.11.1"},
         {:postgrex, ">= 0.0.0"},
         {:phoenix_html, "~> 3.0"},
         {:phoenix_live_reload, "~> 1.2", only: :dev},
@@ -54,7 +54,7 @@ defmodule Hamsat.MixProject do
         {:plug_cowboy, "~> 2.5"},
         {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
         {:timex, "~> 3.7"},
-        {:hackney, "~> 1.18"},
+        {:hackney, "~> 1.20.1"},
         {:ex_heroicons, "~> 0.6.0"},
         {:atomex, "~> 0.5.1"}
       ]
