@@ -69,5 +69,41 @@
       sat_positions={@sat_positions}
       observer_positions={Enum.reject([@context.location], &is_nil/1)}
     />
+
+    <div class="mt-2">
+      <%= if @detail_sat do %>
+        <h3 class="text-h2"><%= @detail_sat.name %></h3>
+
+        <%= if @context.location do %>
+          <%= length(@detail_sat_passes) %> passes in the next 24 hours over <%= Hamsat.Grid.encode!(
+            @context.location,
+            4
+          ) %>
+
+          <table class="table w-full">
+            <thead>
+              <tr>
+                <th class="text-left">AOS</th>
+                <th class="text-center">Length</th>
+                <th class="text-center">Max El.</th>
+              </tr>
+            </thead>
+
+            <%= for pass <- @detail_sat_passes do %>
+              <tr>
+                <td class="text-left">
+                  <%= date(@context, pass.info.aos.datetime) %>
+                  <%= time(@context, pass.info.aos.datetime) %>
+                </td>
+                <td class="text-center"><%= pass_duration(pass) %></td>
+                <td class="text-center"><%= pass_max_el(pass) %></td>
+              </tr>
+            <% end %>
+          </table>
+        <% end %>
+      <% else %>
+        <div class="text-gray-400 italic">Click a satellite for details.</div>
+      <% end %>
+    </div>
   </div>
 </div>
