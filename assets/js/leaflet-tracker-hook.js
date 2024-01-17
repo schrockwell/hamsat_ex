@@ -139,6 +139,9 @@ export default {
         sat.hovered = false;
         this.updateLayers();
       });
+      marker.on("click", () => {
+        this.pushEvent("sat-clicked", { sat_id: params.satId });
+      });
       marker.addTo(this.map);
 
       return marker;

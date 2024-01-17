@@ -4,6 +4,8 @@ defmodule HamsatWeb.DashboardLive.Show do
   alias Hamsat.Accounts.User
   alias Hamsat.Alerts
   alias Hamsat.Context
+  alias Hamsat.Passes
+  alias Hamsat.Satellites
   alias Hamsat.Satellites.PositionServer
 
   alias HamsatWeb.DashboardLive.Components.AlertsList
@@ -15,6 +17,8 @@ defmodule HamsatWeb.DashboardLive.Show do
   state :upcoming_alerts
   state :sat_positions, default: []
   state :show_rss_feed, default: false
+  state :detail_sat, default: nil
+  state :detail_sat_passes, default: []
 
   def mount(_params, _session, socket) do
     if connected?(socket) do
@@ -33,6 +37,24 @@ defmodule HamsatWeb.DashboardLive.Show do
 
   def handle_event("toggle-rss-feed", _, socket) do
     {:noreply, put_state(socket, show_rss_feed: !socket.assigns.show_rss_feed)}
+  end
+
+  def handle_event("sat-clicked", %{"sat_id" => id}, socket) do
+    detail_sat = Satellites.get_satellite!(id)
+
+    passes =
+      if socket.assigns.context.location do
+        Passes.list_passes(socket.assigns.context, detail_sat, ending: Timex.shift(DateTime.utc_now(), hours: 24))
+      else
+        []
+      end
+
+    {:noreply,
+     put_state(socket,
+       detail_sat: detail_sat,
+       detail_sat_passes: passes,
+       sat_positions: amend_selected_sat(socket.assigns.sat_positions, detail_sat)
+     )}
   end
 
   def handle_info(:set_now, socket) do
@@ -59,10 +81,7 @@ defmodule HamsatWeb.DashboardLive.Show do
   end
 
   def handle_info({:satellite_positions, positions}, socket) do
-    socket =
-      put_state(socket,
-        sat_positions: positions
-      )
+    socket = put_state(socket, sat_positions: amend_selected_sat(positions, socket.assigns.detail_sat))
 
     {:noreply, socket}
   end
@@ -90,4 +109,12 @@ defmodule HamsatWeb.DashboardLive.Show do
 
   defp upcoming_feed_url(%Context{user: :guest}), do: url(~p"/feeds/upcoming_alerts")
   defp upcoming_feed_url(%Context{user: %User{feed_key: feed_key}}), do: url(~p"/feeds/upcoming_alerts/#{feed_key}")
+
+  defp amend_selected_sat(sat_positions, nil), do: sat_positions
+
+  defp amend_selected_sat(sat_positions, detail_sat) do
+    Enum.map(sat_positions, fn pos ->
+      Map.put(pos, :selected, pos.sat_id == detail_sat.id)
+    end)
+  end
 end
