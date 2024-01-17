@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <%= csrf_meta_tag() %>
+    <%= live_title_tag(assigns[:page_title] || "Hamsat", suffix: " · Hamsat") %>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <style>
+            html, body {
+              height: 100%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+
+      .circular-animation {
+          position: relative;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+      }
+
+      .circular-animation div {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 70px;
+          height: 500px;
+          transform-origin: 0 0; /* Origin of rotation */
+          animation: circular-motion 5s linear infinite;
+      }
+
+      .circular-animation div img {
+        transform: rotate(225deg);
+      }
+
+      @keyframes circular-motion {
+          from {
+              transform: rotate(0deg) translate(-50%, -50%);
+          }
+          to {
+              transform: rotate(360deg) translate(-50%, -50%);
+          }
+      }   
+    </style>
+  </head>
+  <body class="text-gray-900 bg-gray-200">
+    <div class="fixed inset-0 pointer-events-none">
+      <div class="circular-animation">
+        <div>
+          <img src="/images/sat-icon.png" />
+        </div>
+      </div>
+    </div>
+    <div class="flex items-center justify-center h-screen w-screen">
+      <div class="border bg-white rounded-full w-64 h-64 shadow-lg flex items-center justify-center">
+        <div>
+          <h1 class="text-2xl font-bold text-center">404 – Not Found</h1>
+          <div class="text-center mt-4">
+            <a href="/" class="text-blue-500 hover:text-blue-600 underline">
+              Return to Hams.at
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
