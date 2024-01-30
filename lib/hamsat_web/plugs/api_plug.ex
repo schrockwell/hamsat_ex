@@ -3,15 +3,25 @@ defmodule HamsatWeb.APIPlug do
 
   import Plug.Conn
 
+  @require_api_key Application.compile_env(:hamsat, :authenticate_api)
+
   @impl Plug
   def init(_), do: []
 
   @impl Plug
   def call(conn, _) do
-    if api_key = get_api_key(conn) do
+    conn = assign(conn, :context, %Hamsat.Context{})
+
+    if @require_api_key do
+      authenticate(conn)
+    else
       conn
-      |> assign(:api_key, api_key)
-      |> assign(:context, %Hamsat.Context{})
+    end
+  end
+
+  defp authenticate(conn) do
+    if api_key = get_api_key(conn) do
+      assign(conn, :api_key, api_key)
     else
       conn
       |> put_status(:unauthorized)
