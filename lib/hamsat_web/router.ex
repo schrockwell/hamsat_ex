@@ -18,6 +18,7 @@ defmodule HamsatWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug HamsatWeb.APIPlug
   end
 
   pipeline :admins_only do

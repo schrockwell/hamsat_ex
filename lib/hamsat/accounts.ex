@@ -7,6 +7,7 @@ defmodule Hamsat.Accounts do
   alias Hamsat.Repo
 
   alias Hamsat.Accounts.{User, UserToken, UserNotifier}
+  alias Hamsat.Schemas.APIKey
   alias Hamsat.Util
 
   ## Database getters
@@ -390,5 +391,9 @@ defmodule Hamsat.Accounts do
     user
     |> User.callsign_changeset(callsign)
     |> Repo.update()
+  end
+
+  def get_enabled_api_key(id) do
+    Repo.get_by(APIKey, id: id, enabled: true)
   end
 end
