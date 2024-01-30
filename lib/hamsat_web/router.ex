@@ -48,9 +48,11 @@ defmodule HamsatWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", HamsatWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", HamsatWeb.API do
+    pipe_through :api
+
+    get "/alerts/upcoming", AlertsController, :upcoming
+  end
 
   scope "/" do
     pipe_through [:browser, :admins_only]
