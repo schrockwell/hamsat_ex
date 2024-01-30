@@ -9,7 +9,8 @@ import Config
 
 config :hamsat,
   ecto_repos: [Hamsat.Repo],
-  generators: [binary_id: true]
+  generators: [binary_id: true],
+  authenticate_api: false
 
 # Configures the endpoint
 config :hamsat, HamsatWeb.Endpoint,
