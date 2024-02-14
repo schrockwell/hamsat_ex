@@ -13,20 +13,6 @@ defmodule HamsatWeb.AlertsLive.Show do
   alias HamsatWeb.LiveComponents.AlertSaver
   alias HamsatWeb.LiveComponents.PassTracker
 
-  state :activator_coord
-  state :activator_sat_position
-  state :alert
-  state :cursor_class
-  state :cursor_style
-  state :events
-  state :my_sat_position
-  state :now, default: DateTime.utc_now()
-  state :pass_match
-  state :progression
-  state :satmatch_url
-  state :tweet_url
-  state :saved_by
-
   def mount(%{"id" => alert_id}, _session, socket) do
     alert = Alerts.get_alert!(socket.assigns.context, alert_id)
 
@@ -48,8 +34,9 @@ defmodule HamsatWeb.AlertsLive.Show do
 
     socket =
       socket
+      |> assign(:now, DateTime.utc_now())
       |> assign(:page_title, "#{alert.callsign} on #{alert.sat.name}")
-      |> put_state(alert: alert, pass_match: pass_match, saved_by: saved_by)
+      |> assign(alert: alert, pass_match: pass_match, saved_by: saved_by)
       |> assign_tick()
       |> schedule_tick()
 
@@ -59,7 +46,7 @@ defmodule HamsatWeb.AlertsLive.Show do
   def handle_info(:tick, socket) do
     socket =
       socket
-      |> put_state(now: DateTime.utc_now())
+      |> assign(now: DateTime.utc_now())
       |> assign_tick()
       |> schedule_tick()
 
@@ -69,7 +56,7 @@ defmodule HamsatWeb.AlertsLive.Show do
   def handle_info({event, %{alert_id: id}}, %{assigns: %{alert: %{id: id}}} = socket)
       when event in [:alert_saved, :alert_unsaved] do
     socket =
-      put_state(socket,
+      assign(socket,
         saved_by: Alerts.list_saved_callsigns(socket.assigns.alert),
         alert: Alerts.get_alert!(socket.assigns.context, id)
       )
@@ -134,7 +121,7 @@ defmodule HamsatWeb.AlertsLive.Show do
         )
       end
 
-    put_state(socket,
+    assign(socket,
       activator_sat_position: activator_sat_position,
       cursor_class: cursor_class,
       cursor_style: "left: #{progress * 100}%",

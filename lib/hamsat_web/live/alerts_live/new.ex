@@ -13,13 +13,14 @@ defmodule HamsatWeb.AlertsLive.New do
   alias Hamsat.Schemas.AlertForm
   alias HamsatWeb.LocationPicker
 
-  state :alert, default: nil
-  state :changeset
-  state :page_title, default: "Post an Activation"
-  state :params
-  state :pass_list_params, default: nil
-  state :passes, default: []
-  state :sat
+  defp assign_defaults(socket) do
+    assign(socket,
+      alert: nil,
+      page_title: "Post an Activation",
+      pass_list_params: nil,
+      passes: []
+    )
+  end
 
   def mount(%{"pass" => pass_hash}, _session, socket) do
     pass = Passes.get_pass_by_hash(socket.assigns.context, pass_hash)
@@ -31,7 +32,8 @@ defmodule HamsatWeb.AlertsLive.New do
     else
       {:ok,
        socket
-       |> put_state(sat: sat)
+       |> assign_defaults()
+       |> assign(sat: sat)
        |> update_form(AlertForm.initial_params(socket.assigns.context, pass))
        |> use_recommended_grids()}
     end
@@ -43,7 +45,8 @@ defmodule HamsatWeb.AlertsLive.New do
 
     {:ok,
      socket
-     |> put_state(sat: sat, alert: alert)
+     |> assign_defaults()
+     |> assign(sat: sat, alert: alert)
      |> update_form(AlertForm.initial_params(socket.assigns.context, alert))}
   end
 
@@ -58,7 +61,8 @@ defmodule HamsatWeb.AlertsLive.New do
   defp mount_with_sat(socket, sat) do
     {:ok,
      socket
-     |> put_state(sat: sat)
+     |> assign_defaults()
+     |> assign(sat: sat)
      |> update_form(AlertForm.initial_params(socket.assigns.context, sat))
      |> use_recommended_grids()}
   end
@@ -70,7 +74,7 @@ defmodule HamsatWeb.AlertsLive.New do
     changeset = Alerts.change_alert(context, sat, pass, params)
 
     socket
-    |> put_state(params: params, sat: sat, changeset: changeset)
+    |> assign(params: params, sat: sat, changeset: changeset)
     |> assign_passes()
   end
 
@@ -110,7 +114,7 @@ defmodule HamsatWeb.AlertsLive.New do
          |> redirect(to: ~p"/alerts/#{alert.id}")}
 
       {:error, changeset} ->
-        {:noreply, put_state(socket, changeset: changeset)}
+        {:noreply, assign(socket, changeset: changeset)}
     end
   end
 
@@ -125,7 +129,7 @@ defmodule HamsatWeb.AlertsLive.New do
          |> redirect(to: ~p"/alerts/#{alert.id}")}
 
       {:error, changeset} ->
-        {:noreply, put_state(socket, changeset: changeset)}
+        {:noreply, assign(socket, changeset: changeset)}
     end
   end
 
@@ -159,7 +163,7 @@ defmodule HamsatWeb.AlertsLive.New do
           |> Timex.to_datetime("Etc/UTC")
       )
 
-    {:noreply, put_state(socket, passes: passes)}
+    {:noreply, assign(socket, passes: passes)}
   end
 
   defp use_recommended_grids(socket) do
@@ -234,7 +238,7 @@ defmodule HamsatWeb.AlertsLive.New do
       # calculation happens serially, so let's immediately handle it in the next message
       send(self(), {:fetch_passes, pass_list_params})
 
-      put_state(socket, pass_list_params: pass_list_params)
+      assign(socket, pass_list_params: pass_list_params)
     else
       socket
     end

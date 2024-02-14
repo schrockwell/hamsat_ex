@@ -6,17 +6,13 @@ defmodule HamsatWeb.AlertsLive.Index do
   alias Hamsat.Alerts
   alias HamsatWeb.Alerts.Components.AlertTableRow
 
-  state :alerts
-  state :duration
-  state :filter
-  state :now, default: DateTime.utc_now()
-  state :page_title, default: "Activations"
-
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Process.send_after(self(), :set_now, 1_000)
       Phoenix.PubSub.subscribe(Hamsat.PubSub, "alerts")
     end
+
+    socket = assign(socket, now: DateTime.utc_now(), page_title: "Activations")
 
     {:ok, socket}
   end
@@ -28,7 +24,7 @@ defmodule HamsatWeb.AlertsLive.Index do
     duration = if filter[:date] == :upcoming, do: :upcoming, else: :browse
 
     {:noreply,
-     put_state(socket,
+     assign(socket,
        filter: filter,
        alerts: alerts,
        duration: duration
@@ -61,13 +57,13 @@ defmodule HamsatWeb.AlertsLive.Index do
 
   def handle_info(:set_now, socket) do
     Process.send_after(self(), :set_now, 1_000)
-    {:noreply, put_state(socket, now: DateTime.utc_now())}
+    {:noreply, assign(socket, now: DateTime.utc_now())}
   end
 
   def handle_info({event, _info} = message, socket)
       when event in [:alert_saved, :alert_unsaved] do
     {:noreply,
-     put_state(
+     assign(
        socket,
        alerts: Alerts.patch_alerts(socket.assigns.alerts, socket.assigns.context, message)
      )}

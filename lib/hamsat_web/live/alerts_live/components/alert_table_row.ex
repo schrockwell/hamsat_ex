@@ -9,9 +9,6 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
   prop :context
   prop :now
 
-  state :row_class
-  state :next_workable_in
-
   def update(assigns, socket) do
     {:ok,
      socket
@@ -37,10 +34,10 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
   end
 
   defp assign_row_class(socket) do
-    put_state(socket, row_class: alert_table_row_class(socket.assigns.alert, socket.assigns.now))
+    assign(socket, row_class: alert_table_row_class(socket.assigns.alert, socket.assigns.now))
   end
 
   defp assign_next_workable_in(socket) do
-    put_state(socket, next_workable_in: alert_next_workable_in(socket.assigns.now, socket.assigns.alert))
+    assign(socket, next_workable_in: alert_next_workable_in(socket.assigns.now, socket.assigns.alert))
   end
 end

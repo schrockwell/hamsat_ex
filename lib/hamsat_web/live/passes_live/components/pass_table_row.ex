@@ -9,11 +9,6 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
   prop :now
   prop :pass
 
-  state :next_event_in
-  state :row_class
-  state :show_create_button?
-  state :show_edit_button?
-
   defp pass_table_row_class(pass, now) do
     case Pass.progression(pass, now) do
       :upcoming -> ""
@@ -34,7 +29,7 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
 
   defp assign_next_event_in(socket) do
     if changed?(socket, :now) do
-      put_state(socket, next_event_in: pass_next_event_in(socket.assigns.now, socket.assigns.pass))
+      assign(socket, next_event_in: pass_next_event_in(socket.assigns.now, socket.assigns.pass))
     else
       socket
     end
@@ -42,7 +37,7 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
 
   defp assign_row_class(socket) do
     if changed?(socket, :now) do
-      put_state(socket, row_class: pass_table_row_class(socket.assigns.pass, socket.assigns.now))
+      assign(socket, row_class: pass_table_row_class(socket.assigns.pass, socket.assigns.now))
     else
       socket
     end
@@ -50,7 +45,7 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
 
   defp assign_show_create_button(socket) do
     if changed?(socket, :now) do
-      put_state(socket,
+      assign(socket,
         show_create_button?:
           Alerts.show_create_alert_button?(
             socket.assigns.context,
@@ -65,7 +60,7 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
 
   defp assign_show_edit_button(socket) do
     if changed?(socket, :now) do
-      put_state(socket,
+      assign(socket,
         show_edit_button?:
           Alerts.show_edit_alert_button?(
             socket.assigns.context,

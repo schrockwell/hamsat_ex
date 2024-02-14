@@ -8,8 +8,6 @@ defmodule HamsatWeb.LocationPicker do
   prop :mapbox_access_token, default: Application.fetch_env!(:hamsat, :mapbox_access_token)
   prop :show_grid?, default: true
 
-  state :field_keys
-
   event :on_map_clicked
 
   def update(assigns, socket) do
@@ -22,7 +20,7 @@ defmodule HamsatWeb.LocationPicker do
 
   def compute_field_keys(socket) do
     if changed?(socket, :fields) do
-      put_state(socket, field_keys: Map.merge(@default_field_mapping, socket.assigns.fields))
+      assign(socket, field_keys: Map.merge(@default_field_mapping, socket.assigns.fields))
     else
       socket
     end

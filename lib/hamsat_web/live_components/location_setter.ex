@@ -8,11 +8,6 @@ defmodule HamsatWeb.LocationSetter do
   prop :redirect
   prop :show_log_in_link?, default: false
 
-  state :changeset
-  state :clicked_coord, initial: nil
-  state :form
-  state :changes, initial: %{}
-
   defmodule Form do
     use Ecto.Schema
 
@@ -35,6 +30,10 @@ defmodule HamsatWeb.LocationSetter do
     end
   end
 
+  def mount(socket) do
+    {:ok, assign(socket, clicked_coord: nil, changes: %{})}
+  end
+
   def update(assigns, socket) do
     {:ok,
      socket
@@ -46,7 +45,7 @@ defmodule HamsatWeb.LocationSetter do
     changes = %{lat: lat, lon: lon}
     changeset = Form.changeset(socket.assigns.changeset, changes)
 
-    {:ok, put_state(socket, changeset: changeset)}
+    {:ok, assign(socket, changeset: changeset)}
   end
 
   def handle_event("form-changed", %{"_target" => target, "form" => params}, socket) do
@@ -55,7 +54,7 @@ defmodule HamsatWeb.LocationSetter do
 
     changeset = Form.changeset(socket.assigns.changeset, params, opts)
 
-    {:noreply, put_state(socket, changeset: changeset)}
+    {:noreply, assign(socket, changeset: changeset)}
   end
 
   defp put_initial_changeset(socket) do
@@ -65,7 +64,7 @@ defmodule HamsatWeb.LocationSetter do
         |> Form.from_context()
         |> Form.changeset()
 
-      put_state(socket, changeset: changeset)
+      assign(socket, changeset: changeset)
     else
       socket
     end
