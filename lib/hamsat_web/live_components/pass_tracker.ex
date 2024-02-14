@@ -4,9 +4,16 @@ defmodule HamsatWeb.LiveComponents.PassTracker do
   alias Hamsat.Coord
   alias Hamsat.Schemas.Sat
 
-  prop :pass_plot
-  prop :now
-  prop :sat
+  attr :pass_plot, :any, required: true
+  attr :id, :string, required: true
+  attr :now, DateTime, required: true
+  attr :sat, Sat, required: true
+
+  def component(assigns) do
+    ~H"""
+    <.live_component module={__MODULE__} pass_plot={@pass_plot} id={@id} now={@now} sat={@sat} />
+    """
+  end
 
   def mount(socket) do
     {:ok, socket}

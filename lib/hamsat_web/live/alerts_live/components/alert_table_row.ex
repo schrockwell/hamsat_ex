@@ -3,13 +3,26 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
 
   alias Hamsat.Schemas.Alert
   alias HamsatWeb.LiveComponents.AlertSaver
+  alias HamsatWeb.SatComponents
 
-  prop :alert
-  prop :context
-  prop :now
+  attr :alert, Alert, required: true
+  attr :context, Hamsat.Context, required: true
+  attr :id, :string, required: true
+  attr :now, DateTime, required: true
 
-  state :row_class
-  state :next_workable_in
+  def component(assigns) do
+    ~H"""
+    <.live_component module={__MODULE__} id={@id} alert={@alert} context={@context} now={@now} />
+    """
+  end
+
+  def update(assigns, socket) do
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> assign_row_class()
+     |> assign_next_workable_in()}
+  end
 
   defp alert_table_row_class(alert, now) do
     case Alert.progression(alert, now) do
@@ -27,13 +40,11 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
     end
   end
 
-  @react to: [:alert, :now]
   defp assign_row_class(socket) do
-    put_state(socket, row_class: alert_table_row_class(socket.assigns.alert, socket.assigns.now))
+    assign(socket, row_class: alert_table_row_class(socket.assigns.alert, socket.assigns.now))
   end
 
-  @react to: [:alert, :now]
   defp assign_next_workable_in(socket) do
-    put_state(socket, next_workable_in: alert_next_workable_in(socket.assigns.now, socket.assigns.alert))
+    assign(socket, next_workable_in: alert_next_workable_in(socket.assigns.now, socket.assigns.alert))
   end
 end

@@ -1,18 +1,41 @@
 defmodule HamsatWeb.SatTracker do
   use HamsatWeb, :live_component
 
-  prop :mapbox_access_token, default: Application.fetch_env!(:hamsat, :mapbox_access_token)
-  prop :observer_positions
-  prop :sat_positions
+  attr :id, :string, required: true
+  attr :mapbox_access_token, :string, default: Application.compile_env!(:hamsat, :mapbox_access_token)
+  attr :observer_positions, :list, required: true
+  attr :sat_positions, :list, required: true
 
-  @react to: :sat_positions
+  def component(assigns) do
+    ~H"""
+    <.live_component
+      module={__MODULE__}
+      id={@id}
+      mapbox_access_token={@mapbox_access_token}
+      observer_positions={@observer_positions}
+      sat_positions={@sat_positions}
+    />
+    """
+  end
+
+  def update(assigns, socket) do
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> push_sat_positions()}
+  end
+
   def push_sat_positions(socket) do
-    payload = %{
-      "id" => "sat-tracker-map",
-      "positions" => Enum.map(socket.assigns.sat_positions, &sat_position_payload/1)
-    }
+    if changed?(socket, :sat_positions) do
+      payload = %{
+        "id" => "sat-tracker-map",
+        "positions" => Enum.map(socket.assigns.sat_positions, &sat_position_payload/1)
+      }
 
-    push_event(socket, "set-sat-positions", payload)
+      push_event(socket, "set-sat-positions", payload)
+    else
+      socket
+    end
   end
 
   defp sat_position_payload(map) do

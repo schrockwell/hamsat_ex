@@ -10,17 +10,11 @@
       </div>
     </div>
 
-    <.live_component
-      module={AlertsList}
-      id="upcoming-alerts-list"
-      now={@now}
-      context={@context}
-      alerts={@upcoming_alerts}
-    >
+    <AlertsList.component id="upcoming-alerts-list" now={@now} context={@context} alerts={@upcoming_alerts}>
       <:empty>
         <div class="m-6 text-gray-400 italic text-center">No upcoming activations have been posted.</div>
       </:empty>
-    </.live_component>
+    </AlertsList.component>
 
     <%= if @upcoming_alert_count > 25 do %>
       <.link navigate={~p"/alerts"} class="link block mt-6 mb-2 text-center">
@@ -63,8 +57,7 @@
   </div>
 
   <div class="flex-1 md:mx-0 -mx-3">
-    <.live_component
-      module={SatTracker}
+    <SatTracker.component
       id="sat-tracker"
       sat_positions={@sat_positions}
       observer_positions={Enum.reject([@context.location], &is_nil/1)}

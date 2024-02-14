@@ -25,7 +25,7 @@
     <% end %>
 
     <div class="w-full mb-4">
-      <.live_component module={LocationPicker} id="location-picker" form={f} on_map_clicked={{__MODULE__, @id}} />
+      <LocationPicker.component id="location-picker" form={f} on_map_clicked={{__MODULE__, @id}} />
     </div>
 
     <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">

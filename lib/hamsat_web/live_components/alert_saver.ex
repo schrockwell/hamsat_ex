@@ -3,11 +3,26 @@ defmodule HamsatWeb.LiveComponents.AlertSaver do
 
   alias Hamsat.Alerts
 
-  prop :alert
-  prop :button_class, default: nil
-  prop :class, default: nil
-  prop :context
-  prop :readonly?, default: false
+  attr :alert, Hamsat.Schemas.Alert, required: true
+  attr :button_class, :string, default: nil
+  attr :class, :string, default: nil
+  attr :context, Hamsat.Context, required: true
+  attr :id, :string, required: true
+  attr :readonly?, :boolean, default: false
+
+  def component(assigns) do
+    ~H"""
+    <.live_component
+      module={__MODULE__}
+      alert={@alert}
+      button_class={@button_class}
+      class={@class}
+      context={@context}
+      id={@id}
+      readonly?={@readonly?}
+    />
+    """
+  end
 
   def handle_event("toggle-save", _, socket) do
     if socket.assigns.alert.saved? do

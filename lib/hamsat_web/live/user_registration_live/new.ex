@@ -7,10 +7,6 @@ defmodule HamsatWeb.UserRegistrationLive.New do
   alias HamsatWeb.LocationPicker
   alias HamsatWeb.UserAuth
 
-  state :changeset
-  state :page_title, default: "Register"
-  state :sign_in_token, default: nil
-
   def mount(_, _, %{assigns: %{context: context}} = socket) do
     initial_attrs =
       if context.location do
@@ -28,7 +24,7 @@ defmodule HamsatWeb.UserRegistrationLive.New do
       end
 
     changeset = Accounts.change_user_registration(%User{}, initial_attrs)
-    socket = put_state(socket, changeset: changeset)
+    socket = assign(socket, changeset: changeset, sign_in_token: nil, page_title: "Register")
 
     {:ok, socket}
   end
@@ -39,7 +35,7 @@ defmodule HamsatWeb.UserRegistrationLive.New do
 
     changeset = Accounts.change_user_registration(socket.assigns.changeset, user_params, opts)
 
-    {:noreply, put_state(socket, changeset: changeset)}
+    {:noreply, assign(socket, changeset: changeset)}
   end
 
   def handle_event("submit", %{"user" => user_params}, socket) do
@@ -49,19 +45,19 @@ defmodule HamsatWeb.UserRegistrationLive.New do
       {:ok, user} ->
         socket =
           socket
-          |> put_state(sign_in_token: UserAuth.generate_sign_in_token(user))
+          |> assign(sign_in_token: UserAuth.generate_sign_in_token(user))
           |> push_event("sumbit-registration-form", %{})
 
         {:noreply, socket}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, put_state(socket, changeset: changeset)}
+        {:noreply, assign(socket, changeset: changeset)}
     end
   end
 
   def handle_emit(:on_map_clicked, _, {lat, lon}, socket) do
     changes = %{home_lat: lat, home_lon: lon}
     changeset = Accounts.change_user_registration(socket.assigns.changeset, changes)
-    {:ok, put_state(socket, changeset: changeset)}
+    {:ok, assign(socket, changeset: changeset)}
   end
 end

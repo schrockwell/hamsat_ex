@@ -28,6 +28,7 @@ defmodule Hamsat.Schemas.Alert do
     field :workable_end_at, :utc_datetime, virtual: true
     field :my_closest_position, :map, default: nil, virtual: true
     field :activator_closest_position, :map, default: nil, virtual: true
+    field :max_elevation, :float, default: nil, virtual: true
 
     field :saved_count, :integer, default: nil, virtual: true
     field :saved?, :boolean, default: false, virtual: true

@@ -11,15 +11,6 @@ defmodule HamsatWeb.DashboardLive.Show do
   alias HamsatWeb.DashboardLive.Components.AlertsList
   alias HamsatWeb.SatTracker
 
-  state :now, default: DateTime.utc_now()
-  state :page_title, default: "Home"
-  state :upcoming_alert_count
-  state :upcoming_alerts
-  state :sat_positions, default: []
-  state :show_rss_feed, default: false
-  state :detail_sat, default: nil
-  state :detail_sat_passes, default: []
-
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Process.send_after(self(), :set_now, 1_000)
@@ -30,13 +21,14 @@ defmodule HamsatWeb.DashboardLive.Show do
 
     {:ok,
      socket
+     |> assign_defaults()
      |> assign_upcoming_alerts()
      |> assign_upcoming_alert_count()
-     |> put_state(sat_positions: PositionServer.get_sat_positions())}
+     |> assign(sat_positions: PositionServer.get_sat_positions())}
   end
 
   def handle_event("toggle-rss-feed", _, socket) do
-    {:noreply, put_state(socket, show_rss_feed: !socket.assigns.show_rss_feed)}
+    {:noreply, assign(socket, show_rss_feed: !socket.assigns.show_rss_feed)}
   end
 
   def handle_event("sat-clicked", %{"sat_id" => id}, socket) do
@@ -50,7 +42,7 @@ defmodule HamsatWeb.DashboardLive.Show do
       end
 
     {:noreply,
-     put_state(socket,
+     assign(socket,
        detail_sat: detail_sat,
        detail_sat_passes: passes,
        sat_positions: amend_selected_sat(socket.assigns.sat_positions, detail_sat)
@@ -59,7 +51,7 @@ defmodule HamsatWeb.DashboardLive.Show do
 
   def handle_info(:set_now, socket) do
     Process.send_after(self(), :set_now, 1_000)
-    {:noreply, put_state(socket, now: DateTime.utc_now())}
+    {:noreply, assign(socket, now: DateTime.utc_now())}
   end
 
   def handle_info(:reload_alerts, socket) do
@@ -73,7 +65,7 @@ defmodule HamsatWeb.DashboardLive.Show do
   def handle_info({event, _info} = message, socket)
       when event in [:alert_saved, :alert_unsaved] do
     socket =
-      put_state(socket,
+      assign(socket,
         upcoming_alerts: Alerts.patch_alerts(socket.assigns.upcoming_alerts, socket.assigns.context, message)
       )
 
@@ -81,15 +73,26 @@ defmodule HamsatWeb.DashboardLive.Show do
   end
 
   def handle_info({:satellite_positions, positions}, socket) do
-    socket = put_state(socket, sat_positions: amend_selected_sat(positions, socket.assigns.detail_sat))
+    socket = assign(socket, sat_positions: amend_selected_sat(positions, socket.assigns.detail_sat))
 
     {:noreply, socket}
   end
 
   def handle_info(_, socket), do: {:noreply, socket}
 
+  defp assign_defaults(socket) do
+    assign(socket,
+      now: DateTime.utc_now(),
+      page_title: "Home",
+      sat_positions: [],
+      show_rss_feed: false,
+      detail_sat: nil,
+      detail_sat_passes: []
+    )
+  end
+
   defp assign_upcoming_alerts(socket) do
-    put_state(
+    assign(
       socket,
       upcoming_alerts:
         Alerts.list_alerts(socket.assigns.context,

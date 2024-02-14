@@ -4,14 +4,22 @@ defmodule HamsatWeb.LocationSetter do
   alias Hamsat.Coord
   alias HamsatWeb.LocationPicker
 
-  prop :context
-  prop :redirect
-  prop :show_log_in_link?, default: false
+  attr :context, Hamsat.Context, required: true
+  attr :id, :string, required: true
+  attr :redirect, :string, required: true
+  attr :show_log_in_link?, :boolean, default: false
 
-  state :changeset
-  state :clicked_coord, initial: nil
-  state :form
-  state :changes, initial: %{}
+  def component(assigns) do
+    ~H"""
+    <.live_component
+      module={__MODULE__}
+      context={@context}
+      id={@id}
+      redirect={@redirect}
+      show_log_in_link?={@show_log_in_link?}
+    />
+    """
+  end
 
   defmodule Form do
     use Ecto.Schema
@@ -35,11 +43,22 @@ defmodule HamsatWeb.LocationSetter do
     end
   end
 
+  def mount(socket) do
+    {:ok, assign(socket, clicked_coord: nil, changes: %{})}
+  end
+
+  def update(assigns, socket) do
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> put_initial_changeset()}
+  end
+
   def handle_emit(:on_map_clicked, _, {lat, lon}, socket) do
     changes = %{lat: lat, lon: lon}
     changeset = Form.changeset(socket.assigns.changeset, changes)
 
-    {:ok, put_state(socket, changeset: changeset)}
+    {:ok, assign(socket, changeset: changeset)}
   end
 
   def handle_event("form-changed", %{"_target" => target, "form" => params}, socket) do
@@ -48,16 +67,19 @@ defmodule HamsatWeb.LocationSetter do
 
     changeset = Form.changeset(socket.assigns.changeset, params, opts)
 
-    {:noreply, put_state(socket, changeset: changeset)}
+    {:noreply, assign(socket, changeset: changeset)}
   end
 
-  @react to: :context
-  def put_initial_changeset(socket) do
-    changeset =
-      socket.assigns.context
-      |> Form.from_context()
-      |> Form.changeset()
+  defp put_initial_changeset(socket) do
+    if changed?(socket, :context) do
+      changeset =
+        socket.assigns.context
+        |> Form.from_context()
+        |> Form.changeset()
 
-    put_state(socket, changeset: changeset)
+      assign(socket, changeset: changeset)
+    else
+      socket
+    end
   end
 end

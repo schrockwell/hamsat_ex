@@ -25,6 +25,7 @@
         <th>Mode</th>
         <th>Comment</th>
         <th>Match</th>
+        <th>Max El</th>
         <th>Visible</th>
         <th>Visible</th>
         <th></th>
@@ -32,7 +33,7 @@
     </thead>
 
     <%= for alert <- @alerts do %>
-      <.live_component module={AlertTableRow} id={alert.id} alert={alert} now={@now} context={@context} />
+      <AlertTableRow.component id={alert.id} alert={alert} now={@now} context={@context} />
     <% end %>
   </table>
 </div>

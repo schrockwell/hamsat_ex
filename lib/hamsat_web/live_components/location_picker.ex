@@ -3,30 +3,56 @@ defmodule HamsatWeb.LocationPicker do
 
   @default_field_mapping %{lat: :lat, lon: :lon, grid: :grid}
 
-  prop :fields, default: @default_field_mapping
-  prop :form
-  prop :mapbox_access_token, default: Application.fetch_env!(:hamsat, :mapbox_access_token)
-  prop :show_grid?, default: true
+  attr :fields, :map, default: @default_field_mapping
+  attr :form, :map, required: true
+  attr :id, :string, required: true
+  attr :mapbox_access_token, :string, default: Application.compile_env!(:hamsat, :mapbox_access_token)
+  attr :on_map_clicked, :any, required: true
+  attr :show_grid?, :boolean, default: true
 
-  state :field_keys
-
-  event :on_map_clicked
-
-  @react to: :fields
-  def compute_field_keys(socket) do
-    put_state(socket, field_keys: Map.merge(@default_field_mapping, socket.assigns.fields))
+  def component(assigns) do
+    ~H"""
+    <.live_component
+      module={__MODULE__}
+      fields={@fields}
+      form={@form}
+      id={@id}
+      mapbox_access_token={@mapbox_access_token}
+      on_map_clicked={@on_map_clicked}
+      show_grid?={@show_grid?}
+    />
+    """
   end
 
-  @react to: :form
+  def update(assigns, socket) do
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> compute_field_keys()
+     |> push_marker_coord()}
+  end
+
+  def compute_field_keys(socket) do
+    if changed?(socket, :fields) do
+      assign(socket, field_keys: Map.merge(@default_field_mapping, socket.assigns.fields))
+    else
+      socket
+    end
+  end
+
   def push_marker_coord(socket) do
-    socket
-    |> push_event("set-marker", %{
-      "id" => "location-picker-map",
-      "coord" => %{
-        "lat" => Ecto.Changeset.get_field(socket.assigns.form.source, socket.assigns.fields.lat),
-        "lon" => Ecto.Changeset.get_field(socket.assigns.form.source, socket.assigns.fields.lon)
-      }
-    })
+    if changed?(socket, :form) do
+      socket
+      |> push_event("set-marker", %{
+        "id" => "location-picker-map",
+        "coord" => %{
+          "lat" => Ecto.Changeset.get_field(socket.assigns.form.source, socket.assigns.fields.lat),
+          "lon" => Ecto.Changeset.get_field(socket.assigns.form.source, socket.assigns.fields.lon)
+        }
+      })
+    else
+      socket
+    end
   end
 
   def handle_event("map-clicked", %{"lat" => lat, "lon" => lon}, socket) do

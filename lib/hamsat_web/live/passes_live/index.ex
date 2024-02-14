@@ -13,28 +13,13 @@ defmodule HamsatWeb.PassesLive.Index do
   @set_now_interval :timer.seconds(1)
   @reload_passes_interval :timer.minutes(15)
 
-  state :can_load_more?
-  state :date
-  state :duration
-  state :hours
-  state :loading?, default: true
-  state :failed?, default: false
-  state :needs_location?, default: false
-  state :now, default: DateTime.utc_now()
-  state :page_title, default: "Passes"
-  state :pass_filter
-  state :pass_filter_changeset
-  state :passes
-  state :passes_calculated_until
-  state :results_description
-  state :sats, default: Satellites.list_satellites()
-  state :task_pid
-
   def mount(_params, _session, socket) do
     socket =
       socket
+      |> assign_defaults()
       |> assign_sats()
       |> assign_pass_filter_changeset()
+      |> assign_results_description()
 
     if connected?(socket) do
       Process.flag(:trap_exit, true)
@@ -48,13 +33,13 @@ defmodule HamsatWeb.PassesLive.Index do
   def handle_params(%{"date" => date}, _uri, socket) do
     socket =
       case Date.from_iso8601(date) do
-        {:ok, date} -> put_state(socket, date: date)
-        {:error, _} -> put_state(socket, date: Timex.today(socket.assigns.context.timezone))
+        {:ok, date} -> assign(socket, date: date)
+        {:error, _} -> assign(socket, date: Timex.today(socket.assigns.context.timezone))
       end
 
     {:noreply,
      socket
-     |> put_state(
+     |> assign(
        duration: :browse,
        can_load_more?: false,
        passes: [],
@@ -66,7 +51,7 @@ defmodule HamsatWeb.PassesLive.Index do
   def handle_params(_, _uri, socket) do
     {:noreply,
      socket
-     |> put_state(
+     |> assign(
        duration: :upcoming,
        hours: 6,
        date: nil,
@@ -77,13 +62,24 @@ defmodule HamsatWeb.PassesLive.Index do
      |> maybe_append_upcoming_passes()}
   end
 
+  defp assign_defaults(socket) do
+    assign(socket,
+      loading?: true,
+      failed?: false,
+      needs_location?: false,
+      now: DateTime.utc_now(),
+      page_title: "Passes",
+      sats: Satellites.list_satellites()
+    )
+  end
+
   defp assign_sats(socket) do
-    put_state(socket, sats: Satellites.list_satellites())
+    assign(socket, sats: Satellites.list_satellites())
   end
 
   defp assign_pass_filter_changeset(socket) do
     pass_filter = Passes.get_pass_filter(socket.assigns.context.user)
-    put_state(socket, pass_filter: pass_filter, pass_filter_changeset: Passes.change_pass_filter(pass_filter))
+    assign(socket, pass_filter: pass_filter, pass_filter_changeset: Passes.change_pass_filter(pass_filter))
   end
 
   defp maybe_append_upcoming_passes(socket) do
@@ -95,10 +91,12 @@ defmodule HamsatWeb.PassesLive.Index do
   end
 
   defp append_upcoming_passes(%{assigns: %{context: %{location: nil}}} = socket) do
-    put_state(socket,
+    socket
+    |> assign(
       needs_location?: true,
       loading?: false
     )
+    |> assign_results_description()
   end
 
   defp append_upcoming_passes(%{assigns: %{date: nil}} = socket) do
@@ -120,12 +118,13 @@ defmodule HamsatWeb.PassesLive.Index do
       end)
 
     socket
-    |> put_state(
+    |> assign(
       passes_calculated_until: Timex.shift(DateTime.utc_now(), hours: socket.assigns.hours),
       loading?: true,
       failed?: false,
       task_pid: task_pid
     )
+    |> assign_results_description()
   end
 
   defp append_upcoming_passes(%{assigns: %{date: date, context: context}} = socket) do
@@ -146,20 +145,22 @@ defmodule HamsatWeb.PassesLive.Index do
         )
       end)
 
-    put_state(socket, loading?: true, failed?: false, task_pid: task_pid)
+    socket
+    |> assign(loading?: true, failed?: false, task_pid: task_pid)
+    |> assign_results_description()
   end
 
   defp purge_passed_passes(socket) do
     next_passes = Enum.reject(socket.assigns.passes, &(Pass.progression(&1, socket.assigns.now) == :passed))
 
-    put_state(socket, passes: next_passes)
+    assign(socket, passes: next_passes)
   end
 
   defp increment_hours(socket, more_hours) do
     next_hours = socket.assigns.hours + more_hours
 
     socket
-    |> put_state(
+    |> assign(
       hours: next_hours,
       can_load_more?: next_hours < 24
     )
@@ -177,16 +178,16 @@ defmodule HamsatWeb.PassesLive.Index do
 
     next_passes = merge_new_passes(socket.assigns.passes, truncated_passes)
 
-    {:noreply, put_state(socket, passes: next_passes, loading?: false)}
+    {:noreply, socket |> assign(passes: next_passes, loading?: false) |> assign_results_description()}
   end
 
   def handle_info({:daily_passes_loaded, passes}, socket) do
-    {:noreply, put_state(socket, passes: passes, loading?: false)}
+    {:noreply, socket |> assign(passes: passes, loading?: false) |> assign_results_description()}
   end
 
   def handle_info(:set_now, socket) do
     Process.send_after(self(), :set_now, @set_now_interval)
-    {:noreply, put_state(socket, now: DateTime.utc_now())}
+    {:noreply, assign(socket, now: DateTime.utc_now())}
   end
 
   def handle_info(:reload_passes, socket) do
@@ -197,13 +198,13 @@ defmodule HamsatWeb.PassesLive.Index do
       |> append_upcoming_passes()
       |> purge_passed_passes()
 
-    {:noreply, put_state(socket, now: DateTime.utc_now())}
+    {:noreply, assign(socket, now: DateTime.utc_now())}
   end
 
   def handle_info({:EXIT, _, :normal}, socket), do: {:noreply, socket}
 
   def handle_info({:EXIT, task_pid, _reason}, %{assigns: %{task_pid: task_pid}} = socket) do
-    {:noreply, put_state(socket, loading?: false, failed?: true, task_pid: false)}
+    {:noreply, socket |> assign(loading?: false, failed?: true, task_pid: false) |> assign_results_description()}
   end
 
   def handle_event("load-more", _, socket) do
@@ -233,7 +234,7 @@ defmodule HamsatWeb.PassesLive.Index do
       {:ok, pass_filter} ->
         {:noreply,
          socket
-         |> put_state(
+         |> assign(
            pass_filter_changeset: Passes.change_pass_filter(pass_filter),
            pass_filter: pass_filter,
            passes_calculated_until: nil,
@@ -265,13 +266,12 @@ defmodule HamsatWeb.PassesLive.Index do
     ~p"/passes?date=#{default_date}"
   end
 
-  @react to: [:needs_location?, :loading?, :duration]
   def assign_results_description(%{assigns: %{needs_location?: true}} = socket) do
-    put_state(socket, results_description: nil)
+    assign(socket, results_description: nil)
   end
 
   def assign_results_description(%{assigns: %{loading?: true}} = socket) do
-    put_state(socket, results_description: "Calculating…")
+    assign(socket, results_description: "Calculating…")
   end
 
   def assign_results_description(%{assigns: %{duration: :upcoming}} = socket) do
@@ -282,7 +282,7 @@ defmodule HamsatWeb.PassesLive.Index do
         6
       )
 
-    put_state(
+    assign(
       socket,
       results_description:
         "Found #{length(socket.assigns.passes)} passes visible from #{grid} within the next #{socket.assigns.hours} hours."
@@ -297,7 +297,7 @@ defmodule HamsatWeb.PassesLive.Index do
         6
       )
 
-    put_state(
+    assign(
       socket,
       results_description:
         "Found #{length(socket.assigns.passes)} passes visible from #{grid} on #{Date.to_iso8601(socket.assigns.date)}."

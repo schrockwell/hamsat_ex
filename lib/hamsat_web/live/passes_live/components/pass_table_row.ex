@@ -5,14 +5,16 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
   alias Hamsat.Alerts.Pass
   alias HamsatWeb.SatComponents
 
-  prop :context
-  prop :now
-  prop :pass
+  attr :context, Hamsat.Context, required: true
+  attr :id, :string, required: true
+  attr :now, DateTime, required: true
+  attr :pass, Pass, required: true
 
-  state :next_event_in
-  state :row_class
-  state :show_create_button?
-  state :show_edit_button?
+  def component(assigns) do
+    ~H"""
+    <.live_component module={__MODULE__} id={@id} context={@context} now={@now} pass={@pass} />
+    """
+  end
 
   defp pass_table_row_class(pass, now) do
     case Pass.progression(pass, now) do
@@ -22,37 +24,59 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
     end
   end
 
-  @react to: [:now, :pass]
+  def update(assigns, socket) do
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> assign_next_event_in()
+     |> assign_row_class()
+     |> assign_show_create_button()
+     |> assign_show_edit_button()}
+  end
+
   defp assign_next_event_in(socket) do
-    put_state(socket, next_event_in: pass_next_event_in(socket.assigns.now, socket.assigns.pass))
+    if changed?(socket, :now) do
+      assign(socket, next_event_in: pass_next_event_in(socket.assigns.now, socket.assigns.pass))
+    else
+      socket
+    end
   end
 
-  @react to: [:now, :pass]
   defp assign_row_class(socket) do
-    put_state(socket, row_class: pass_table_row_class(socket.assigns.pass, socket.assigns.now))
+    if changed?(socket, :now) do
+      assign(socket, row_class: pass_table_row_class(socket.assigns.pass, socket.assigns.now))
+    else
+      socket
+    end
   end
 
-  @react to: [:context, :pass, :now]
   defp assign_show_create_button(socket) do
-    put_state(socket,
-      show_create_button?:
-        Alerts.show_create_alert_button?(
-          socket.assigns.context,
-          socket.assigns.pass,
-          socket.assigns.now
-        )
-    )
+    if changed?(socket, :now) do
+      assign(socket,
+        show_create_button?:
+          Alerts.show_create_alert_button?(
+            socket.assigns.context,
+            socket.assigns.pass,
+            socket.assigns.now
+          )
+      )
+    else
+      socket
+    end
   end
 
-  @react to: [:context, :pass, :now]
   defp assign_show_edit_button(socket) do
-    put_state(socket,
-      show_edit_button?:
-        Alerts.show_edit_alert_button?(
-          socket.assigns.context,
-          socket.assigns.pass,
-          socket.assigns.now
-        )
-    )
+    if changed?(socket, :now) do
+      assign(socket,
+        show_edit_button?:
+          Alerts.show_edit_alert_button?(
+            socket.assigns.context,
+            socket.assigns.pass,
+            socket.assigns.now
+          )
+      )
+    else
+      socket
+    end
   end
 end

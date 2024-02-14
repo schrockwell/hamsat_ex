@@ -1,7 +1,6 @@
 <tr class={@row_class}>
   <td class="text-center pl-3 md:pl-6">
-    <.live_component
-      module={AlertSaver}
+    <AlertSaver.component
       alert={@alert}
       context={@context}
       id={"alert-saver-#{@alert.id}"}
@@ -14,7 +13,9 @@
     <%= time(@context, @alert.aos_at) %> &ndash; <%= time(@context, @alert.los_at) %>
   </td>
   <td class="whitespace-nowrap px-1 text-center"><%= @alert.callsign %></td>
-  <td class="whitespace-nowrap px-1 text-center"><%= @alert.sat.name %></td>
+  <td class="whitespace-nowrap px-1 text-center">
+    <%= @alert.sat.name %>&nbsp;&nbsp;<SatComponents.sat_modulation_labels sat={@alert.sat} />
+  </td>
   <td class="whitespace-nowrap px-1 text-center"><%= alert_grids(@alert) %></td>
   <td class="whitespace-nowrap px-1 text-center"><%= mhz(@alert) %></td>
   <td class="whitespace-nowrap px-1 text-center"><%= @alert.mode %></td>
@@ -27,6 +28,9 @@
   </td>
   <td class="whitespace-nowrap px-1 text-center">
     <%= if @alert.match, do: pct(@alert.match.total), else: "–" %>
+  </td>
+  <td class="whitespace-nowrap px-1 text-center">
+    <%= if @alert.max_elevation, do: deg(@alert.max_elevation), else: "–" %>
   </td>
   <td class="whitespace-nowrap px-1 text-center text-emerald-700">
     <%= if @alert.is_workable? do %>

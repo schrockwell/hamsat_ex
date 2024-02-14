@@ -46,7 +46,7 @@
     </thead>
     <tbody>
       <%= for pass <- @passes do %>
-        <.live_component module={PassTableRow} id={Pass.encode_hash(pass)} context={@context} pass={pass} now={@now} />
+        <PassTableRow.component id={Pass.encode_hash(pass)} context={@context} pass={pass} now={@now} />
       <% end %>
     </tbody>
   </table>
@@ -74,12 +74,7 @@
 <%= if @needs_location? do %>
   <div class="flex justify-center">
     <div class="p-6 w-full md:w-1/2">
-      <%= live_component(LocationSetter,
-        id: "location-setter",
-        context: @context,
-        redirect: ~p"/passes",
-        show_log_in_link?: true
-      ) %>
+      <LocationSetter.component id="location-setter" context={@context} redirect={~p"/passes"} show_log_in_link?={true} />
     </div>
   </div>
 <% else %>

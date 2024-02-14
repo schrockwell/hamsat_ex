@@ -25,8 +25,7 @@
       </div>
 
       <div class="flex items-center gap-1 pt-1 text-sm md:text-base">
-        <.live_component
-          module={AlertSaver}
+        <AlertSaver.component
           alert={@alert}
           context={@context}
           id={"alert-saver-#{@alert.id}"}
@@ -37,10 +36,10 @@
       </div>
     </div>
     <div class="flex items-center space-x-2 md:space-x-4 my-2 md:my-0">
-      <a href={@satmatch_url} class="btn btn-link" target="_blank">
+      <a href={satmatch_url(@context, @alert)} class="btn btn-link" target="_blank">
         <span class="hidden md:inline">View on</span> SatMatch
       </a>
-      <a href={@tweet_url} class="btn btn-link">
+      <a href={tweet_url(@alert)} class="btn btn-link">
         <span class="hidden md:inline">Post a</span> Tweet
       </a>
       <%= if Alert.owned?(@alert, @context.user) do %>
@@ -73,7 +72,7 @@
         <div class="relative">
           <div
             class="absolute h-8 flex items-center ml-4 -mr-4"
-            style={"#{@workable_start_marker_style}; #{@workable_end_marker_style}"}
+            style={"#{workable_start_marker_style(@alert)}; #{workable_end_marker_style(@alert)}"}
           >
             <div class="w-full h-1 bg-emerald-500"></div>
             <div class="absolute w-8 h-8 rounded-full border-4 border-emerald-500 left-0 bg-white -ml-4"></div>
@@ -170,8 +169,7 @@
             </div>
           </div>
 
-          <.live_component
-            module={PassTracker}
+          <PassTracker.component
             id="my-pass-tracker"
             sat={@alert.sat}
             now={@now}
@@ -202,8 +200,7 @@
             </div>
           </div>
 
-          <.live_component
-            module={PassTracker}
+          <PassTracker.component
             id="dx-pass-tracker"
             sat={@alert.sat}
             now={@now}
@@ -212,8 +209,7 @@
         </div>
 
         <div class="w-full lg:w-1/3 md:mt-0 mt-6">
-          <.live_component
-            module={SatTracker}
+          <SatTracker.component
             id="sat-tracker"
             sat_positions={[
               %{
@@ -223,14 +219,13 @@
                 selected: true
               }
             ]}
-            observer_positions={[@context.location, @activator_coord]}
+            observer_positions={[@context.location, activator_coord(@alert)]}
           />
         </div>
       </div>
     <% else %>
       <div class="md:w-1/2 mx-auto">
-        <.live_component
-          module={LocationSetter}
+        <LocationSetter.component
           id="location-setter"
           context={@context}
           redirect={~p"/alerts/#{@alert.id}"}

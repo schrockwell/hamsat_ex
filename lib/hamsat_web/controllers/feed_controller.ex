@@ -12,7 +12,7 @@ defmodule HamsatWeb.FeedController do
 
   def upcoming_alerts(conn, params) do
     context = get_context(params)
-    alerts = Alerts.list_alerts(context, [date: :upcoming, limit: 100], plain: true)
+    alerts = Alerts.list_alerts(context, [date: :upcoming, limit: 100], for_feed: true)
 
     updated_at =
       alerts
@@ -44,7 +44,8 @@ defmodule HamsatWeb.FeedController do
     <ul>
       <li>Start time: #{time(context, alert.aos_at)} (#{timezone_name(context.timezone)})</li>
       <li>End time: #{time(context, alert.los_at)} (#{timezone_name(context.timezone)})</li>
-      <li>Frequency: #{alert.mhz} MHz #{alert.mhz_direction}link</li>
+      <li>Max elevation: #{if alert.max_elevation, do: deg(alert.max_elevation), else: "(none)"}</li>
+      <li>Frequency: #{if alert.mhz, do: "#{alert.mhz} MHz #{alert.mhz_direction}link", else: "(none)"}</li>
       <li>Mode: #{alert.mode}</li>
       <li>Comment: #{alert.comment || "(none)"}</li>
     </ul>

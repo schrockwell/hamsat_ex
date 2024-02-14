@@ -9,8 +9,7 @@
     </.form_row>
 
     <.form_row label="Location" input?={true}>
-      <.live_component
-        module={LocationPicker}
+      <LocationPicker.component
         id="location_picker"
         form={f}
         fields={%{lat: :observer_lat, lon: :observer_lon, grid: :grid}}

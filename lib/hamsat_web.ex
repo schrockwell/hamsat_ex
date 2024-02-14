@@ -50,7 +50,6 @@ defmodule HamsatWeb do
       use Phoenix.LiveView,
         layout: {HamsatWeb.LayoutView, :live}
 
-      use LiveAssign.LiveView
       use LiveEvent.LiveView
 
       on_mount HamsatWeb.ContextHook
@@ -74,7 +73,6 @@ defmodule HamsatWeb do
   def live_component do
     quote do
       use Phoenix.LiveComponent
-      use LiveAssign.LiveComponent
       use LiveEvent.LiveComponent
 
       unquote(view_helpers())
