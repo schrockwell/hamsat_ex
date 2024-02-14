@@ -220,4 +220,8 @@ defmodule HamsatWeb.ViewHelpers do
   def alert_saved_by({callsigns, 0}), do: Enum.join(callsigns, ", ")
   def alert_saved_by({callsigns, 1}), do: Enum.join(callsigns, ", ") <> ", and 1 other"
   def alert_saved_by({callsigns, count}), do: Enum.join(callsigns, ", ") <> ", and #{count} others"
+
+  def mapbox_access_token do
+    Application.fetch_env!(:hamsat, :mapbox_access_token)
+  end
 end

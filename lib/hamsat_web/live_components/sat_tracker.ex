@@ -2,19 +2,12 @@ defmodule HamsatWeb.SatTracker do
   use HamsatWeb, :live_component
 
   attr :id, :string, required: true
-  attr :mapbox_access_token, :string, default: Application.compile_env!(:hamsat, :mapbox_access_token)
   attr :observer_positions, :list, required: true
   attr :sat_positions, :list, required: true
 
   def component(assigns) do
     ~H"""
-    <.live_component
-      module={__MODULE__}
-      id={@id}
-      mapbox_access_token={@mapbox_access_token}
-      observer_positions={@observer_positions}
-      sat_positions={@sat_positions}
-    />
+    <.live_component module={__MODULE__} id={@id} observer_positions={@observer_positions} sat_positions={@sat_positions} />
     """
   end
 
