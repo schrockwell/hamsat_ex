@@ -5,14 +5,24 @@ defmodule HamsatWeb.SatTracker do
   prop :observer_positions
   prop :sat_positions
 
-  @react to: :sat_positions
-  def push_sat_positions(socket) do
-    payload = %{
-      "id" => "sat-tracker-map",
-      "positions" => Enum.map(socket.assigns.sat_positions, &sat_position_payload/1)
-    }
+  def update(assigns, socket) do
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> push_sat_positions()}
+  end
 
-    push_event(socket, "set-sat-positions", payload)
+  def push_sat_positions(socket) do
+    if changed?(socket, :sat_positions) do
+      payload = %{
+        "id" => "sat-tracker-map",
+        "positions" => Enum.map(socket.assigns.sat_positions, &sat_position_payload/1)
+      }
+
+      push_event(socket, "set-sat-positions", payload)
+    else
+      socket
+    end
   end
 
   defp sat_position_payload(map) do

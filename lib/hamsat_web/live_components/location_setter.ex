@@ -35,6 +35,13 @@ defmodule HamsatWeb.LocationSetter do
     end
   end
 
+  def update(assigns, socket) do
+    {:ok,
+     socket
+     |> assign(assigns)
+     |> put_initial_changeset()}
+  end
+
   def handle_emit(:on_map_clicked, _, {lat, lon}, socket) do
     changes = %{lat: lat, lon: lon}
     changeset = Form.changeset(socket.assigns.changeset, changes)
@@ -51,13 +58,16 @@ defmodule HamsatWeb.LocationSetter do
     {:noreply, put_state(socket, changeset: changeset)}
   end
 
-  @react to: :context
-  def put_initial_changeset(socket) do
-    changeset =
-      socket.assigns.context
-      |> Form.from_context()
-      |> Form.changeset()
+  defp put_initial_changeset(socket) do
+    if changed?(socket, :context) do
+      changeset =
+        socket.assigns.context
+        |> Form.from_context()
+        |> Form.changeset()
 
-    put_state(socket, changeset: changeset)
+      put_state(socket, changeset: changeset)
+    else
+      socket
+    end
   end
 end

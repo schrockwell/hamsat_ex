@@ -35,6 +35,7 @@ defmodule HamsatWeb.PassesLive.Index do
       socket
       |> assign_sats()
       |> assign_pass_filter_changeset()
+      |> assign_results_description()
 
     if connected?(socket) do
       Process.flag(:trap_exit, true)
@@ -95,10 +96,12 @@ defmodule HamsatWeb.PassesLive.Index do
   end
 
   defp append_upcoming_passes(%{assigns: %{context: %{location: nil}}} = socket) do
-    put_state(socket,
+    socket
+    |> put_state(
       needs_location?: true,
       loading?: false
     )
+    |> assign_results_description()
   end
 
   defp append_upcoming_passes(%{assigns: %{date: nil}} = socket) do
@@ -126,6 +129,7 @@ defmodule HamsatWeb.PassesLive.Index do
       failed?: false,
       task_pid: task_pid
     )
+    |> assign_results_description()
   end
 
   defp append_upcoming_passes(%{assigns: %{date: date, context: context}} = socket) do
@@ -146,7 +150,9 @@ defmodule HamsatWeb.PassesLive.Index do
         )
       end)
 
-    put_state(socket, loading?: true, failed?: false, task_pid: task_pid)
+    socket
+    |> put_state(loading?: true, failed?: false, task_pid: task_pid)
+    |> assign_results_description()
   end
 
   defp purge_passed_passes(socket) do
@@ -177,11 +183,11 @@ defmodule HamsatWeb.PassesLive.Index do
 
     next_passes = merge_new_passes(socket.assigns.passes, truncated_passes)
 
-    {:noreply, put_state(socket, passes: next_passes, loading?: false)}
+    {:noreply, socket |> put_state(passes: next_passes, loading?: false) |> assign_results_description()}
   end
 
   def handle_info({:daily_passes_loaded, passes}, socket) do
-    {:noreply, put_state(socket, passes: passes, loading?: false)}
+    {:noreply, socket |> put_state(passes: passes, loading?: false) |> assign_results_description()}
   end
 
   def handle_info(:set_now, socket) do
@@ -203,7 +209,7 @@ defmodule HamsatWeb.PassesLive.Index do
   def handle_info({:EXIT, _, :normal}, socket), do: {:noreply, socket}
 
   def handle_info({:EXIT, task_pid, _reason}, %{assigns: %{task_pid: task_pid}} = socket) do
-    {:noreply, put_state(socket, loading?: false, failed?: true, task_pid: false)}
+    {:noreply, socket |> put_state(loading?: false, failed?: true, task_pid: false) |> assign_results_description()}
   end
 
   def handle_event("load-more", _, socket) do
@@ -265,7 +271,6 @@ defmodule HamsatWeb.PassesLive.Index do
     ~p"/passes?date=#{default_date}"
   end
 
-  @react to: [:needs_location?, :loading?, :duration]
   def assign_results_description(%{assigns: %{needs_location?: true}} = socket) do
     put_state(socket, results_description: nil)
   end

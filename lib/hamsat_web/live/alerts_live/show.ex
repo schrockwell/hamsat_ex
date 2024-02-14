@@ -25,8 +25,6 @@ defmodule HamsatWeb.AlertsLive.Show do
   state :progression
   state :satmatch_url
   state :tweet_url
-  state :workable_end_marker_style
-  state :workable_start_marker_style
   state :saved_by
 
   def mount(%{"id" => alert_id}, _session, socket) do
@@ -52,6 +50,7 @@ defmodule HamsatWeb.AlertsLive.Show do
       socket
       |> assign(:page_title, "#{alert.callsign} on #{alert.sat.name}")
       |> put_state(alert: alert, pass_match: pass_match, saved_by: saved_by)
+      |> assign_tick()
       |> schedule_tick()
 
     {:ok, socket}
@@ -61,6 +60,7 @@ defmodule HamsatWeb.AlertsLive.Show do
     socket =
       socket
       |> put_state(now: DateTime.utc_now())
+      |> assign_tick()
       |> schedule_tick()
 
     {:noreply, socket}
@@ -88,27 +88,18 @@ defmodule HamsatWeb.AlertsLive.Show do
     socket
   end
 
-  @react to: :alert
-  def assign_markers(socket) do
-    alert = socket.assigns.alert
-
+  defp workable_start_marker_style(alert) do
     if alert.is_workable? do
-      start_style = "left: #{progress(alert, alert.workable_start_at) * 100}%"
-      end_style = "right: #{(1.0 - progress(alert, alert.workable_end_at)) * 100}%"
-
-      put_state(socket,
-        workable_start_marker_style: start_style,
-        workable_end_marker_style: end_style
-      )
-    else
-      put_state(socket,
-        workable_start_marker_style: nil,
-        workable_end_marker_style: nil
-      )
+      "left: #{progress(alert, alert.workable_start_at) * 100}%"
     end
   end
 
-  @react to: [:alert, :now]
+  defp workable_end_marker_style(alert) do
+    if alert.is_workable? do
+      "right: #{(1.0 - progress(alert, alert.workable_end_at)) * 100}%"
+    end
+  end
+
   def assign_tick(socket) do
     alert = socket.assigns.alert
     now = socket.assigns.now
@@ -180,10 +171,8 @@ defmodule HamsatWeb.AlertsLive.Show do
     end
   end
 
-  @react to: :alert
-  def assign_tweet_url(socket) do
-    alert = socket.assigns.alert
-    url = URI.encode(url(socket, ~p"/alerts/#{alert.id}"))
+  defp tweet_url(alert) do
+    url = URI.encode(url(HamsatWeb.Endpoint, ~p"/alerts/#{alert.id}"))
     grids = alert_grids(alert)
 
     freq =
@@ -214,39 +203,29 @@ defmodule HamsatWeb.AlertsLive.Show do
       |> Enum.join("\n")
       |> URI.encode()
 
-    put_state(socket, tweet_url: "https://twitter.com/intent/tweet?text=#{text}")
+    "https://twitter.com/intent/tweet?text=#{text}"
   end
 
-  @react to: :alert
-  def assign_satmatch_url(socket) do
-    satname = socket.assigns.alert.sat.nasa_name
-    obs1 = Grid.encode!({socket.assigns.alert.observer_lat, socket.assigns.alert.observer_lon}, 6)
+  defp satmatch_url(context, alert) do
+    satname = alert.sat.nasa_name
+    obs1 = Grid.encode!({alert.observer_lat, alert.observer_lon}, 6)
 
     obs2 =
-      if socket.assigns.context.location,
-        do: Grid.encode!(socket.assigns.context.location, 6)
+      if context.location,
+        do: Grid.encode!(context.location, 6)
 
     # SatMatch searches for passes AFTER the specified datetime, so give it a grace
     # period to ensure that it finds the desired pass
-    timestamp = socket.assigns.alert.aos_at |> Timex.shift(minutes: -10) |> DateTime.to_iso8601()
+    timestamp = alert.aos_at |> Timex.shift(minutes: -10) |> DateTime.to_iso8601()
 
-    url =
-      if obs1 != obs2 and obs2 != nil do
-        "https://www.satmatch.com/satellite/#{satname}/obs1/#{obs1}/obs2/#{obs2}/pass/#{timestamp}"
-      else
-        "https://satmatch.com/satellite/#{satname}/obs1/#{obs1}/pass/#{timestamp}"
-      end
-
-    put_state(socket, satmatch_url: url)
+    if obs1 != obs2 and obs2 != nil do
+      "https://www.satmatch.com/satellite/#{satname}/obs1/#{obs1}/obs2/#{obs2}/pass/#{timestamp}"
+    else
+      "https://satmatch.com/satellite/#{satname}/obs1/#{obs1}/pass/#{timestamp}"
+    end
   end
 
-  @react to: :alert
-  def assign_activator_coord(socket) do
-    put_state(socket,
-      activator_coord: %Coord{
-        lat: socket.assigns.alert.observer_lat,
-        lon: socket.assigns.alert.observer_lon
-      }
-    )
+  defp activator_coord(alert) do
+    %Coord{lat: alert.observer_lat, lon: alert.observer_lon}
   end
 end
