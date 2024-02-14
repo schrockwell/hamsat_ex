@@ -33,7 +33,7 @@
     </thead>
 
     <%= for alert <- @alerts do %>
-      <.live_component module={AlertTableRow} id={alert.id} alert={alert} now={@now} context={@context} />
+      <AlertTableRow.component id={alert.id} alert={alert} now={@now} context={@context} />
     <% end %>
   </table>
 </div>

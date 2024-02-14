@@ -5,9 +5,16 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
   alias Hamsat.Alerts.Pass
   alias HamsatWeb.SatComponents
 
-  prop :context
-  prop :now
-  prop :pass
+  attr :context, Hamsat.Context, required: true
+  attr :id, :string, required: true
+  attr :now, DateTime, required: true
+  attr :pass, Pass, required: true
+
+  def component(assigns) do
+    ~H"""
+    <.live_component module={__MODULE__} id={@id} context={@context} now={@now} pass={@pass} />
+    """
+  end
 
   defp pass_table_row_class(pass, now) do
     case Pass.progression(pass, now) do

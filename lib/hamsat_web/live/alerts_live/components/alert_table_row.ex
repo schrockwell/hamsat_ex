@@ -5,9 +5,16 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
   alias HamsatWeb.LiveComponents.AlertSaver
   alias HamsatWeb.SatComponents
 
-  prop :alert
-  prop :context
-  prop :now
+  attr :alert, Alert, required: true
+  attr :context, Hamsat.Context, required: true
+  attr :id, :string, required: true
+  attr :now, DateTime, required: true
+
+  def component(assigns) do
+    ~H"""
+    <.live_component module={__MODULE__} id={@id} alert={@alert} context={@context} now={@now} />
+    """
+  end
 
   def update(assigns, socket) do
     {:ok,

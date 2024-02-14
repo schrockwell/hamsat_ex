@@ -4,9 +4,22 @@ defmodule HamsatWeb.LocationSetter do
   alias Hamsat.Coord
   alias HamsatWeb.LocationPicker
 
-  prop :context
-  prop :redirect
-  prop :show_log_in_link?, default: false
+  attr :context, Hamsat.Context, required: true
+  attr :id, :string, required: true
+  attr :redirect, :string, required: true
+  attr :show_log_in_link?, :boolean, default: false
+
+  def component(assigns) do
+    ~H"""
+    <.live_component
+      module={__MODULE__}
+      context={@context}
+      id={@id}
+      redirect={@redirect}
+      show_log_in_link?={@show_log_in_link?}
+    />
+    """
+  end
 
   defmodule Form do
     use Ecto.Schema

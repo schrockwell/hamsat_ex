@@ -1,7 +1,6 @@
 <tr class={@row_class}>
   <td class="text-center pl-3 md:pl-6">
-    <.live_component
-      module={AlertSaver}
+    <AlertSaver.component
       alert={@alert}
       context={@context}
       id={"alert-saver-#{@alert.id}"}

@@ -3,8 +3,7 @@
     <%= render_slot(@empty) %>
   <% end %>
   <%= for alert <- @alerts do %>
-    <.live_component
-      module={AlertItem}
+    <AlertItem.component
       id={"#{@id}-#{alert.id}"}
       alert={alert}
       now={@now}

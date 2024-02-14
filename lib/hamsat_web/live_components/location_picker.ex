@@ -3,12 +3,26 @@ defmodule HamsatWeb.LocationPicker do
 
   @default_field_mapping %{lat: :lat, lon: :lon, grid: :grid}
 
-  prop :fields, default: @default_field_mapping
-  prop :form
-  prop :mapbox_access_token, default: Application.fetch_env!(:hamsat, :mapbox_access_token)
-  prop :show_grid?, default: true
+  attr :fields, :map, default: @default_field_mapping
+  attr :form, :map, required: true
+  attr :id, :string, required: true
+  attr :mapbox_access_token, :string, default: Application.compile_env!(:hamsat, :mapbox_access_token)
+  attr :on_map_clicked, :any, required: true
+  attr :show_grid?, :boolean, default: true
 
-  event :on_map_clicked
+  def component(assigns) do
+    ~H"""
+    <.live_component
+      module={__MODULE__}
+      fields={@fields}
+      form={@form}
+      id={@id}
+      mapbox_access_token={@mapbox_access_token}
+      on_map_clicked={@on_map_clicked}
+      show_grid?={@show_grid?}
+    />
+    """
+  end
 
   def update(assigns, socket) do
     {:ok,
