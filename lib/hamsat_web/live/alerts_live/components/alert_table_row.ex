@@ -3,6 +3,7 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
 
   alias Hamsat.Schemas.Alert
   alias HamsatWeb.LiveComponents.AlertSaver
+  alias HamsatWeb.SatComponents
 
   prop :alert
   prop :context

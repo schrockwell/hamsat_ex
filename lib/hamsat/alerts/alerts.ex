@@ -72,8 +72,9 @@ defmodule Hamsat.Alerts do
       |> Repo.all()
       |> Repo.preload([:sat])
 
-    if opts[:plain] do
+    if opts[:for_feed] do
       alerts
+      |> amend_visible_passes(context)
     else
       alerts
       |> amend_visible_passes(context)
@@ -171,12 +172,40 @@ defmodule Hamsat.Alerts do
         [_, overlap_start] = Enum.sort([alert.aos_at, pass_aos], DateTime)
         [overlap_end, _] = Enum.sort([alert.los_at, pass_los], DateTime)
 
+        pass_max_el_at = Util.erl_to_utc_datetime(pass_info.max.datetime)
+
+        max_el =
+          cond do
+            # Max elevation occurs before AOS
+            Timex.compare(pass_max_el_at, alert.aos_at) == -1 ->
+              Satellite.Passes.current_position(
+                Sat.get_satrec(alert.sat),
+                Coord.to_observer(coord),
+                Util.utc_datetime_to_erl(alert.aos_at),
+                magnitude?: false
+              ).elevation_in_degrees
+
+            # Max elevation occurs after LOS
+            Timex.compare(pass_max_el_at, alert.los_at) == 1 ->
+              Satellite.Passes.current_position(
+                Sat.get_satrec(alert.sat),
+                Coord.to_observer(coord),
+                Util.utc_datetime_to_erl(alert.los_at),
+                magnitude?: false
+              ).elevation_in_degrees
+
+            # Max elevation occurs during the alert window
+            true ->
+              pass_info.max.elevation_in_degrees
+          end
+
         %{
           workable_start_at: overlap_start,
           workable_end_at: overlap_end,
           is_workable?: true,
           my_closest_position: my_closest_position,
-          activator_closest_position: activator_closest_position
+          activator_closest_position: activator_closest_position,
+          max_elevation: max_el
         }
 
       [] ->
