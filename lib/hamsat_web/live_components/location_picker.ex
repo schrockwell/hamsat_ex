@@ -6,7 +6,6 @@ defmodule HamsatWeb.LocationPicker do
   attr :fields, :map, default: @default_field_mapping
   attr :form, :map, required: true
   attr :id, :string, required: true
-  attr :mapbox_access_token, :string, default: Application.compile_env!(:hamsat, :mapbox_access_token)
   attr :on_map_clicked, :any, required: true
   attr :show_grid?, :boolean, default: true
 
@@ -17,7 +16,6 @@ defmodule HamsatWeb.LocationPicker do
       fields={@fields}
       form={@form}
       id={@id}
-      mapbox_access_token={@mapbox_access_token}
       on_map_clicked={@on_map_clicked}
       show_grid?={@show_grid?}
     />
