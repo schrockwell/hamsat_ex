@@ -2,6 +2,7 @@ defmodule Hamsat.Schemas.Sat do
   use Hamsat, :schema
 
   alias Hamsat.Schemas.FreqRange
+  alias Hamsat.Schemas.Transponder
 
   schema "satellites" do
     field :name, :string
@@ -17,6 +18,8 @@ defmodule Hamsat.Schemas.Sat do
     # Aggregate fields
     field :total_activation_count, :integer, virtual: true
 
+    has_many :transponders, Transponder, foreign_key: :satellite_id, on_replace: :delete
+
     timestamps()
   end
 
@@ -27,6 +30,7 @@ defmodule Hamsat.Schemas.Sat do
     |> validate_required([:name, :number, :slug, :nasa_name, :modulations])
     |> cast_embed(:downlinks, with: &FreqRange.changeset/2)
     |> cast_embed(:uplinks, with: &FreqRange.changeset/2)
+    |> cast_assoc(:transponders, with: &Transponder.changeset/2)
   end
 
   defp put_nasa_name(changeset) do

@@ -41,7 +41,10 @@ defmodule Hamsat.Satellites do
   end
 
   def upsert_satellite!(number, attrs) do
-    case Repo.get_by(Sat, number: number) do
+    Sat
+    |> Repo.get_by(number: number)
+    |> Repo.preload(:transponders)
+    |> case do
       nil ->
         attrs |> Sat.upsert_changeset() |> Repo.insert!()
 

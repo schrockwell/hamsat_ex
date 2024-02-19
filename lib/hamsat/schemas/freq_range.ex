@@ -12,6 +12,6 @@ defmodule Hamsat.Schemas.FreqRange do
   def changeset(freq_range, attrs \\ %{}) do
     freq_range
     |> cast(attrs, [:lower_mhz, :upper_mhz, :mode])
-    |> validate_required([:lower_mhz, :upper_mhz, :mode])
+    |> validate_required([:lower_mhz, :upper_mhz])
   end
 end
