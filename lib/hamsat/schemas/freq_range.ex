@@ -6,12 +6,11 @@ defmodule Hamsat.Schemas.FreqRange do
   embedded_schema do
     field :lower_mhz, :float
     field :upper_mhz, :float
-    field :mode, Ecto.Enum, values: Hamsat.Modulation.sat_values()
   end
 
   def changeset(freq_range, attrs \\ %{}) do
     freq_range
-    |> cast(attrs, [:lower_mhz, :upper_mhz, :mode])
+    |> cast(attrs, [:lower_mhz, :upper_mhz])
     |> validate_required([:lower_mhz, :upper_mhz])
   end
 end

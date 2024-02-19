@@ -44,4 +44,24 @@ defmodule Hamsat.Schemas.Sat do
   def get_satrec(%__MODULE__{number: number}) do
     Satellite.SatelliteDatabase.lookup(number)
   end
+
+  def subbands(%__MODULE__{} = sat, direction, modes) do
+    field = if direction == :uplinks, do: :uplink, else: :downlink
+
+    filter_modes =
+      modes
+      |> Enum.flat_map(fn
+        :linear -> [:linear, :linear_non_inv]
+        mode -> [mode]
+      end)
+
+    sat.transponders
+    |> Enum.filter(fn t ->
+      case filter_modes do
+        [] -> true
+        _ -> t.mode in filter_modes
+      end
+    end)
+    |> Enum.map(fn t -> Map.fetch!(t, field) end)
+  end
 end

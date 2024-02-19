@@ -54,12 +54,16 @@ defmodule Hamsat.Satellites do
   end
 
   def get_satellite!(id) do
-    Repo.get!(Sat, id)
+    Sat |> Repo.get!(id) |> preload_sat()
   end
 
   def get_satellite_by_number!(number) do
-    Repo.get_by!(Sat, number: number)
+    Sat |> Repo.get_by!(number: number) |> preload_sat()
   end
 
   def known, do: @satellites
+
+  defp preload_sat(sat) do
+    Repo.preload(sat, :transponders)
+  end
 end

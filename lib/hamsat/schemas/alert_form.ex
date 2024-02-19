@@ -145,9 +145,9 @@ defmodule Hamsat.Schemas.AlertForm do
     modulations = Modulation.list_by_alert_option(mode)
 
     sat
-    |> Map.fetch!(subbands_field)
+    |> Sat.subbands(subbands_field, modulations)
     |> Enum.filter(fn subband ->
-      subband.mode in modulations and subband.lower_mhz == subband.upper_mhz
+      subband.lower_mhz == subband.upper_mhz
     end)
     |> case do
       [subband] -> subband.lower_mhz

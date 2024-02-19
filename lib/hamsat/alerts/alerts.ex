@@ -70,7 +70,7 @@ defmodule Hamsat.Alerts do
       |> Enum.reduce(Alert, &apply_alert_filter(&1, &2, context))
       |> order_by([a], a.aos_at)
       |> Repo.all()
-      |> Repo.preload([:sat])
+      |> Repo.preload(sat: [:transponders])
 
     if opts[:for_feed] do
       alerts
@@ -96,7 +96,7 @@ defmodule Hamsat.Alerts do
     alert =
       Alert
       |> Repo.get!(id)
-      |> Repo.preload(:sat)
+      |> Repo.preload(sat: [:transponders])
 
     [alert] =
       [alert]
@@ -111,7 +111,7 @@ defmodule Hamsat.Alerts do
     Alert
     |> user_alert_query(context.user)
     |> Repo.get!(id)
-    |> Repo.preload(:sat)
+    |> Repo.preload(sat: [:transponders])
   end
 
   defp user_alert_query(queryable, user) do
