@@ -16,7 +16,7 @@ defmodule HamsatWeb.LayoutView do
       """
     else
       ~H"""
-      <Heroicons.LiveView.icon name="exclamation" type="outline" class="inline-block h-6 w-6" />
+      <Heroicons.LiveView.icon name="exclamation-triangle" type="outline" class="inline-block h-6 w-6" />
       <span class="hidden md:inline">Set Location</span>
       """
     end
@@ -72,7 +72,7 @@ defmodule HamsatWeb.LayoutView do
           <Heroicons.LiveView.icon name="calendar" type="outline" class="h-6 w-6" />
         </.nav_pill_button>
         <.nav_pill_button navigate={~p"/passes"} active={@active_nav_item == :passes}>
-          <Heroicons.LiveView.icon name="table" type="outline" class="h-6 w-6" />
+          <Heroicons.LiveView.icon name="table-cells" type="outline" class="h-6 w-6" />
         </.nav_pill_button>
         <.nav_pill_button navigate={~p"/location"} active={@active_nav_item == :location}>
           <.location_nav_button_text context={@context} />
@@ -98,7 +98,7 @@ defmodule HamsatWeb.LayoutView do
           </div>
           <div>
             <button data-toggle="mobile-nav-extras">
-              <Heroicons.LiveView.icon name="x" type="solid" class="h-6 w-6 text-gray-400 m-2" />
+              <Heroicons.LiveView.icon name="x-mark" type="solid" class="h-6 w-6 text-gray-400 m-2" />
             </button>
           </div>
         </div>
