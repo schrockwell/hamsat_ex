@@ -11,9 +11,10 @@ defmodule HamsatWeb.DashboardLive.Show do
   alias HamsatWeb.DashboardLive.Components.AlertsList
   alias HamsatWeb.SatTracker
 
+  on_mount HamsatWeb.Live.NowTicker
+
   def mount(_params, _session, socket) do
     if connected?(socket) do
-      Process.send_after(self(), :set_now, 1_000)
       schedule_reload_alerts()
       Phoenix.PubSub.subscribe(Hamsat.PubSub, "alerts")
       Phoenix.PubSub.subscribe(Hamsat.PubSub, "satellite_positions")
@@ -49,11 +50,6 @@ defmodule HamsatWeb.DashboardLive.Show do
      )}
   end
 
-  def handle_info(:set_now, socket) do
-    Process.send_after(self(), :set_now, 1_000)
-    {:noreply, assign(socket, now: DateTime.utc_now())}
-  end
-
   def handle_info(:reload_alerts, socket) do
     schedule_reload_alerts()
 
@@ -82,7 +78,6 @@ defmodule HamsatWeb.DashboardLive.Show do
 
   defp assign_defaults(socket) do
     assign(socket,
-      now: DateTime.utc_now(),
       page_title: "Home",
       sat_positions: [],
       show_rss_feed: false,

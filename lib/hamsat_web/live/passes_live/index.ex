@@ -10,7 +10,8 @@ defmodule HamsatWeb.PassesLive.Index do
   alias HamsatWeb.PassesLive.Components.PassTableRow
   alias HamsatWeb.LocationSetter
 
-  @set_now_interval :timer.seconds(1)
+  on_mount HamsatWeb.Live.NowTicker
+
   @reload_passes_interval :timer.minutes(15)
 
   def mount(_params, _session, socket) do
@@ -23,7 +24,6 @@ defmodule HamsatWeb.PassesLive.Index do
 
     if connected?(socket) do
       Process.flag(:trap_exit, true)
-      Process.send_after(self(), :set_now, @set_now_interval)
       Process.send_after(self(), :reload_passes, @reload_passes_interval)
     end
 
@@ -67,7 +67,6 @@ defmodule HamsatWeb.PassesLive.Index do
       loading?: true,
       failed?: false,
       needs_location?: false,
-      now: DateTime.utc_now(),
       page_title: "Passes",
       sats: Satellites.list_satellites()
     )
@@ -183,11 +182,6 @@ defmodule HamsatWeb.PassesLive.Index do
 
   def handle_info({:daily_passes_loaded, passes}, socket) do
     {:noreply, socket |> assign(passes: passes, loading?: false) |> assign_results_description()}
-  end
-
-  def handle_info(:set_now, socket) do
-    Process.send_after(self(), :set_now, @set_now_interval)
-    {:noreply, assign(socket, now: DateTime.utc_now())}
   end
 
   def handle_info(:reload_passes, socket) do
