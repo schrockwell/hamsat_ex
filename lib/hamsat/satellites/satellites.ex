@@ -16,7 +16,7 @@ defmodule Hamsat.Satellites do
   end
 
   def first_satellite do
-    Repo.one(from s in Sat, order_by: s.name, limit: 1)
+    Repo.one(from s in Sat, order_by: s.name, limit: 1) |> preload_sat()
   end
 
   def list_satellites do
@@ -63,7 +63,7 @@ defmodule Hamsat.Satellites do
 
   def known, do: @satellites
 
-  defp preload_sat(sat) do
+  def preload_sat(sat) do
     Repo.preload(sat, :transponders)
   end
 end

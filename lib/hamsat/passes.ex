@@ -5,6 +5,7 @@ defmodule Hamsat.Passes do
   alias Hamsat.Alerts.PassCache
   alias Hamsat.Context
   alias Hamsat.Coord
+  alias Hamsat.Satellites
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.PassFilter
   alias Hamsat.Schemas.Sat
@@ -90,6 +91,7 @@ defmodule Hamsat.Passes do
     sats =
       from(s in Sat, where: s.number in ^sat_numbers)
       |> Repo.all()
+      |> Satellites.preload_sat()
       |> Enum.group_by(& &1.number)
 
     sat_alerts =
