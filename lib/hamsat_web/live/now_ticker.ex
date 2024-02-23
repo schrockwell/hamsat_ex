@@ -21,8 +21,7 @@ defmodule HamsatWeb.Live.NowTicker do
          Process.send_after(self(), @message, tick_interval)
          {:halt, assign(socket, :now, DateTime.utc_now())}
 
-       msg, socket ->
-         IO.inspect(msg)
+       _msg, socket ->
          {:cont, socket}
      end)}
   end

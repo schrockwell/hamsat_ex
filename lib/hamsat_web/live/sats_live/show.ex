@@ -1,11 +1,41 @@
 defmodule HamsatWeb.SatsLive.Show do
   use HamsatWeb, :live_view
 
+  alias Hamsat.Coord
+  alias Hamsat.PassPlot
   alias Hamsat.Satellites
+  alias Hamsat.Schemas.Sat
+  alias HamsatWeb.LiveComponents.PassTracker
+
+  on_mount HamsatWeb.Live.NowTicker
 
   def mount(%{"number" => number}, _session, socket) do
-    {:ok, assign(socket, sat: Satellites.get_satellite_by_number!(number))}
+    sat = Satellites.get_satellite_by_number!(number)
+
+    socket =
+      socket
+      |> assign(sat: sat)
+      |> assign_pass_plot()
+
+    {:ok, assign(socket, sat: sat)}
   end
+
+  defp assign_pass_plot(%{assigns: %{context: %{location: %Coord{} = location}}} = socket) do
+    pass =
+      Satellite.next_pass(
+        Sat.get_satrec(socket.assigns.sat),
+        Timex.to_erl(socket.assigns.now),
+        Coord.to_observer(location)
+      )
+
+    pass_plot =
+      %PassPlot{satrec: Sat.get_satrec(socket.assigns.sat), location: location, pass: pass}
+      |> PassPlot.populate_coords()
+
+    assign(socket, :pass_plot, pass_plot)
+  end
+
+  defp assign_pass_plot(socket), do: assign(socket, :pass_plot, nil)
 
   defp transponder_mode(:linear), do: "Linear Transponder (Inverting)"
   defp transponder_mode(:linear_non_inv), do: "Linear Transponder (Non-Inverting)"
@@ -44,6 +74,38 @@ defmodule HamsatWeb.SatsLive.Show do
     <span class="bg-red-600 text-white px-2 py-1 uppercase text-sm font-semibold flex items-center gap-1">
       <Heroicons.LiveView.icon name="question-mark-circle" type="mini" class="h-4 w-4" /> Unknown
     </span>
+    """
+  end
+
+  defp transponder_panel(assigns) do
+    ~H"""
+    <div class="border rounded p-4 mb-4 space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="text-lg"><%= transponder_mode(@transponder.mode) %></div>
+        <div><.transponder_status_badge status={@transponder.status} /></div>
+      </div>
+      <div class="flex">
+        <%= if @transponder.downlink do %>
+          <div class="flex-1">
+            <div class="text-xl">
+              <%= subband_range(@transponder.downlink) %>
+            </div>
+            <div>Downlink</div>
+          </div>
+        <% end %>
+        <%= if @transponder.uplink do %>
+          <div class="flex-1">
+            <div class="text-xl">
+              <%= subband_range(@transponder.uplink) %>
+            </div>
+            <div>Uplink</div>
+          </div>
+        <% end %>
+      </div>
+      <%= if @transponder.notes do %>
+        <div><%= @transponder.notes %></div>
+      <% end %>
+    </div>
     """
   end
 end

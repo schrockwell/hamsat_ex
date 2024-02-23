@@ -8,37 +8,11 @@
     </div>
 
     <%= for transponder <- @sat.transponders do %>
-      <div class="border rounded p-4 mb-4 space-y-4">
-        <div class="flex items-center justify-between">
-          <div class="text-lg"><%= transponder_mode(transponder.mode) %></div>
-          <div><.transponder_status_badge status={transponder.status} /></div>
-        </div>
-        <div class="flex">
-          <%= if transponder.downlink do %>
-            <div class="flex-1">
-              <div class="text-xl">
-                <%= subband_range(transponder.downlink) %>
-              </div>
-              <div>Downlink</div>
-            </div>
-          <% end %>
-          <%= if transponder.uplink do %>
-            <div class="flex-1">
-              <div class="text-xl">
-                <%= subband_range(transponder.uplink) %>
-              </div>
-              <div>Uplink</div>
-            </div>
-          <% end %>
-        </div>
-        <%= if transponder.notes do %>
-          <div><%= transponder.notes %></div>
-        <% end %>
-      </div>
+      <.transponder_panel transponder={transponder} />
     <% end %>
   </div>
   <div class="flex-1">
-    2
+    <PassTracker.component id="sat-tracker" sat={@sat} now={@now} location={@context.location} pass_plot={@pass_plot} />
   </div>
   <div class="flex-1">
     3
