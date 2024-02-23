@@ -43,7 +43,7 @@ defmodule HamsatWeb.LiveComponents.AlertSaver do
       ~H"""
       <div class={@class}>
         <div class="flex justify-between items-center space-x-1 h-full">
-          <div><Heroicons.LiveView.icon name="thumb-up" type="outline" class="h-4 w-4" /></div>
+          <div><Heroicons.LiveView.icon name="hand-thumb-up" type="outline" class="h-4 w-4" /></div>
           <div><%= @alert.saved_count %></div>
         </div>
       </div>
@@ -52,7 +52,7 @@ defmodule HamsatWeb.LiveComponents.AlertSaver do
       ~H"""
       <button phx-click="toggle-save" phx-target={@myself} class={[@class, @button_class]}>
         <div class="flex justify-between items-center space-x-1">
-          <div><Heroicons.LiveView.icon name="thumb-up" type={icon_type(@alert)} class="h-4 w-4" /></div>
+          <div><Heroicons.LiveView.icon name="hand-thumb-up" type={icon_type(@alert)} class="h-4 w-4" /></div>
           <div><%= @alert.saved_count %></div>
         </div>
       </button>
