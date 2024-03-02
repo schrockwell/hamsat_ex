@@ -23,7 +23,7 @@ defmodule Hamsat.Schemas.Alert do
     field :observer_lon, :float
     field :grids, {:array, :string}
 
-    field :is_workable?, :boolean, default: false, virtual: true
+    field :is_workable?, :boolean, default: nil, virtual: true
     field :workable_start_at, :utc_datetime, virtual: true
     field :workable_end_at, :utc_datetime, virtual: true
     field :my_closest_position, :map, default: nil, virtual: true
@@ -79,8 +79,8 @@ defmodule Hamsat.Schemas.Alert do
     cond do
       Timex.compare(now, alert.aos_at) == -1 -> :upcoming
       Timex.compare(now, alert.los_at) == 1 -> :passed
-      alert.is_workable? and Timex.compare(now, alert.workable_start_at) == -1 -> :before_workable
-      alert.is_workable? and Timex.compare(now, alert.workable_end_at) == 1 -> :after_workable
+      alert.is_workable? && Timex.compare(now, alert.workable_start_at) == -1 -> :before_workable
+      alert.is_workable? && Timex.compare(now, alert.workable_end_at) == 1 -> :after_workable
       alert.is_workable? -> :workable
       true -> :in_progress
     end
@@ -104,7 +104,7 @@ defmodule Hamsat.Schemas.Alert do
        }}
 
     before_workable_event =
-      if alert.is_workable? and alert.workable_start_at != alert.aos_at do
+      if alert.is_workable? && alert.workable_start_at != alert.aos_at do
         {:before_workable,
          %{
            event: :before_workable,
@@ -124,7 +124,7 @@ defmodule Hamsat.Schemas.Alert do
       end
 
     after_workable_event =
-      if alert.is_workable? and alert.workable_end_at != alert.los_at do
+      if alert.is_workable? && alert.workable_end_at != alert.los_at do
         {:after_workable,
          %{
            event: :after_workable,
@@ -164,16 +164,16 @@ defmodule Hamsat.Schemas.Alert do
 
   def next_event(%__MODULE__{} = alert, now) do
     cond do
-      alert.is_workable? and Timex.compare(now, alert.workable_start_at) < 1 ->
+      alert.is_workable? && Timex.compare(now, alert.workable_start_at) < 1 ->
         {:workable, :start, seconds_until(now, alert.workable_start_at)}
 
-      alert.is_workable? and Timex.compare(now, alert.workable_end_at) < 1 ->
+      alert.is_workable? && Timex.compare(now, alert.workable_end_at) < 1 ->
         {:workable, :end, seconds_until(now, alert.workable_end_at)}
 
-      not alert.is_workable? and Timex.compare(now, alert.aos_at) < 1 ->
+      !alert.is_workable? && Timex.compare(now, alert.aos_at) < 1 ->
         {:unworkable, :start, seconds_until(now, alert.aos_at)}
 
-      not alert.is_workable? and Timex.compare(now, alert.los_at) < 1 ->
+      !alert.is_workable? && Timex.compare(now, alert.los_at) < 1 ->
         {:unworkable, :end, seconds_until(now, alert.los_at)}
 
       true ->
