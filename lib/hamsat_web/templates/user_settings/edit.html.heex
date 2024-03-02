@@ -147,4 +147,24 @@
       <%= submit("Change Callsign", class: "btn btn-default") %>
     </.form_row>
   </.form>
+
+  <.form_row label="">
+    <h2 class="text-h2 mt-12">API</h2>
+  </.form_row>
+
+  <.form_row label="Private Feed Key" input?={true}>
+    <.mono_copy text={@context.user.feed_key} />
+
+    <div class="text-sm text-gray-500 mt-1">
+      Authenticates the RSS feed and API calls to adapt to your station location.
+    </div>
+  </.form_row>
+
+  <.form_row label="Get Upcoming Alerts" input?={true}>
+    <.mono_copy text={curl_upcoming_alerts(@context.user.feed_key)} />
+
+    <div class="text-sm text-gray-500 mt-1">
+      This cURL example shows how to fetch JSON of upcoming alerts, customized for your location. This is currently the only API endpoint.
+    </div>
+  </.form_row>
 </div>

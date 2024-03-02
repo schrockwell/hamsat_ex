@@ -31,19 +31,8 @@
         <% end %>
       </button>
       <%= if @show_rss_feed do %>
-        <div class="text-sm border bg-gray-100 text-gray-700 px-2 py-1 mt-2 flex items-center">
-          <div class="flex-1 font-mono"><%= upcoming_feed_url(@context) %></div>
-          <div class="flex-shrink">
-            <button
-              phx-update="ignore"
-              class="link"
-              phx-hook="CopyToClipboard"
-              id="copy-feed"
-              data-copy={upcoming_feed_url(@context)}
-            >
-              Copy
-            </button>
-          </div>
+        <div class="mt-2">
+          <.mono_copy text={upcoming_feed_url(@context)} />
         </div>
 
         <%= if @context.user == :guest do %>

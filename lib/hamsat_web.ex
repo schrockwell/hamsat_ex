@@ -123,6 +123,8 @@ defmodule HamsatWeb do
       import HamsatWeb.ViewHelpers
       import HamsatWeb.Gettext
 
+      import HamsatWeb.CommonComponents
+
       unquote(verified_routes())
     end
   end
