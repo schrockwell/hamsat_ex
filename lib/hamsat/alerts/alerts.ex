@@ -130,6 +130,10 @@ defmodule Hamsat.Alerts do
     where(query, [a], a.los_at <= ^datetime)
   end
 
+  defp apply_alert_filter({:sat_id, sat_id}, query, _context) do
+    where(query, [a], a.satellite_id == ^sat_id)
+  end
+
   defp apply_alert_filter({:date, %Date{} = date}, query, context) do
     bod = date |> Timex.to_datetime(context.timezone) |> Timex.beginning_of_day()
     eod = date |> Timex.to_datetime(context.timezone) |> Timex.end_of_day()

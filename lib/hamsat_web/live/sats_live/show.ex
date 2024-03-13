@@ -1,23 +1,42 @@
 defmodule HamsatWeb.SatsLive.Show do
   use HamsatWeb, :live_view
 
+  alias Hamsat.Alerts
   alias Hamsat.Coord
+  alias Hamsat.Passes
   alias Hamsat.PassPlot
   alias Hamsat.Satellites
   alias Hamsat.Schemas.Sat
+  alias HamsatWeb.Alerts.Components.AlertTableRow
   alias HamsatWeb.LiveComponents.PassTracker
+  alias HamsatWeb.PassesLive.Components.PassTableRow
 
   on_mount HamsatWeb.Live.NowTicker
 
   def mount(%{"number" => number}, _session, socket) do
     sat = Satellites.get_satellite_by_number!(number)
 
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(Hamsat.PubSub, "alerts")
+    end
+
     socket =
       socket
       |> assign(sat: sat)
       |> assign_pass_plot()
+      |> assign_alerts()
+      |> assign_passes()
 
     {:ok, assign(socket, sat: sat)}
+  end
+
+  def handle_info({event, _info} = message, socket)
+      when event in [:alert_saved, :alert_unsaved] do
+    {:noreply,
+     assign(
+       socket,
+       alerts: Alerts.patch_alerts(socket.assigns.alerts, socket.assigns.context, message)
+     )}
   end
 
   defp assign_pass_plot(%{assigns: %{context: %{location: %Coord{} = location}}} = socket) do
@@ -36,6 +55,22 @@ defmodule HamsatWeb.SatsLive.Show do
   end
 
   defp assign_pass_plot(socket), do: assign(socket, :pass_plot, nil)
+
+  defp assign_alerts(socket) do
+    assign(
+      socket,
+      :alerts,
+      Alerts.list_alerts(socket.assigns.context, sat_id: socket.assigns.sat.id, date: :upcoming)
+    )
+  end
+
+  defp assign_passes(socket) do
+    assign(
+      socket,
+      :passes,
+      Passes.list_all_passes(socket.assigns.context, [socket.assigns.sat], ending: Timex.shift(Timex.now(), days: 1))
+    )
+  end
 
   defp transponder_mode(:linear), do: "Linear Transponder (Inverting)"
   defp transponder_mode(:linear_non_inv), do: "Linear Transponder (Non-Inverting)"

@@ -19,6 +19,6 @@ defmodule Hamsat.PassPlot do
         %{az: pos.azimuth_in_degrees, el: pos.elevation_in_degrees}
       end)
 
-    %{plot | coords: coords} |> IO.inspect()
+    %{plot | coords: coords}
   end
 end
