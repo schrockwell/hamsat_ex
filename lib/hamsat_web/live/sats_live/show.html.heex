@@ -12,20 +12,23 @@
     <% end %>
   </div>
   <div class="flex-1">
-    <PassTracker.component id="sat-tracker" sat={@sat} now={@now} location={@context.location} pass_plot={@pass_plot} />
-  </div>
-  <div class="flex-1">
-    3
+    <SatTracker.component
+      id="sat-tracker"
+      observer_positions={Enum.reject([@context.location], &is_nil/1)}
+      sat_positions={@sat_positions}
+    />
   </div>
 </section>
 
-<section class="my-8 md:my-16">
+<section class="mt-4 mb-8 md:mb-16">
   <h2 class="text-h2 px-3 md:px-6">
     <%= pluralized_count(length(@alerts), "Upcoming Activation", "Upcoming Activations") %>
     <.link navigate={~p"/alerts/new?#{%{sat: @sat.number}}"} class="link text-base ml-4">(Post an Activation)</.link>
   </h2>
 
-  <AlertTableRow.table alerts={@alerts} now={@now} context={@context} />
+  <%= if @alerts != [] do %>
+    <AlertTableRow.table alerts={@alerts} now={@now} context={@context} />
+  <% end %>
 </section>
 
 <section class="my-8 md:my-16">
@@ -33,5 +36,18 @@
     <%= pluralized_count(length(@passes), "Pass", "Passes") %> in the Next 24 Hours
   </h2>
 
-  <PassTableRow.table context={@context} now={@now} passes={@passes} />
+  <%= if @context.location do %>
+    <%= if @passes != [] do %>
+      <PassTableRow.table context={@context} now={@now} passes={@passes} />
+    <% end %>
+  <% else %>
+    <div class="p-6 w-full md:w-1/2">
+      <LocationSetter.component
+        id="location-setter"
+        context={@context}
+        redirect={~p"/sats/#{@sat.number}"}
+        show_log_in_link?={true}
+      />
+    </div>
+  <% end %>
 </section>

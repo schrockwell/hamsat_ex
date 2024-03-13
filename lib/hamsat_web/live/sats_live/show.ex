@@ -6,10 +6,14 @@ defmodule HamsatWeb.SatsLive.Show do
   alias Hamsat.Passes
   alias Hamsat.PassPlot
   alias Hamsat.Satellites
+  alias Hamsat.Satellites.PositionServer
   alias Hamsat.Schemas.Sat
+
   alias HamsatWeb.Alerts.Components.AlertTableRow
   alias HamsatWeb.LiveComponents.PassTracker
+  alias HamsatWeb.LocationSetter
   alias HamsatWeb.PassesLive.Components.PassTableRow
+  alias HamsatWeb.SatTracker
 
   on_mount HamsatWeb.Live.NowTicker
 
@@ -18,6 +22,7 @@ defmodule HamsatWeb.SatsLive.Show do
 
     if connected?(socket) do
       Phoenix.PubSub.subscribe(Hamsat.PubSub, "alerts")
+      Phoenix.PubSub.subscribe(Hamsat.PubSub, "satellite_positions")
     end
 
     socket =
@@ -26,6 +31,7 @@ defmodule HamsatWeb.SatsLive.Show do
       |> assign_pass_plot()
       |> assign_alerts()
       |> assign_passes()
+      |> assign_sat_positions()
 
     {:ok, assign(socket, sat: sat)}
   end
@@ -37,6 +43,10 @@ defmodule HamsatWeb.SatsLive.Show do
        socket,
        alerts: Alerts.patch_alerts(socket.assigns.alerts, socket.assigns.context, message)
      )}
+  end
+
+  def handle_info({:satellite_positions, positions}, socket) do
+    {:noreply, assign(socket, sat_positions: Enum.filter(positions, &(&1.sat_id == socket.assigns.sat.id)))}
   end
 
   defp assign_pass_plot(%{assigns: %{context: %{location: %Coord{} = location}}} = socket) do
@@ -65,10 +75,20 @@ defmodule HamsatWeb.SatsLive.Show do
   end
 
   defp assign_passes(socket) do
-    assign(
-      socket,
-      :passes,
-      Passes.list_all_passes(socket.assigns.context, [socket.assigns.sat], ending: Timex.shift(Timex.now(), days: 1))
+    if socket.assigns.context.location do
+      assign(
+        socket,
+        :passes,
+        Passes.list_all_passes(socket.assigns.context, [socket.assigns.sat], ending: Timex.shift(Timex.now(), days: 1))
+      )
+    else
+      assign(socket, :passes, [])
+    end
+  end
+
+  defp assign_sat_positions(socket) do
+    assign(socket,
+      sat_positions: Enum.filter(PositionServer.get_sat_positions(), &(&1.sat_id == socket.assigns.sat.id))
     )
   end
 
