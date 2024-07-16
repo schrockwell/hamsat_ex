@@ -70,33 +70,6 @@ satellites =
       ]
     },
     %{
-      name: "AO-92",
-      aliases: ["Fox-1D"],
-      number: 43137,
-      modulations: [:fm],
-      transponders: [
-        %{
-          mode: :fm,
-          status: :active,
-          downlink: %{lower_mhz: 145.880, upper_mhz: 145.880},
-          uplink: %{lower_mhz: 435.350, upper_mhz: 435.350}
-        }
-      ]
-    },
-    %{
-      name: "BeliefSat-0",
-      number: 58695,
-      modulations: [:fm],
-      transponders: [
-        %{
-          mode: :fm,
-          status: :active,
-          downlink: %{lower_mhz: 145.980, upper_mhz: 145.980},
-          uplink: %{lower_mhz: 437.000, upper_mhz: 437.000}
-        }
-      ]
-    },
-    %{
       name: "CAS-4A",
       number: 42761,
       modulations: [:linear],
@@ -133,19 +106,6 @@ satellites =
           status: :active,
           downlink: %{lower_mhz: 435.800, upper_mhz: 435.900},
           uplink: %{lower_mhz: 145.900, upper_mhz: 146.000}
-        }
-      ]
-    },
-    %{
-      name: "FO-99",
-      number: 43937,
-      modulations: [:linear],
-      transponders: [
-        %{
-          mode: :linear,
-          status: :active,
-          downlink: %{lower_mhz: 435.880, upper_mhz: 435.910},
-          uplink: %{lower_mhz: 145.900, upper_mhz: 145.930}
         }
       ]
     },
@@ -287,20 +247,6 @@ satellites =
       ]
     },
     %{
-      name: "XW-2A",
-      aliases: ["CAS-3A"],
-      number: 40903,
-      modulations: [:linear],
-      transponders: [
-        %{
-          mode: :linear,
-          status: :active,
-          downlink: %{lower_mhz: 145.665, upper_mhz: 145.685},
-          uplink: %{lower_mhz: 435.030, upper_mhz: 435.050}
-        }
-      ]
-    },
-    %{
       name: "XW-2C",
       aliases: ["CAS-3C"],
       number: 40906,
@@ -311,20 +257,6 @@ satellites =
           status: :active,
           downlink: %{lower_mhz: 145.795, upper_mhz: 145.815},
           uplink: %{lower_mhz: 435.150, upper_mhz: 435.170}
-        }
-      ]
-    },
-    %{
-      name: "EO-88",
-      aliases: ["Nayif-1"],
-      number: 42017,
-      modulations: [:linear],
-      transponders: [
-        %{
-          mode: :linear,
-          status: :active,
-          downlink: %{lower_mhz: 145.960, upper_mhz: 145.990},
-          uplink: %{lower_mhz: 435.015, upper_mhz: 435.045}
         }
       ]
     },
@@ -358,19 +290,6 @@ satellites =
       name: "HO-113",
       aliases: ["CAS-9", "XW-3"],
       number: 50466,
-      modulations: [:linear],
-      transponders: [
-        %{
-          mode: :linear,
-          status: :active,
-          downlink: %{lower_mhz: 435.165, upper_mhz: 435.195},
-          uplink: %{lower_mhz: 145.855, upper_mhz: 145.885}
-        }
-      ]
-    },
-    %{
-      name: "HO-119",
-      number: 54816,
       modulations: [:linear],
       transponders: [
         %{
