@@ -10,21 +10,34 @@ defmodule Hamsat.Satellites do
       upsert_satellite!(attrs.number, attrs)
     end
 
+    known()
+    |> Enum.map(& &1.number)
+    |> deorbit_satellites()
+
     IO.puts("Synced #{length(known())} satellites")
 
     :ok
   end
 
   def first_satellite do
-    Repo.one(from s in Sat, order_by: s.name, limit: 1) |> preload_sat()
+    sat_query()
+    |> limit(1)
+    |> Repo.one()
+    |> preload_sat()
   end
 
   def list_satellites do
-    Repo.all(from s in Sat, order_by: s.name)
+    Repo.all(sat_query())
   end
 
   def list_satellites_and_stats do
-    Repo.all(select_stats(from s in Sat, order_by: s.name))
+    sat_query()
+    |> select_stats()
+    |> Repo.all()
+  end
+
+  defp sat_query do
+    from s in Sat, where: not s.deorbited, order_by: s.name
   end
 
   defp select_stats(query) do
@@ -51,6 +64,11 @@ defmodule Hamsat.Satellites do
       satellite ->
         satellite |> Sat.upsert_changeset(attrs) |> Repo.update!()
     end
+  end
+
+  defp deorbit_satellites(known_satnums) do
+    Repo.update_all(from(s in Sat, where: s.number in ^known_satnums), set: [deorbited: false])
+    Repo.update_all(from(s in Sat, where: s.number not in ^known_satnums), set: [deorbited: true])
   end
 
   def get_satellite!(id) do
