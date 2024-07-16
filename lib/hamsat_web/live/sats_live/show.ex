@@ -10,7 +10,6 @@ defmodule HamsatWeb.SatsLive.Show do
   alias Hamsat.Schemas.Sat
 
   alias HamsatWeb.Alerts.Components.AlertTableRow
-  alias HamsatWeb.LiveComponents.PassTracker
   alias HamsatWeb.LocationSetter
   alias HamsatWeb.PassesLive.Components.PassTableRow
   alias HamsatWeb.SatTracker

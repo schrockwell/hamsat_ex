@@ -51,8 +51,8 @@ defmodule HamsatWeb.LayoutView do
 
       <div class="hidden md:flex items-center">
         <%= if @context.user != :guest do %>
-          <.nav_pill_button navigate={~p"/users/settings"} active={@active_nav_item == :settings}>
-            <Heroicons.LiveView.icon name="cog" type="solid" class="h-6 w-6" />
+          <.nav_pill_button navigate={~p"/users/settings"} active={@active_nav_item == :settings} class="flex items-center">
+            Settings
           </.nav_pill_button>
         <% else %>
           <.nav_pill_button navigate={~p"/users/register"} active={@active_nav_item == :register}>

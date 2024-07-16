@@ -5,20 +5,6 @@
     </div>
   </div>
 <% else %>
-  <%= if @duration == :upcoming do %>
-    <div class="py-8 flex justify-center">
-      <%= if @loading? or @can_load_more? do %>
-        <button phx-click="load-more" class="btn btn-default" disabled={@loading?}>
-          Load next 6 hours
-        </button>
-      <% else %>
-        <div class="text-gray-500">
-          <.link patch={browse_path(@context.timezone)} class="link">Browse</.link> to see more passes
-        </div>
-      <% end %>
-    </div>
-  <% end %>
-
   <.filter_panel>
     <h2 class="block md:hidden mb-2 text-h2">
       Passes
@@ -69,6 +55,20 @@
     <div class="py-8 italic text-gray-400 text-center flex items-center justify-center gap-3">
       <div class="spinner w-8 h-8"></div>
       Calculating...
+    </div>
+  <% end %>
+
+  <%= if @duration == :upcoming do %>
+    <div class="py-8 flex justify-center">
+      <%= if @loading? or @can_load_more? do %>
+        <button phx-click="load-more" class="btn btn-default" disabled={@loading?}>
+          Load next 6 hours
+        </button>
+      <% else %>
+        <div class="text-gray-500">
+          <.link patch={browse_path(@context.timezone)} class="link">Browse</.link> to see more passes
+        </div>
+      <% end %>
     </div>
   <% end %>
 <% end %>
