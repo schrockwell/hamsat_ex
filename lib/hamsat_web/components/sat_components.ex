@@ -5,9 +5,11 @@ defmodule HamsatWeb.SatComponents do
   alias Hamsat.Schemas.Alert
 
   def sat_modulation_labels(%{sat: _sat} = assigns) do
+    assigns = assign_new(assigns, :class, fn -> nil end)
+
     ~H"""
     <%= for modulation <- @sat.modulations do %>
-      <.sat_modulation_label modulation={modulation} />
+      <.sat_modulation_label modulation={modulation} class={@class} />
     <% end %>
     """
   end
@@ -16,7 +18,11 @@ defmodule HamsatWeb.SatComponents do
     ~H"""
     <span
       title={Modulation.name(@modulation)}
-      class={[Modulation.css_class(@modulation), "text-xs px-1.5 py-0.5 font-semibold uppercase rounded w-8 inline-block"]}
+      class={[
+        assigns[:class],
+        Modulation.css_class(@modulation),
+        "text-xs px-1.5 py-0.5 font-semibold uppercase rounded inline-block"
+      ]}
     >
       <%= Modulation.short_name(@modulation) %>
     </span>
