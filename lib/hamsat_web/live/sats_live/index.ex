@@ -1,8 +1,9 @@
 defmodule HamsatWeb.SatsLive.Index do
   use HamsatWeb, :live_view
 
+  import HamsatWeb.SatComponents
+
   alias Hamsat.Satellites
-  alias HamsatWeb.SatComponents
 
   def mount(_params, _session, socket) do
     {:ok, assign(socket, page_title: "Satellites", all_sats: Satellites.list_satellites_and_stats())}

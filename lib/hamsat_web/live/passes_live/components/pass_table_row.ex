@@ -6,11 +6,41 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
   alias HamsatWeb.SatComponents
 
   attr :context, Hamsat.Context, required: true
+  attr :now, DateTime, required: true
+  attr :passes, :list, required: true
+
+  def table(assigns) do
+    ~H"""
+    <div class="mt-2 overflow-x-auto">
+      <table class="table w-full">
+        <thead>
+          <tr>
+            <th class="whitespace-nowrap px-1" title="Time of acquisition of signal">AOS</th>
+            <th class="whitespace-nowrap px-1" title="Time until acquisition or loss of signal">Next Event</th>
+            <th class="whitespace-nowrap px-1" title="Satellite name and modulation">Sat</th>
+            <th class="whitespace-nowrap px-1" title="Duration of visible pass">Length</th>
+            <th class="whitespace-nowrap px-1" title="Max elevation during pass">Max El</th>
+            <th class="whitespace-nowrap px-1" colspan="3" title="Azimuth of satellite during pass">Az</th>
+            <th class="whitespace-nowrap px-1" title="Activation alerts">Alerts</th>
+            <th class="whitespace-nowrap px-1"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for pass <- @passes do %>
+            <.row id={Pass.encode_hash(pass)} context={@context} pass={pass} now={@now} />
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    """
+  end
+
+  attr :context, Hamsat.Context, required: true
   attr :id, :string, required: true
   attr :now, DateTime, required: true
   attr :pass, Pass, required: true
 
-  def component(assigns) do
+  def row(assigns) do
     ~H"""
     <.live_component module={__MODULE__} id={@id} context={@context} now={@now} pass={@pass} />
     """

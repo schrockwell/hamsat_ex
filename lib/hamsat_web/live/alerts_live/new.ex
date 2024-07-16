@@ -11,6 +11,7 @@ defmodule HamsatWeb.AlertsLive.New do
   alias Hamsat.Satellites
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.AlertForm
+  alias Hamsat.Schemas.Sat
   alias HamsatWeb.LocationPicker
 
   defp assign_defaults(socket) do
@@ -211,8 +212,7 @@ defmodule HamsatWeb.AlertsLive.New do
       |> Modulation.list_by_alert_option()
 
     sat
-    |> Map.fetch!(field)
-    |> Enum.filter(fn subband -> subband.mode in modulations end)
+    |> Sat.subbands(field, modulations)
     |> Enum.map(&subband_range/1)
     |> Enum.join(", ")
   end

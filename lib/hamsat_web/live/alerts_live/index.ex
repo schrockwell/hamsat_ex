@@ -6,13 +6,14 @@ defmodule HamsatWeb.AlertsLive.Index do
   alias Hamsat.Alerts
   alias HamsatWeb.Alerts.Components.AlertTableRow
 
+  on_mount HamsatWeb.Live.NowTicker
+
   def mount(_params, _session, socket) do
     if connected?(socket) do
-      Process.send_after(self(), :set_now, 1_000)
       Phoenix.PubSub.subscribe(Hamsat.PubSub, "alerts")
     end
 
-    socket = assign(socket, now: DateTime.utc_now(), page_title: "Activations")
+    socket = assign(socket, page_title: "Activations")
 
     {:ok, socket}
   end
@@ -53,11 +54,6 @@ defmodule HamsatWeb.AlertsLive.Index do
     socket = push_patch(socket, to: ~p"/alerts?#{params}")
 
     {:noreply, socket}
-  end
-
-  def handle_info(:set_now, socket) do
-    Process.send_after(self(), :set_now, 1_000)
-    {:noreply, assign(socket, now: DateTime.utc_now())}
   end
 
   def handle_info({event, _info} = message, socket)

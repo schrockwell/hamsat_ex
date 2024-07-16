@@ -1,0 +1,53 @@
+<section class="flex flex-col md:flex-row gap-4 p-3 md:p-6">
+  <div class="flex-1">
+    <div class="mb-4">
+      <h1 class="block text-h1"><%= @sat.name %></h1>
+      <%= if @sat.aliases != [] do %>
+        <div>aka <%= Enum.join(@sat.aliases, ", ") %></div>
+      <% end %>
+    </div>
+
+    <%= for transponder <- @sat.transponders do %>
+      <.transponder_panel transponder={transponder} />
+    <% end %>
+  </div>
+  <div class="flex-1">
+    <SatTracker.component
+      id="sat-tracker"
+      observer_positions={Enum.reject([@context.location], &is_nil/1)}
+      sat_positions={@sat_positions}
+    />
+  </div>
+</section>
+
+<section class="mt-4 mb-8 md:mb-16">
+  <h2 class="text-h2 px-3 md:px-6">
+    <%= pluralized_count(length(@alerts), "Upcoming Activation", "Upcoming Activations") %>
+    <.link navigate={~p"/alerts/new?#{%{sat: @sat.number}}"} class="link text-base ml-4">(Post an Activation)</.link>
+  </h2>
+
+  <%= if @alerts != [] do %>
+    <AlertTableRow.table alerts={@alerts} now={@now} context={@context} />
+  <% end %>
+</section>
+
+<section class="my-8 md:my-16">
+  <h2 class="text-h2 px-3 md:px-6">
+    <%= pluralized_count(length(@passes), "Pass", "Passes") %> in the Next 24 Hours
+  </h2>
+
+  <%= if @context.location do %>
+    <%= if @passes != [] do %>
+      <PassTableRow.table context={@context} now={@now} passes={@passes} />
+    <% end %>
+  <% else %>
+    <div class="p-6 w-full md:w-1/2">
+      <LocationSetter.component
+        id="location-setter"
+        context={@context}
+        redirect={~p"/sats/#{@sat.number}"}
+        show_log_in_link?={true}
+      />
+    </div>
+  <% end %>
+</section>

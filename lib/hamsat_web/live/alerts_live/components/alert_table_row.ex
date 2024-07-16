@@ -5,12 +5,46 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
   alias HamsatWeb.LiveComponents.AlertSaver
   alias HamsatWeb.SatComponents
 
+  attr :context, Hamsat.Context, required: true
+  attr :now, DateTime, required: true
+  attr :alerts, :list, required: true
+
+  def table(assigns) do
+    ~H"""
+    <div class="overflow-x-auto">
+      <table class="table w-full">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="pl-6">Time</th>
+            <th>Callsign</th>
+            <th>Sat</th>
+            <th>Grid</th>
+            <th>Freq</th>
+            <th>Mode</th>
+            <th>Comment</th>
+            <th>Match</th>
+            <th>Max El</th>
+            <th>Visible</th>
+            <th>Visible</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <%= for alert <- @alerts do %>
+          <.row id={alert.id} alert={alert} now={@now} context={@context} />
+        <% end %>
+      </table>
+    </div>
+    """
+  end
+
   attr :alert, Alert, required: true
   attr :context, Hamsat.Context, required: true
   attr :id, :string, required: true
   attr :now, DateTime, required: true
 
-  def component(assigns) do
+  def row(assigns) do
     ~H"""
     <.live_component module={__MODULE__} id={@id} alert={@alert} context={@context} now={@now} />
     """

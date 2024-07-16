@@ -12,31 +12,7 @@
   </div>
 </.filter_panel>
 
-<div class="overflow-x-auto">
-  <table class="table w-full">
-    <thead>
-      <tr>
-        <th></th>
-        <th class="pl-6">Time</th>
-        <th>Callsign</th>
-        <th>Sat</th>
-        <th>Grid</th>
-        <th>Freq</th>
-        <th>Mode</th>
-        <th>Comment</th>
-        <th>Match</th>
-        <th>Max El</th>
-        <th>Visible</th>
-        <th>Visible</th>
-        <th></th>
-      </tr>
-    </thead>
-
-    <%= for alert <- @alerts do %>
-      <AlertTableRow.component id={alert.id} alert={alert} now={@now} context={@context} />
-    <% end %>
-  </table>
-</div>
+<AlertTableRow.table alerts={@alerts} now={@now} context={@context} />
 
 <%= if @alerts == [] do %>
   <div class="text-center py-8 italic text-gray-400">

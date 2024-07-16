@@ -4,14 +4,15 @@ defmodule HamsatWeb.LiveComponents.PassTracker do
   alias Hamsat.Coord
   alias Hamsat.Schemas.Sat
 
-  attr :pass_plot, :any, required: true
+  attr :pass_plot, :any, default: nil
+  attr :location, :any, default: nil
   attr :id, :string, required: true
   attr :now, DateTime, required: true
   attr :sat, Sat, required: true
 
   def component(assigns) do
     ~H"""
-    <.live_component module={__MODULE__} pass_plot={@pass_plot} id={@id} now={@now} sat={@sat} />
+    <.live_component module={__MODULE__} pass_plot={@pass_plot} id={@id} now={@now} sat={@sat} location={@location} />
     """
   end
 
@@ -30,10 +31,12 @@ defmodule HamsatWeb.LiveComponents.PassTracker do
 
   defp update_sat_position(socket) do
     if changed?(socket, :now) do
+      location = if socket.assigns.pass_plot, do: socket.assigns.pass_plot.location, else: socket.assigns.location
+
       sat_position =
         socket.assigns.sat
         |> Sat.get_satrec()
-        |> Satellite.current_position(Coord.to_observer(socket.assigns.pass_plot.location), magnitude?: false)
+        |> Satellite.current_position(Coord.to_observer(location), magnitude?: false)
 
       socket
       |> assign(:sat_position, sat_position)
@@ -55,9 +58,12 @@ defmodule HamsatWeb.LiveComponents.PassTracker do
     end
   end
 
+  defp data_path(nil), do: Jason.encode!([])
+  defp data_path(pass_plot), do: Jason.encode!(pass_plot.coords)
+
   def render(assigns) do
     ~H"""
-    <div id={@id} phx-hook="PassTrackerHook" phx-update="ignore" data-path={Jason.encode!(@pass_plot.coords)}></div>
+    <div id={@id} phx-hook="PassTrackerHook" phx-update="ignore" data-path={data_path(@pass_plot)}></div>
     """
   end
 end
