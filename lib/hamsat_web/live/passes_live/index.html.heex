@@ -17,7 +17,12 @@
         </form>
       <% end %>
 
-      <.form :let={f} for={@pass_filter_changeset} class="flex items-center space-x-8 text-sm" phx-change="filter-changed">
+      <.form
+        :let={f}
+        for={@pass_filter_changeset}
+        class="flex items-center space-x-8 text-sm"
+        phx-change="filter-changed"
+      >
         <div class="flex items-center space-x-4">
           <%= for {field, label} <- [fm_mod: "FM", linear_mod: "Linear", digital_mod: "Digital"] do %>
             <div class="flex items-center space-x-2">

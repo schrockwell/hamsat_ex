@@ -133,7 +133,6 @@ defmodule Hamsat.Schemas.Alert do
          }}
       end
 
-
     in_progress_event =
       if not alert.is_workable? do
         {:in_progress,

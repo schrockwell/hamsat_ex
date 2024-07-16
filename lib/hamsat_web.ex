@@ -155,6 +155,4 @@ defmodule HamsatWeb do
   ),
     another_key: :value
   }
-
-
 end
