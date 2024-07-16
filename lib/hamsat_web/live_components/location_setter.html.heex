@@ -1,4 +1,9 @@
-<div>
+<div class="border rounded-lg shadow-lg p-8">
+  <div class="flex gap-4 items-center text-xl mb-8 font-medium text-gray-700">
+    <Heroicons.LiveView.icon name="map-pin" type="outline" class="block h-8 w-8" />
+    <div>Set your location</div>
+  </div>
+
   <div class="mb-8">
     <%= if @show_log_in_link? do %>
       To view satellite predictions at your current location, you must <.link

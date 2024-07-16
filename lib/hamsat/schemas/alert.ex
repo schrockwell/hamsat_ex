@@ -23,7 +23,7 @@ defmodule Hamsat.Schemas.Alert do
     field :observer_lon, :float
     field :grids, {:array, :string}
 
-    field :is_workable?, :boolean, default: nil, virtual: true
+    field :is_workable?, :boolean, default: false, virtual: true
     field :workable_start_at, :utc_datetime, virtual: true
     field :workable_end_at, :utc_datetime, virtual: true
     field :my_closest_position, :map, default: nil, virtual: true
@@ -132,6 +132,7 @@ defmodule Hamsat.Schemas.Alert do
            end_at: alert.los_at
          }}
       end
+
 
     in_progress_event =
       if not alert.is_workable? do

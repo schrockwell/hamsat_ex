@@ -146,4 +146,15 @@ defmodule HamsatWeb do
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])
   end
+
+  %{
+    possibilities: ~w(
+      a
+      b
+      c
+  ),
+    another_key: :value
+  }
+
+
 end
