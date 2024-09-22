@@ -29,19 +29,6 @@ satellites =
       ]
     },
     %{
-      name: "AO-27",
-      number: 22825,
-      modulations: [:fm],
-      transponders: [
-        %{
-          mode: :fm,
-          status: :active,
-          downlink: %{lower_mhz: 436.795, upper_mhz: 436.795},
-          uplink: %{lower_mhz: 145.850, upper_mhz: 145.850}
-        }
-      ]
-    },
-    %{
       name: "AO-73",
       aliases: ["FUNcube-1"],
       number: 39444,
@@ -300,84 +287,6 @@ satellites =
         }
       ]
     },
-    %{
-      name: "Tevel-2",
-      number: 51069,
-      modulations: [:fm],
-      transponders: [
-        %{
-          mode: :fm,
-          status: :active,
-          downlink: %{lower_mhz: 436.400, upper_mhz: 436.400},
-          uplink: %{lower_mhz: 145.970, upper_mhz: 145.970}
-        }
-      ]
-    },
-    %{
-      name: "Tevel-3",
-      number: 50988,
-      modulations: [:fm],
-      transponders: [
-        %{
-          mode: :fm,
-          status: :active,
-          downlink: %{lower_mhz: 436.400, upper_mhz: 436.400},
-          uplink: %{lower_mhz: 145.970, upper_mhz: 145.970}
-        }
-      ]
-    },
-    %{
-      name: "Tevel-4",
-      number: 51063,
-      modulations: [:fm],
-      transponders: [
-        %{
-          mode: :fm,
-          status: :active,
-          downlink: %{lower_mhz: 436.400, upper_mhz: 436.400},
-          uplink: %{lower_mhz: 145.970, upper_mhz: 145.970}
-        }
-      ]
-    },
-    %{
-      name: "Tevel-5",
-      number: 50998,
-      modulations: [:fm],
-      transponders: [
-        %{
-          mode: :fm,
-          status: :active,
-          downlink: %{lower_mhz: 436.400, upper_mhz: 436.400},
-          uplink: %{lower_mhz: 145.970, upper_mhz: 145.970}
-        }
-      ]
-    },
-    %{
-      name: "Tevel-6",
-      number: 50999,
-      modulations: [:fm],
-      transponders: [
-        %{
-          mode: :fm,
-          status: :active,
-          downlink: %{lower_mhz: 436.400, upper_mhz: 436.400},
-          uplink: %{lower_mhz: 145.970, upper_mhz: 145.970}
-        }
-      ]
-    },
-    %{
-      name: "Tevel-7",
-      number: 51062,
-      modulations: [:fm],
-      transponders: [
-        %{
-          mode: :fm,
-          status: :active,
-          downlink: %{lower_mhz: 436.400, upper_mhz: 436.400},
-          uplink: %{lower_mhz: 145.970, upper_mhz: 145.970}
-        }
-      ]
-    }
   ]
   |> Enum.map(&Map.put_new(&1, :slug, &1.name))
 
