@@ -38,4 +38,8 @@ defmodule HamsatWeb.SatsLive.Index do
       "#{sat.name} (#{Enum.join(sat.aliases, "/")})"
     end
   end
+
+  defp group_sats(sats) do
+    Satellites.group_sats(sats)
+  end
 end

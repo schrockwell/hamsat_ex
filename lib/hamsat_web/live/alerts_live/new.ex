@@ -56,7 +56,7 @@ defmodule HamsatWeb.AlertsLive.New do
   end
 
   def mount(_params, _session, socket) do
-    mount_with_sat(socket, Satellites.first_satellite())
+    mount_with_sat(socket, Satellites.first_active_satellite())
   end
 
   defp mount_with_sat(socket, sat) do

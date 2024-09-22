@@ -95,4 +95,12 @@ defmodule Hamsat.Util do
 
     "UTC#{sign}#{hours}:#{minutes}"
   end
+
+  def pass_opts(time, other \\ []) do
+    [
+      search_passes_after: time |> Timex.shift(hours: -24) |> utc_datetime_to_erl(),
+      search_passes_before: time |> Timex.shift(hours: 24) |> utc_datetime_to_erl()
+    ]
+    |> Keyword.merge(other)
+  end
 end

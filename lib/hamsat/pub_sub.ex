@@ -29,4 +29,8 @@ defmodule Hamsat.PubSub do
 
     positions
   end
+
+  def broadcast_satellites_updated do
+    broadcast("__internal__", :satellites_updated)
+  end
 end

@@ -68,12 +68,12 @@ defmodule HamsatWeb.PassesLive.Index do
       failed?: false,
       needs_location?: false,
       page_title: "Passes",
-      sats: Satellites.list_satellites()
+      sats: Satellites.list_in_orbit_satellites()
     )
   end
 
   defp assign_sats(socket) do
-    assign(socket, sats: Satellites.list_satellites())
+    assign(socket, sats: Satellites.list_in_orbit_satellites())
   end
 
   defp assign_pass_filter_changeset(socket) do

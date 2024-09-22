@@ -57,21 +57,23 @@ defmodule Hamsat.MixProject do
         {:hackney, "~> 1.20.1"},
         {:ex_heroicons, "~> 2.0.0"},
         {:atomex, "~> 0.5.1"},
-        {:httpoison, "~> 2.2.1"}
+        {:httpoison, "~> 2.2.1"},
+        {:live_inspect, "~> 0.2"},
+        {:live_event, "0.3.0"}
       ]
   end
 
   defp local_deps do
     if path = System.get_env("LOCAL_DEPS_PATH") do
       [
-        {:live_inspect, path: Path.join(path, "live_inspect")},
-        {:live_event, path: Path.join(path, "live_event")},
+        # {:live_inspect, path: Path.join(path, "live_inspect")},
+        # {:live_event, path: Path.join(path, "live_event")},
         {:satellite_ex, path: Path.join(path, "satelliteEx")}
       ]
     else
       [
-        {:live_inspect, "~> 0.2"},
-        {:live_event, "0.3.0"},
+        # {:live_inspect, "~> 0.2"},
+        # {:live_event, "0.3.0"},
         {:satellite_ex, git: "https://github.com/schrockwell/satelliteEx.git", branch: "hamsat"}
       ]
     end

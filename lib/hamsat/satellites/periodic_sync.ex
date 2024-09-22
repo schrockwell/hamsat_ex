@@ -19,6 +19,11 @@ defmodule Hamsat.Satellites.PeriodicSync do
 
   defp do_sync do
     Satellites.sync_now()
+
+    # this purge isn't really necessary here, but it's a good time to do it
+    Hamsat.Alerts.PassCache.purge_all()
+
+    Hamsat.PubSub.broadcast_satellites_updated()
     Process.send_after(self(), :sync, :timer.hours(24))
   end
 end

@@ -7,6 +7,12 @@
       <% end %>
     </div>
 
+    <%= unless @sat.in_orbit do %>
+      <div class="bg-red-600 text-white px-4 py-2 rounded-md mb-4">
+        This satellite is no longer in orbit.
+      </div>
+    <% end %>
+
     <%= for transponder <- @sat.transponders do %>
       <.transponder_panel transponder={transponder} />
     <% end %>
