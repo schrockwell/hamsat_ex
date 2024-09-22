@@ -56,7 +56,8 @@ defmodule Hamsat.MixProject do
         {:timex, "~> 3.7"},
         {:hackney, "~> 1.20.1"},
         {:ex_heroicons, "~> 2.0.0"},
-        {:atomex, "~> 0.5.1"}
+        {:atomex, "~> 0.5.1"},
+        {:httpoison, "~> 2.2.1"}
       ]
   end
 

@@ -3,20 +3,68 @@ defmodule Hamsat.Satellites do
 
   alias Hamsat.Schemas.Sat
 
-  @satellites Application.compile_env!(:hamsat, :satellites)
+  def start_sync do
+    Task.start(fn -> sync_now() end)
+  end
 
-  def sync do
-    for attrs <- known() do
-      upsert_satellite!(attrs.number, attrs)
+  def sync_now do
+    with {:ok, %HTTPoison.Response{status_code: 200, body: json}} <-
+           HTTPoison.get("https://hamdata.ww1x.radio/amsat/satellites.json") do
+      satellites_json = Jason.decode!(json)["data"]
+
+      upserted_sats =
+        satellites_json
+        |> Enum.map(&satellite_attrs_from_json/1)
+        |> Enum.filter(&(&1.status == :active || &1.status == :conflicting))
+        |> Enum.map(&upsert_satellite!/1)
+
+      upserted_sats
+      |> Enum.map(& &1.number)
+      |> deorbit_satellites()
     end
+  end
 
-    known()
-    |> Enum.map(& &1.number)
-    |> deorbit_satellites()
+  defp satellite_attrs_from_json(json) do
+    modulations =
+      json
+      |> Map.get("meta", %{})
+      |> Map.get("transponders", [])
+      |> Enum.flat_map(fn
+        %{"mode" => "digital"} -> [:digital]
+        %{"mode" => "fm"} -> [:fm]
+        %{"mode" => "linear"} -> [:linear]
+        _ -> []
+      end)
+      |> Enum.uniq()
 
-    IO.puts("Synced #{length(known())} satellites")
+    transponders =
+      json
+      |> Map.get("transponders", [])
+      |> Enum.map(fn xpdr ->
+        %{
+          mode: String.to_atom(xpdr["mode"]),
+          status: String.to_atom(xpdr["status"]),
+          downlink: %{
+            lower_mhz: xpdr["downlink"]["min"],
+            upper_mhz: xpdr["downlink"]["max"]
+          },
+          uplink: %{
+            lower_mhz: xpdr["uplink"]["min"],
+            upper_mhz: xpdr["uplink"]["max"]
+          }
+        }
+      end)
 
-    :ok
+    %{
+      name: json["name"],
+      nasa_name: json["name"],
+      slug: json["name"],
+      number: json["number"],
+      status: String.to_atom(json["status"]),
+      modulations: modulations,
+      transponders: transponders,
+      aliases: Map.get(json, "aliases", [])
+    }
   end
 
   def first_satellite do
@@ -53,9 +101,9 @@ defmodule Hamsat.Satellites do
     for sat <- list_satellites(), do: {sat.name, sat.id}
   end
 
-  def upsert_satellite!(number, attrs) do
+  def upsert_satellite!(attrs) do
     Sat
-    |> Repo.get_by(number: number)
+    |> Repo.get_by(number: attrs.number)
     |> Repo.preload(:transponders)
     |> case do
       nil ->
@@ -66,9 +114,9 @@ defmodule Hamsat.Satellites do
     end
   end
 
-  defp deorbit_satellites(known_satnums) do
-    Repo.update_all(from(s in Sat, where: s.number in ^known_satnums), set: [deorbited: false])
-    Repo.update_all(from(s in Sat, where: s.number not in ^known_satnums), set: [deorbited: true])
+  defp deorbit_satellites(active_satnums) do
+    Repo.update_all(from(s in Sat, where: s.number in ^active_satnums), set: [deorbited: false])
+    Repo.update_all(from(s in Sat, where: s.number not in ^active_satnums), set: [deorbited: true])
   end
 
   def get_satellite!(id) do
@@ -78,8 +126,6 @@ defmodule Hamsat.Satellites do
   def get_satellite_by_number!(number) do
     Sat |> Repo.get_by!(number: number) |> preload_sat()
   end
-
-  def known, do: @satellites
 
   def preload_sat(sat) do
     Repo.preload(sat, :transponders)

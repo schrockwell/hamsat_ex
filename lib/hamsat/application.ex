@@ -13,6 +13,7 @@ defmodule Hamsat.Application do
       {Phoenix.PubSub, name: Hamsat.PubSub},
       Hamsat.Scheduler,
       Hamsat.Satellites.PositionServer,
+      Hamsat.Satellites.PeriodicSync,
       HamsatWeb.Endpoint
     ]
 
@@ -22,7 +23,6 @@ defmodule Hamsat.Application do
 
     with {:ok, pid} <- Supervisor.start_link(children, opts) do
       Hamsat.Alerts.PassCache.initialize()
-      Hamsat.Satellites.sync()
       {:ok, pid}
     end
   end
