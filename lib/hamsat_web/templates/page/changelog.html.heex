@@ -1,6 +1,24 @@
 <div class="p-3 md:p-6">
   <h1 class="text-h2 md:text-h1">Changelog</h1>
 
+  <.date_header date="2024-09-22" />
+  <ul>
+    <li>
+      <.sats />
+      Satellites status is now automatically updated based on signal reports from the <a
+        href="https://www.amsat.org/status/"
+        class="link"
+      >AMSAT OSCAR status page</a>.
+    </li>
+    <li><.fix /> Fixed calculations for satellites that are deorbited or will not pass overhead.</li>
+  </ul>
+
+  <.date_header date="2024-09-12" />
+  <ul>
+    <li><.sats /> Removed TEVEL sats from list of satellites.</li>
+    <li><.sats /> Removed AO-27 from list of satellites.</li>
+  </ul>
+
   <.date_header date="2024-07-16" />
   <ul>
     <li><.new /> Added <.link navigate={~p"/sats"} class="link">satellite detail pages</.link></li>
