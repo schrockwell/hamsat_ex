@@ -128,10 +128,12 @@ defmodule Hamsat.Alerts.PassCache do
         Util.utc_datetime_to_erl(bucket.ending),
         # These are the pass_opts that I added to satellite_ex to improve the performance
         # of these pass calculations
-        magnitude?: false,
-        geodetic?: false,
-        coarse_increment: 60,
-        fine_increment: 5
+        Util.pass_opts(bucket.starting,
+          magnitude?: false,
+          geodetic?: false,
+          coarse_increment: 60,
+          fine_increment: 5
+        )
       )
     rescue
       error ->

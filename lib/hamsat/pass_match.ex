@@ -4,6 +4,7 @@ defmodule Hamsat.PassMatch do
   alias Hamsat.Coord
   alias Hamsat.PassPlot
   alias Hamsat.Schemas.Sat
+  alias Hamsat.Util
 
   def new(sat, locations, time, opts \\ []) do
     satrec = Sat.get_satrec(sat)
@@ -17,7 +18,7 @@ defmodule Hamsat.PassMatch do
 
   defp build_plot(satrec, location, time) do
     observer = Coord.to_observer(location)
-    pass = Satellite.next_pass(satrec, Timex.to_erl(time), observer, magnitude?: false)
+    pass = Satellite.next_pass(satrec, Timex.to_erl(time), observer, Util.pass_opts(time, magnitude?: false))
 
     %PassPlot{satrec: satrec, location: location, pass: pass}
   end

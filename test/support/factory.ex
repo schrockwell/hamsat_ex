@@ -8,7 +8,7 @@ defmodule Hamsat.Factory do
   def satellite(context, key, slug) do
     attrs = Hamsat.Satellites.known() |> Enum.find(&(&1.slug == slug))
 
-    sat = Hamsat.Satellites.upsert_satellite!(attrs.number, attrs)
+    sat = Hamsat.Satellites.upsert_satellite!(attrs)
 
     Map.put(context, key, sat)
   end

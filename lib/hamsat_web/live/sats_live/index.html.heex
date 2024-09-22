@@ -8,27 +8,30 @@
   </form>
 </.filter_panel>
 
-<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 p-4">
-  <%= for sat <- @sats do %>
-    <div class="border rounded-lg shadow-lg p-6">
-      <div class="flex items-center text-xl font-medium justify-between">
-        <div><%= sat_names(sat) %></div>
-        <div><.sat_modulation_labels sat={sat} class="!text-lg !px-3" /></div>
-      </div>
+<%= for {group, sats} <- group_sats(@sats) do %>
+  <h3 class="text-xl px-8 pt-4"><%= group %></h3>
+  <%= if sats == [] do %>
+    <div class="text-gray-500 p-8">
+      <div class="mb-4">No <%= String.downcase(group) %> satellites found.</div>
+      <.link patch={~p"/sats"} class="link">Clear search</.link>
+    </div>
+  <% else %>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 p-4 mb-24">
+      <%= for sat <- sats do %>
+        <div class="border rounded-lg shadow-lg p-6">
+          <div class="flex items-center text-xl font-medium justify-between">
+            <div><%= sat_names(sat) %></div>
+            <div><.sat_modulation_labels sat={sat} class="!text-lg !px-3" /></div>
+          </div>
 
-      <div class="mb-4"><%= sat.total_activation_count %> activations</div>
+          <div class="mb-4"><%= sat.total_activation_count %> activations</div>
 
-      <div class="flex gap-8">
-        <.link navigate={~p"/sats/#{sat.number}"} class="link">Details</.link>
-        <.link href={~p"/alerts/new?sat=#{sat.number}"} class="link">Post an Activation</.link>
-      </div>
+          <div class="flex gap-8">
+            <.link navigate={~p"/sats/#{sat.number}"} class="link">Details</.link>
+            <.link href={~p"/alerts/new?sat=#{sat.number}"} class="link">Post an Activation</.link>
+          </div>
+        </div>
+      <% end %>
     </div>
   <% end %>
-</div>
-
-<%= if @sats == [] do %>
-  <div class="text-center text-gray-500 py-8">
-    <div class="mb-4">No satellites found.</div>
-    <.link patch={~p"/sats"} class="link">Clear search</.link>
-  </div>
 <% end %>

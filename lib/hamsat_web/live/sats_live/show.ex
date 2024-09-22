@@ -26,8 +26,8 @@ defmodule HamsatWeb.SatsLive.Show do
 
     socket =
       socket
+      |> assign(:page_title, sat.name)
       |> assign(sat: sat)
-      |> assign_pass_plot()
       |> assign_alerts()
       |> assign_passes()
       |> assign_sat_positions()
@@ -47,23 +47,6 @@ defmodule HamsatWeb.SatsLive.Show do
   def handle_info({:satellite_positions, positions}, socket) do
     {:noreply, assign(socket, sat_positions: Enum.filter(positions, &(&1.sat_id == socket.assigns.sat.id)))}
   end
-
-  defp assign_pass_plot(%{assigns: %{context: %{location: %Coord{} = location}}} = socket) do
-    pass =
-      Satellite.next_pass(
-        Sat.get_satrec(socket.assigns.sat),
-        Timex.to_erl(socket.assigns.now),
-        Coord.to_observer(location)
-      )
-
-    pass_plot =
-      %PassPlot{satrec: Sat.get_satrec(socket.assigns.sat), location: location, pass: pass}
-      |> PassPlot.populate_coords()
-
-    assign(socket, :pass_plot, pass_plot)
-  end
-
-  defp assign_pass_plot(socket), do: assign(socket, :pass_plot, nil)
 
   defp assign_alerts(socket) do
     assign(
@@ -110,7 +93,7 @@ defmodule HamsatWeb.SatsLive.Show do
   defp transponder_status_badge(%{status: :inactive} = assigns) do
     ~H"""
     <span class="bg-red-600 text-white px-2 py-1 uppercase text-sm font-semibold flex items-center gap-1">
-      <Heroicons.LiveView.icon name="check" type="mini" class="h-4 w-4" /> Inactive
+      <Heroicons.LiveView.icon name="x-mark" type="mini" class="h-4 w-4" /> Inactive
     </span>
     """
   end
@@ -119,6 +102,14 @@ defmodule HamsatWeb.SatsLive.Show do
     ~H"""
     <span class="bg-orange-500 text-white px-2 py-1 uppercase text-sm font-semibold flex items-center gap-1">
       <Heroicons.LiveView.icon name="exclamation-triangle" type="mini" class="h-4 w-4" />Problems
+    </span>
+    """
+  end
+
+  defp transponder_status_badge(%{status: :conflicting} = assigns) do
+    ~H"""
+    <span class="bg-orange-500 text-white px-2 py-1 uppercase text-sm font-semibold flex items-center gap-1">
+      <Heroicons.LiveView.icon name="question-mark-circle" type="mini" class="h-4 w-4" />Conflicting Reports
     </span>
     """
   end

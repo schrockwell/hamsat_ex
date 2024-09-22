@@ -1,4 +1,4 @@
-Hamsat.Satellites.sync()
+Hamsat.Satellites.sync_now()
 
 Hamsat.Accounts.register_user(%{
   email: "default@example.com",

@@ -10,7 +10,7 @@ defmodule Hamsat.Schemas.Transponder do
     embeds_one :downlink, FreqRange, on_replace: :delete
     embeds_one :uplink, FreqRange, on_replace: :delete
 
-    field :status, Ecto.Enum, values: [:active, :problems, :inactive, :unknown]
+    field :status, Ecto.Enum, values: [:active, :problems, :conflicting, :inactive, :unknown]
     field :mode, Ecto.Enum, values: [:linear, :linear_non_inv, :fm, :digital, :cw_beacon, :telemetry]
     field :notes, :string
 

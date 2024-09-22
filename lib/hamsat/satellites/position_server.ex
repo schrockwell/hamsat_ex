@@ -10,7 +10,7 @@ defmodule Hamsat.Satellites.PositionServer do
   @tick_interval 1_000
 
   def start_link(_) do
-    sats = Satellites.list_satellites()
+    sats = Satellites.list_in_orbit_satellites()
     GenServer.start_link(__MODULE__, sats, name: __MODULE__)
   end
 
@@ -19,6 +19,8 @@ defmodule Hamsat.Satellites.PositionServer do
   end
 
   def init(sats) do
+    Phoenix.PubSub.subscribe(Hamsat.PubSub, "__internal__")
+
     {:ok, %{sats: sats, sat_positions: %{}}, {:continue, []}}
   end
 
@@ -30,6 +32,10 @@ defmodule Hamsat.Satellites.PositionServer do
   def handle_info(:tick, state) do
     Process.send_after(self(), :tick, @tick_interval)
     {:noreply, update_sat_positions(state)}
+  end
+
+  def handle_info(:satellites_updated, state) do
+    {:noreply, %{state | sats: Satellites.list_in_orbit_satellites()}}
   end
 
   def handle_call(:get_sat_positions, _from, state) do
@@ -50,5 +56,7 @@ defmodule Hamsat.Satellites.PositionServer do
     if satrec = Sat.get_satrec(sat) do
       %{sat_id: sat.id, sat_name: sat.name, position: Satellite.current_position(satrec, @observer, magnitude?: false)}
     end
+  rescue
+    _ -> nil
   end
 end
