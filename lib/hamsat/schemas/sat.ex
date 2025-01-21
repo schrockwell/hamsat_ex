@@ -38,6 +38,17 @@ defmodule Hamsat.Schemas.Sat do
     end
   end
 
+  # If we have the TLE saved in the DB, use that first!
+  def get_satrec(%__MODULE__{tle: tle}) when is_binary(tle) do
+    [tle1, tle2] = String.split(tle, "\n")
+
+    case Satellite.TLE.to_satrec(tle1, tle2) do
+      {:ok, satrec} -> satrec
+      _ -> nil
+    end
+  end
+
+  # Fallback to satellite_ex database
   def get_satrec(%__MODULE__{number: number}) do
     Satellite.SatelliteDatabase.lookup(number)
   end
