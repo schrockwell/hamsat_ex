@@ -72,7 +72,8 @@ defmodule Hamsat.Satellites do
       is_active: json["status"] == "active" || json["status"] == "conflicting",
       modulations: modulations,
       transponders: transponders,
-      aliases: Map.get(json, "aliases", [])
+      aliases: Map.get(json, "aliases", []),
+      tle: json |> Map.get("tle", []) |> Enum.join("\n")
     }
   end
 

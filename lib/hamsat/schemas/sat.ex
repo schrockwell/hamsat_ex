@@ -12,6 +12,7 @@ defmodule Hamsat.Schemas.Sat do
     field :aliases, {:array, :string}, default: []
     field :in_orbit, :boolean
     field :is_active, :boolean
+    field :tle, :string
 
     # Aggregate fields
     field :total_activation_count, :integer, virtual: true
@@ -23,9 +24,9 @@ defmodule Hamsat.Schemas.Sat do
 
   def upsert_changeset(sat \\ %__MODULE__{}, attrs) do
     sat
-    |> cast(attrs, [:name, :number, :slug, :nasa_name, :modulations, :aliases, :in_orbit, :is_active])
+    |> cast(attrs, [:name, :number, :slug, :nasa_name, :modulations, :aliases, :in_orbit, :is_active, :tle])
     |> put_nasa_name()
-    |> validate_required([:name, :number, :slug, :nasa_name, :modulations])
+    |> validate_required([:name, :number, :slug, :nasa_name, :modulations, :tle])
     |> cast_assoc(:transponders, with: &Transponder.changeset/2)
   end
 
