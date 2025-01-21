@@ -2,12 +2,9 @@ defmodule HamsatWeb.SatsLive.Show do
   use HamsatWeb, :live_view
 
   alias Hamsat.Alerts
-  alias Hamsat.Coord
   alias Hamsat.Passes
-  alias Hamsat.PassPlot
   alias Hamsat.Satellites
   alias Hamsat.Satellites.PositionServer
-  alias Hamsat.Schemas.Sat
 
   alias HamsatWeb.Alerts.Components.AlertTableRow
   alias HamsatWeb.LocationSetter

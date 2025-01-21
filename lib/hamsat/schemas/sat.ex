@@ -12,6 +12,7 @@ defmodule Hamsat.Schemas.Sat do
     field :aliases, {:array, :string}, default: []
     field :in_orbit, :boolean
     field :is_active, :boolean
+    field :tle, :string
 
     # Aggregate fields
     field :total_activation_count, :integer, virtual: true
@@ -23,9 +24,9 @@ defmodule Hamsat.Schemas.Sat do
 
   def upsert_changeset(sat \\ %__MODULE__{}, attrs) do
     sat
-    |> cast(attrs, [:name, :number, :slug, :nasa_name, :modulations, :aliases, :in_orbit, :is_active])
+    |> cast(attrs, [:name, :number, :slug, :nasa_name, :modulations, :aliases, :in_orbit, :is_active, :tle])
     |> put_nasa_name()
-    |> validate_required([:name, :number, :slug, :nasa_name, :modulations])
+    |> validate_required([:name, :number, :slug, :nasa_name, :modulations, :tle])
     |> cast_assoc(:transponders, with: &Transponder.changeset/2)
   end
 
@@ -37,6 +38,17 @@ defmodule Hamsat.Schemas.Sat do
     end
   end
 
+  # If we have the TLE saved in the DB, use that first!
+  def get_satrec(%__MODULE__{tle: tle}) when is_binary(tle) do
+    [tle1, tle2] = String.split(tle, "\n")
+
+    case Satellite.TLE.to_satrec(tle1, tle2) do
+      {:ok, satrec} -> satrec
+      _ -> nil
+    end
+  end
+
+  # Fallback to satellite_ex database
   def get_satrec(%__MODULE__{number: number}) do
     Satellite.SatelliteDatabase.lookup(number)
   end
