@@ -158,7 +158,7 @@ defmodule HamsatWeb.AlertsLive.Show do
     end
   end
 
-  defp tweet_url(alert) do
+  defp microblog_url_text(alert) do
     url = URI.encode(url(HamsatWeb.Endpoint, ~p"/alerts/#{alert.id}"))
     grids = alert_grids(alert)
 
@@ -177,20 +177,25 @@ defmodule HamsatWeb.AlertsLive.Show do
 
     utc_context = %Context{}
 
-    text =
-      [
-        "🛰 #{alert.callsign} on #{alert.sat.name}",
-        "⏰ #{date(utc_context, alert.aos_at)} from #{short_time(utc_context, alert.aos_at)}Z to #{short_time(utc_context, alert.los_at)}Z",
-        "🗺 #{grids}",
-        freq,
-        comment,
-        "👀 #{url}"
-      ]
-      |> Enum.reject(&is_nil/1)
-      |> Enum.join("\n")
-      |> URI.encode()
+    [
+      "🛰 #{alert.callsign} on #{alert.sat.name}",
+      "⏰ #{date(utc_context, alert.aos_at)} from #{short_time(utc_context, alert.aos_at)}Z to #{short_time(utc_context, alert.los_at)}Z",
+      "🗺 #{grids}",
+      freq,
+      comment,
+      "👀 #{url}"
+    ]
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join("\n")
+    |> URI.encode()
+  end
 
-    "https://twitter.com/intent/tweet?text=#{text}"
+  defp tweet_url(alert) do
+    "https://twitter.com/intent/tweet?text=#{microblog_url_text(alert)}"
+  end
+
+  defp mastodon_url(alert) do
+    "https://mastodonshare.com/?text=#{microblog_url_text(alert)}"
   end
 
   defp satmatch_url(context, alert) do
