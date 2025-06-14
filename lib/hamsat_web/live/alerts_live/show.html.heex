@@ -40,7 +40,10 @@
         <span class="hidden md:inline">View on</span> SatMatch
       </a>
       <a href={tweet_url(@alert)} class="btn btn-link">
-        <span class="hidden md:inline">Post a</span> Tweet
+        <span class="hidden md:inline">Share on </span> Twitter
+      </a>
+      <a href={mastodon_url(@alert)} class="btn btn-link">
+        <span class="hidden md:inline">Share on</span> Mastodon
       </a>
       <%= if Alert.owned?(@alert, @context.user) do %>
         <.link navigate={~p"/alerts/#{@alert.id}/edit"} class="btn btn-link">
