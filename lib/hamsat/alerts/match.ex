@@ -30,7 +30,8 @@ defmodule Hamsat.Alerts.Match do
         _ -> max_rank
       end
 
-    Map.put(match, :mode, alert_rank / max_rank)
+    mode_rank = if max_rank == 0, do: 0.0, else: alert_rank / max_rank
+    Map.put(match, :mode, mode_rank)
   end
 
   defp score_elevation(match, match_field, sat_position, preferred_el) do
