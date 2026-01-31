@@ -1,0 +1,31 @@
+service: hamsat
+
+image: schrockwell/hamsat
+
+servers:
+  web:
+    - hamsat.schrockwell.com
+
+proxy:
+  ssl: true
+  host: hamsat.schrockwell.com
+  app_port: 4000
+
+env:
+  clear:
+    POOL_SIZE: 2
+    PORT: 4000
+    WEB_HOST: hamsat.schrockwell.com
+  secret:
+    - DATABASE_URL
+    - MAPBOX_ACCESS_TOKEN
+    - POSTMARK_API_KEY
+    - SECRET_KEY_BASE
+
+registry:
+  server: localhost:5555
+
+# Build remotely, on the correct architecture
+builder:
+  arch: amd64
+  remote: ssh://root@kamal.schrockwell.com
