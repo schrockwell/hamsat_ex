@@ -4,18 +4,18 @@ image: schrockwell/hamsat
 
 servers:
   web:
-    - hamsat.schrockwell.com
+    - hams.at
 
 proxy:
   ssl: true
-  host: hamsat.schrockwell.com
+  host: hams.at
   app_port: 4000
 
 env:
   clear:
     POOL_SIZE: 2
     PORT: 4000
-    WEB_HOST: hamsat.schrockwell.com
+    WEB_HOST: hams.at
   secret:
     - DATABASE_URL
     - MAPBOX_ACCESS_TOKEN
