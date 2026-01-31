@@ -1,3 +1,4 @@
 #! /bin/bash
 
-/usr/local/bin/sse with production -- $@
+eval "$(sse load production)"
+exec "$@"
