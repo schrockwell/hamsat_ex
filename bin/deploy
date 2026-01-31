@@ -1,0 +1,4 @@
+#! /bin/bash
+
+source .envrc.prod
+kamal deploy
