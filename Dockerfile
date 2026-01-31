@@ -67,9 +67,16 @@ RUN mix release
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
 
+ENV SSE_VERSION=0.1.1
+
 RUN apt-get update -y && \
-    apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
+    apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates wget \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
+
+# install sse for secret management
+RUN wget "https://github.com/schrockwell/sse/releases/download/v${SSE_VERSION}/sse-linux-amd64.tar.gz" -O /tmp/sse.tar.gz && \
+    tar -xzf /tmp/sse.tar.gz -C /usr/local/bin/ && \
+    rm /tmp/sse.tar.gz
 
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
@@ -86,6 +93,7 @@ ENV MIX_ENV="prod"
 
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/hamsat ./
+COPY env.toml ./
 
 USER nobody
 
@@ -94,4 +102,5 @@ USER nobody
 # above and adding an entrypoint. See https://github.com/krallin/tini for details
 # ENTRYPOINT ["/tini", "--"]
 
+ENTRYPOINT ["/app/bin/entrypoint"]
 CMD ["/app/bin/server"]

@@ -35,3 +35,4 @@ npm-debug.log
 /.envrc
 /.envrc.*
 .DS_Store
+/master.key
