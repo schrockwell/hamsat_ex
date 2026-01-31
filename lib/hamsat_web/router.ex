@@ -25,6 +25,9 @@ defmodule HamsatWeb.Router do
     plug HamsatWeb.AdminsOnlyPlug
   end
 
+  # Health check endpoint
+  get "/up", HamsatWeb.HealthController, :index
+
   scope "/", HamsatWeb do
     pipe_through [:browser, :require_authenticated_user]
     live "/alerts/new", AlertsLive.New, :new
