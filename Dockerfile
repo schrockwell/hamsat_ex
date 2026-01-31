@@ -67,7 +67,7 @@ RUN mix release
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
 
-ENV SSE_VERSION=0.1.1
+ENV SSE_VERSION=0.1.2
 
 RUN apt-get update -y && \
     apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates wget \
