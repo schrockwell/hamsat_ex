@@ -2,6 +2,8 @@ service: hamsat
 
 image: schrockwell/hamsat
 
+retain_containers: 1
+
 servers:
   web:
     - hams.at
@@ -17,10 +19,7 @@ env:
     PORT: 4000
     WEB_HOST: hams.at
   secret:
-    - DATABASE_URL
-    - MAPBOX_ACCESS_TOKEN
-    - POSTMARK_API_KEY
-    - SECRET_KEY_BASE
+    - SSE_MASTER_KEY
 
 registry:
   server: localhost:5555

@@ -1,0 +1,4 @@
+export MAPBOX_ACCESS_TOKEN='secret'
+export POSTMARK_API_KEY='secret'
+export SECRET_KEY_BASE='secret'
+export DATABASE_URL='secret'

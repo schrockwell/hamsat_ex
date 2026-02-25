@@ -32,5 +32,7 @@ hamsat-*.tar
 npm-debug.log
 /assets/node_modules/
 
-/.envrc*
+/.envrc
+/.envrc.*
 .DS_Store
+/master.key
