@@ -17,7 +17,7 @@ defmodule Hamsat.Accounts.User do
     field :time_format, :string, default: "24h"
     field :callsign, :string
     field :latest_callsign, :string
-    field :latest_modes, {:array, :string}
+    field :latest_modes, {:array, :string}, default: []
     field :latest_mhz_direction, Ecto.Enum, values: [:up, :down]
     field :prefer_ssb_mode, :integer
     field :prefer_data_mode, :integer
