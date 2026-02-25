@@ -2,6 +2,10 @@ import Config
 
 # Configure your database
 config :hamsat, Hamsat.Repo,
+  database: "priv/repo/hamsat_dev.db"
+
+# PostgreSQL (for one-time migration only)
+config :hamsat, Hamsat.PgRepo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
