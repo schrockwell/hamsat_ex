@@ -361,6 +361,10 @@ defmodule Hamsat.Accounts do
     end
   end
 
+  def purge_expired_tokens do
+    Repo.delete_all(UserToken.expired_query())
+  end
+
   def update_home_location(user, attrs) do
     user
     |> User.home_location_changeset(attrs)

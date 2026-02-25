@@ -178,4 +178,8 @@ defmodule Hamsat.Accounts.UserToken do
   def user_and_contexts_query(user, [_ | _] = contexts) do
     from t in UserToken, where: t.user_id == ^user.id and t.context in ^contexts
   end
+
+  def expired_query do
+    from t in UserToken, where: t.inserted_at < ago(@session_validity_in_days, "day")
+  end
 end
