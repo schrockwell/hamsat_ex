@@ -24,7 +24,5 @@ env:
 registry:
   server: localhost:5555
 
-# Build remotely, on the correct architecture
 builder:
   arch: amd64
-  remote: ssh://root@kamal.schrockwell.com
