@@ -8,7 +8,7 @@ defmodule Hamsat.Schemas.Sat do
     field :nasa_name, :string
     field :number, :integer
     field :slug, :string
-    field :modulations, {:array, Ecto.Enum}, values: Hamsat.Modulation.sat_values()
+    field :modulations, {:array, Ecto.Enum}, values: Hamsat.Modulation.sat_values(), default: []
     field :aliases, {:array, :string}, default: []
     field :in_orbit, :boolean
     field :is_active, :boolean

@@ -13,8 +13,12 @@ proxy:
   host: hams.at
   app_port: 4000
 
+volumes:
+  - /root/mounts/hamsat/data:/app/data
+
 env:
   clear:
+    DATABASE_PATH: /app/data/hamsat_prod.db
     POOL_SIZE: 2
     PORT: 4000
     WEB_HOST: hams.at
@@ -26,3 +30,8 @@ registry:
 
 builder:
   arch: amd64
+
+aliases:
+  console: app exec --interactive --reuse "/app/bin/hamsat remote"
+  shell: app exec --interactive --reuse "/bin/bash"
+  logs: app logs -f

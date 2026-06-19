@@ -1,4 +1,11 @@
 #! /bin/bash
 
 eval "$(sse load production)"
+
+# create DB
+touch "${DATABASE_PATH}"
+
+# migrate DB
+/app/bin/migrate
+
 exec "$@"

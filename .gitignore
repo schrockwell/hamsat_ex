@@ -36,3 +36,7 @@ npm-debug.log
 /.envrc.*
 .DS_Store
 /master.key
+
+*.db
+*.db-shm
+*.db-wal

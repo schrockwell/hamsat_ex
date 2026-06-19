@@ -21,7 +21,7 @@ defmodule Hamsat.Schemas.Alert do
     field :mode, :string
     field :observer_lat, :float
     field :observer_lon, :float
-    field :grids, {:array, :string}
+    field :grids, {:array, :string}, default: []
 
     field :is_workable?, :boolean, default: false, virtual: true
     field :workable_start_at, :utc_datetime, virtual: true
