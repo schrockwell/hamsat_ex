@@ -65,6 +65,17 @@ defmodule Hamsat.Accounts.User do
     |> validate_home_location()
     |> format_callsign(:callsign)
     |> validate_callsign_uniqueness(opts)
+    |> put_feed_key()
+  end
+
+  # Postgres generated feed_key via a `uuid_generate_v4()` column default.
+  # SQLite has no such function, so generate it in the application instead.
+  defp put_feed_key(changeset) do
+    if get_field(changeset, :feed_key) do
+      changeset
+    else
+      put_change(changeset, :feed_key, Ecto.UUID.generate())
+    end
   end
 
   defp validate_email(changeset, opts \\ []) do
