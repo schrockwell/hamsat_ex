@@ -49,7 +49,7 @@ function createSatelliteSVG(pathData, currentPosition) {
     const radius = ((90 - elevation) / (90 - MIN_ELEVATION)) * maxRadius; // Adjust scale for -10° to 90°
     const radian = adjustedAzimuth * (Math.PI / 180);
 
-    const x = centerX - radius * Math.cos(radian); // Flip x-axis
+    const x = centerX + radius * Math.cos(radian); // Compass orientation: E to the right
     const y = centerY + radius * Math.sin(radian);
     return { x, y };
   }
