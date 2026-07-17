@@ -32,7 +32,9 @@ defmodule HamsatWeb.LayoutView do
       |> assign_new(:current_path, fn -> nil end)
 
     assigns =
-      assign(assigns,
+      assigns
+      |> assign_new(:keps_updated_at, fn -> nil end)
+      |> assign(
         passes_nav_attrs: passes_nav_attrs(assigns),
         location_nav_attrs: location_nav_attrs(assigns)
       )
@@ -123,6 +125,10 @@ defmodule HamsatWeb.LayoutView do
         <% end %>
       </.link>
       ·
+      <.link {@location_nav_attrs} class="hover:underline hover:text-gray-700">
+        <%= timezone_name(@context.timezone) %>
+      </.link>
+      ·
       <.link navigate={~p"/changelog"} class="hover:underline hover:text-gray-700">
         Changelog
       </.link>
@@ -139,6 +145,13 @@ defmodule HamsatWeb.LayoutView do
       <.link href="https://mastodon.hams.social/@ww1x" class="hover:underline hover:text-gray-700">
         WW1X
       </.link>
+      <%= if @keps_updated_at do %>
+        ·
+        <span title="When the satellite Keplerian elements were last updated">
+          Updated <%= date(@context, @keps_updated_at) %> at
+          <%= short_time(@context, @keps_updated_at) %>
+        </span>
+      <% end %>
     </div>
     """
   end
