@@ -28,9 +28,6 @@ defmodule HamsatWeb.LayoutView do
       <div class="flex items-center">
         <.link navigate={~p"/"} class="text-lg font-medium md:mr-8 flex items-center gap-2">
           <img src={~s"/images/logo.png"} alt="Hamsat" class="h-8 w-8" /> Hams.at
-          <span class="hidden md:inline uppercase rounded bg-orange-600 text-white text-xs px-1 py-px ml-1 font-semibold">
-            Beta
-          </span>
         </.link>
 
         <div class="hidden md:flex items-center">
