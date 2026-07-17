@@ -8,8 +8,9 @@
   </form>
 </.filter_panel>
 
-<%= for {group, sats} <- group_sats(@sats) do %>
+<%= for {group, description, sats} <- group_sats(@sats) do %>
   <h3 class="text-xl px-8 pt-4"><%= group %></h3>
+  <h4 class="text-gray-500 px-8 mb-2"><%= description %></h4>
   <%= if sats == [] do %>
     <div class="text-gray-500 p-8">
       <div class="mb-4">No <%= String.downcase(group) %> satellites found.</div>

@@ -153,8 +153,8 @@ defmodule Hamsat.Satellites do
 
   def group_sats(sats) do
     [
-      {"Active", Enum.filter(sats, &(&1.in_orbit and &1.is_popular))},
-      {"Inactive", Enum.filter(sats, &(&1.in_orbit and not &1.is_popular))}
+      {"Active", "Activated within the past 30 days", Enum.filter(sats, &(&1.in_orbit and &1.is_popular))},
+      {"Inactive", "Not activated within the past 30 days", Enum.filter(sats, &(&1.in_orbit and not &1.is_popular))}
     ]
   end
 
