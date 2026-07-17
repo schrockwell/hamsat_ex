@@ -10,12 +10,17 @@ defmodule Hamsat.Satellites do
   def sync_now do
     with {:ok, %HTTPoison.Response{status_code: 200, body: json}} <-
            HTTPoison.get("https://hamdata.ww1x.radio/amsat/satellites.json") do
-      satellites_json = Jason.decode!(json)["data"]
+      %{
+        "data" => satellites_json,
+        "updated" => updated_at
+      } = Jason.decode!(json)
 
       satellites_json
       |> Enum.map(&satellite_attrs_from_json/1)
       |> Enum.map(&upsert_satellite!/1)
-      |> Enum.map(&check_in_orbit/1)
+      |> Enum.each(&check_in_orbit/1)
+
+      {:ok, Timex.parse!(updated_at, "{ISO:Extended}")}
     end
   end
 

@@ -8,6 +8,8 @@ defmodule HamsatWeb.ContextPlug do
 
   @impl Plug
   def call(conn, _) do
-    assign(conn, :context, Hamsat.Context.from_session(get_session(conn)))
+    conn
+    |> assign(:context, Hamsat.Context.from_session(get_session(conn)))
+    |> assign(:keps_updated_at, Hamsat.Satellites.PeriodicSync.updated_at())
   end
 end
