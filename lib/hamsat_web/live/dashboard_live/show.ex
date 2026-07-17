@@ -20,12 +20,14 @@ defmodule HamsatWeb.DashboardLive.Show do
       Phoenix.PubSub.subscribe(Hamsat.PubSub, "satellite_positions")
     end
 
-    {:ok,
-     socket
-     |> assign_defaults()
-     |> assign_upcoming_alerts()
-     |> assign_upcoming_alert_count()
-     |> assign(sat_positions: PositionServer.get_sat_positions())}
+    socket =
+      socket
+      |> assign_defaults()
+      |> assign_popular_sats()
+      |> assign_upcoming_alerts()
+      |> assign_upcoming_alert_count()
+
+    {:ok, assign(socket, sat_positions: filter_popular(PositionServer.get_sat_positions(), socket))}
   end
 
   def handle_event("toggle-rss-feed", _, socket) do
@@ -69,6 +71,7 @@ defmodule HamsatWeb.DashboardLive.Show do
   end
 
   def handle_info({:satellite_positions, positions}, socket) do
+    positions = filter_popular(positions, socket)
     socket = assign(socket, sat_positions: amend_selected_sat(positions, socket.assigns.detail_sat))
 
     {:noreply, socket}
@@ -84,6 +87,22 @@ defmodule HamsatWeb.DashboardLive.Show do
       detail_sat: nil,
       detail_sat_passes: []
     )
+  end
+
+  defp assign_popular_sats(socket) do
+    popular_sat_infos =
+      Satellites.list_popular_satellites()
+      |> Enum.map(&Map.take(&1, [:id, :name, :recent_activation_count, :number]))
+
+    assign(socket,
+      popular_sat_count: length(popular_sat_infos),
+      popular_sat_ids: MapSet.new(popular_sat_infos, & &1.id),
+      popular_sat_infos: popular_sat_infos
+    )
+  end
+
+  defp filter_popular(positions, socket) do
+    Enum.filter(positions, &MapSet.member?(socket.assigns.popular_sat_ids, &1.sat_id))
   end
 
   defp assign_upcoming_alerts(socket) do

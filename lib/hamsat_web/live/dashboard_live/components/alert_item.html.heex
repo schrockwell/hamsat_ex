@@ -12,7 +12,7 @@
     <div class="flex items-start justify-between mb-1">
       <div class="text-gray-500 font-medium text-sm">
         <%= unless @mine? do %>
-          <AlertComponents.match_percentage alert={@alert} />
+          <AlertComponents.match_percentage alert={@alert} suffix=" match" />
         <% end %>
         <SatComponents.alert_event_description alert={@alert} now={@now} mine?={@mine?} />
         <%= if sat_visible?(@alert, @now) do %>

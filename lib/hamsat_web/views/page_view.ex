@@ -11,7 +11,7 @@ defmodule HamsatWeb.PageView do
 
   def new(assigns) do
     ~H"""
-    <span class="inline-block text-xs bg-green-500 uppercase text-white rounded px-1 py-px font-semibold">
+    <span class="inline-block text-xs bg-green-500 uppercase text-white rounded px-1 py-px font-semibold mr-2 w-12 text-center">
       New
     </span>
     """
@@ -19,7 +19,7 @@ defmodule HamsatWeb.PageView do
 
   def bug(assigns) do
     ~H"""
-    <span class="inline-block text-xs bg-red-500 uppercase text-white rounded px-1 py-px font-semibold">
+    <span class="inline-block text-xs bg-red-500 uppercase text-white rounded px-1 py-px font-semibold mr-2 w-12 text-center">
       Bug
     </span>
     """
@@ -27,7 +27,7 @@ defmodule HamsatWeb.PageView do
 
   def fix(assigns) do
     ~H"""
-    <span class="inline-block text-xs bg-blue-500 uppercase text-white rounded px-1 py-px font-semibold">
+    <span class="inline-block text-xs bg-blue-500 uppercase text-white rounded px-1 py-px font-semibold mr-2 w-12 text-center">
       Fix
     </span>
     """
@@ -35,7 +35,7 @@ defmodule HamsatWeb.PageView do
 
   def sats(assigns) do
     ~H"""
-    <span class="inline-block text-xs bg-amber-500 uppercase text-white rounded px-1 py-px font-semibold">
+    <span class="inline-block text-xs bg-amber-500 uppercase text-white rounded px-1 py-px font-semibold mr-2 w-12 text-center">
       Sats
     </span>
     """

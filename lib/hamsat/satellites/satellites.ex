@@ -1,7 +1,11 @@
 defmodule Hamsat.Satellites do
   use Hamsat, :repo
 
+  alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.Sat
+
+  # A satellite is "popular" if an activation was posted for it within this window.
+  @popular_window_days 30
 
   def sync_now do
     with {:ok, %HTTPoison.Response{status_code: 200, body: json}} <-
@@ -9,7 +13,6 @@ defmodule Hamsat.Satellites do
       satellites_json = Jason.decode!(json)["data"]
 
       satellites_json
-      |> Enum.filter(fn sat -> sat["status"] != "unknown" end)
       |> Enum.map(&satellite_attrs_from_json/1)
       |> Enum.map(&upsert_satellite!/1)
       |> Enum.map(&check_in_orbit/1)
@@ -77,20 +80,37 @@ defmodule Hamsat.Satellites do
     }
   end
 
-  def first_active_satellite do
-    active_sats_query()
-    |> limit(1)
-    |> Repo.one()
+  def first_popular_satellite do
+    sat =
+      popular_sats_query()
+      |> limit(1)
+      |> Repo.one()
+
+    sat =
+      sat ||
+        all_sats_in_orbit_query()
+        |> limit(1)
+        |> Repo.one()
+
+    sat
+    |> put_popular()
     |> preload_sat()
   end
 
+  def list_popular_satellites do
+    popular_sats_query()
+    |> Repo.all()
+    |> Enum.map(&put_popular/1)
+  end
+
   def list_in_orbit_satellites do
-    Repo.all(all_sats_in_orbit_query())
+    all_sats_in_orbit_query()
+    |> Repo.all()
+    |> Enum.map(&put_popular/1)
   end
 
   def list_all_satellites_grouped do
-    all_sats_in_orbit_query()
-    |> Repo.all()
+    list_in_orbit_satellites()
     |> group_sats()
   end
 
@@ -98,34 +118,56 @@ defmodule Hamsat.Satellites do
     all_sats_in_orbit_query()
     |> select_stats()
     |> Repo.all()
+    |> Enum.map(&put_popular/1)
   end
 
   defp all_sats_in_orbit_query do
-    from s in Sat, where: s.in_orbit, order_by: s.name
+    from s in Sat,
+      as: :sat,
+      where: s.in_orbit,
+      order_by: s.name,
+      select_merge: %{recent_activation_count: subquery(recent_alert_count_query())}
   end
 
-  defp active_sats_query do
-    from s in Sat, where: s.in_orbit and s.is_active, order_by: s.name
+  defp popular_sats_query do
+    from s in all_sats_in_orbit_query(), where: exists(recent_alerts_query())
   end
+
+  defp recent_alerts_query do
+    cutoff =
+      DateTime.utc_now()
+      |> DateTime.add(-@popular_window_days, :day)
+      |> DateTime.truncate(:second)
+
+    from a in Alert,
+      where: a.satellite_id == parent_as(:sat).id,
+      where: a.inserted_at >= ^cutoff
+  end
+
+  defp recent_alert_count_query do
+    from a in recent_alerts_query(), select: count()
+  end
+
+  defp put_popular(nil), do: nil
+  defp put_popular(sat), do: %{sat | is_popular: sat.recent_activation_count > 0}
 
   def group_sats(sats) do
     [
-      {"Active", Enum.filter(sats, &(&1.in_orbit and &1.is_active))},
-      {"Inactive", Enum.filter(sats, &(&1.in_orbit and not &1.is_active))}
+      {"Active", "Activated within the past 30 days", Enum.filter(sats, &(&1.in_orbit and &1.is_popular))},
+      {"Inactive", "Not activated within the past 30 days", Enum.filter(sats, &(&1.in_orbit and not &1.is_popular))}
     ]
   end
 
   defp select_stats(query) do
     from s in query,
-      select: %{
-        s
-        | total_activation_count:
-            fragment("coalesce((SELECT count(*) FROM alerts WHERE alerts.satellite_id = ?), 0)", s.id)
+      select_merge: %{
+        total_activation_count:
+          fragment("coalesce((SELECT count(*) FROM alerts WHERE alerts.satellite_id = ?), 0)", s.id)
       }
   end
 
   def list_satellite_options do
-    for {group, sats} <- list_all_satellites_grouped() do
+    for {group, _description, sats} <- list_all_satellites_grouped() do
       {group, Enum.map(sats, &{&1.name, &1.id})}
     end
   end

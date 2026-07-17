@@ -8,9 +8,11 @@
       button_class="rounded bg-gray-200 hover:bg-gray-300 font-medium px-2"
     />
   </td>
-  <td class="whitespace-nowrap px-1 text-center pl-6">
+  <td class="whitespace-nowrap px-1 text-center">
     <%= date(@context, @alert.aos_at) %>
-    <%= time(@context, @alert.aos_at) %> &ndash; <%= time(@context, @alert.los_at) %>
+  </td>
+  <td class="whitespace-nowrap px-1 text-center">
+    <%= short_time(@context, @alert.aos_at) %> &ndash; <%= short_time(@context, @alert.los_at) %>
   </td>
   <td class="whitespace-nowrap px-1 text-center"><%= @alert.callsign %></td>
   <td class="whitespace-nowrap px-1 text-center">
@@ -19,7 +21,7 @@
   <td class="whitespace-nowrap px-1 text-center"><%= alert_grids(@alert) %></td>
   <td class="whitespace-nowrap px-1 text-center"><%= mhz(@alert) %></td>
   <td class="whitespace-nowrap px-1 text-center"><%= @alert.mode %></td>
-  <td class="whitespace-nowrap px-1 text-center">
+  <td class="whitespace-nowrap px-1">
     <%= if @alert.comment do %>
       “<%= @alert.comment %>”
     <% else %>
@@ -27,14 +29,18 @@
     <% end %>
   </td>
   <td class="whitespace-nowrap px-1 text-center">
-    <%= if @alert.match, do: pct(@alert.match.total), else: "–" %>
+    <%= if @alert.match do %>
+      <AlertComponents.match_percentage alert={@alert} />
+    <% else %>
+      –
+    <% end %>
   </td>
   <td class="whitespace-nowrap px-1 text-center">
     <%= if @alert.max_elevation, do: deg(@alert.max_elevation), else: "–" %>
   </td>
   <td class="whitespace-nowrap px-1 text-center text-emerald-700">
     <%= if @alert.is_workable? do %>
-      <%= time(@context, @alert.workable_start_at) %> &ndash; <%= time(@context, @alert.workable_end_at) %>
+      <%= short_time(@context, @alert.workable_start_at) %> &ndash; <%= short_time(@context, @alert.workable_end_at) %>
     <% end %>
   </td>
   <td class="whitespace-nowrap px-1 text-center text-emerald-700">

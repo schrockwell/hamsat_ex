@@ -4,7 +4,7 @@ defmodule HamsatWeb.Buttons do
   def nav_pill_button(assigns) do
     link_assigns =
       assigns
-      |> Map.take([:navigate, :href, :method])
+      |> Map.take([:navigate, :href, :method, :"phx-click", :"phx-value-redirect"])
       |> Map.put(:class, [assigns[:class], nav_pill_button_class(assigns), "btn-nav"])
       |> Map.to_list()
 

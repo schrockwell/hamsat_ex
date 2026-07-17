@@ -2,6 +2,7 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
   use HamsatWeb, :live_component
 
   alias Hamsat.Schemas.Alert
+  alias HamsatWeb.AlertComponents
   alias HamsatWeb.LiveComponents.AlertSaver
   alias HamsatWeb.SatComponents
 
@@ -16,13 +17,14 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
         <thead>
           <tr>
             <th></th>
-            <th class="pl-6">Time</th>
+            <th>Date</th>
+            <th>Time</th>
             <th>Callsign</th>
             <th>Sat</th>
             <th>Grid</th>
             <th>Freq</th>
             <th>Mode</th>
-            <th>Comment</th>
+            <th class="text-left px-2">Comment</th>
             <th>Match</th>
             <th>Max El</th>
             <th>Visible</th>

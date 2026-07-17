@@ -228,12 +228,7 @@
       </div>
     <% else %>
       <div class="md:w-1/2 mx-auto">
-        <LocationSetter.component
-          id="location-setter"
-          context={@context}
-          redirect={~p"/alerts/#{@alert.id}"}
-          show_log_in_link?={true}
-        />
+        <.location_prompt context={@context} redirect={~p"/alerts/#{@alert.id}"} />
       </div>
     <% end %>
   </div>
@@ -244,19 +239,19 @@
       <table>
         <tr>
           <th class="font-medium text-left pr-2">My Elevation</th>
-          <td class="text-right"><%= pct(@alert.match.my_el) %></td>
+          <td><AlertComponents.match_percentage pct={@alert.match.my_el} /></td>
         </tr>
         <tr>
           <th class="font-medium text-left pr-2"><%= @alert.callsign %> Elevation</th>
-          <td class="text-right"><%= pct(@alert.match.dx_el) %></td>
+          <td><AlertComponents.match_percentage pct={@alert.match.dx_el} /></td>
         </tr>
         <tr>
           <th class="font-medium text-left pr-2">Mode</th>
-          <td class="text-right"><%= pct(@alert.match.mode) %></td>
+          <td><AlertComponents.match_percentage pct={@alert.match.mode} /></td>
         </tr>
         <tr>
           <th class="font-medium text-left pr-2">Combined</th>
-          <td class="text-right"><%= pct(@alert.match.total) %></td>
+          <td><AlertComponents.match_percentage pct={@alert.match.total} /></td>
         </tr>
       </table>
     </div>

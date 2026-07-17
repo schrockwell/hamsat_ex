@@ -54,6 +54,24 @@ defmodule HamsatWeb do
 
       on_mount HamsatWeb.ContextHook
       on_mount HamsatWeb.NavHook
+      on_mount HamsatWeb.LocationModalHook
+
+      unquote(view_helpers())
+
+      import HamsatWeb.LayoutComponents
+      unquote(live_inspect())
+    end
+  end
+
+  # For LiveViews rendered inside another LiveView via live_render/3. Skips the
+  # app layout and the hooks that require ownership of the URL (handle_params).
+  def child_live_view do
+    quote do
+      use Phoenix.LiveView
+
+      use LiveEvent.LiveView
+
+      on_mount HamsatWeb.ContextHook
 
       unquote(view_helpers())
 

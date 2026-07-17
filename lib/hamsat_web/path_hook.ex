@@ -8,7 +8,11 @@ defmodule HamsatWeb.NavHook do
     {:cont,
      attach_hook(socket, :set_path, :handle_params, fn _params, uri, socket ->
        uri = URI.parse(uri)
-       {:cont, assign(socket, :active_nav_item, ViewHelpers.active_nav_item(uri.path))}
+
+       {:cont,
+        socket
+        |> assign(:active_nav_item, ViewHelpers.active_nav_item(uri.path))
+        |> assign(:current_path, uri.path)}
      end)}
   end
 end

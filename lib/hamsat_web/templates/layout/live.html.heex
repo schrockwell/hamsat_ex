@@ -1,4 +1,4 @@
-<.page_layout context={@context} active_nav_item={@active_nav_item}>
+<.page_layout context={@context} active_nav_item={@active_nav_item} live?={true} current_path={assigns[:current_path]}>
   <main>
     <%= if live_flash(@flash, :info) do %>
       <p
@@ -25,3 +25,20 @@
     <%= @inner_content %>
   </main>
 </.page_layout>
+
+<%= if @location_modal_redirect do %>
+  <div id="location-modal" class="fixed inset-0 z-[1100] overflow-y-auto">
+    <div class="fixed inset-0 bg-black bg-opacity-50" phx-click="hide-location-modal"></div>
+    <div class="relative flex min-h-full items-center justify-center p-4">
+      <div class="relative bg-white rounded-lg shadow-xl w-full max-w-2xl">
+        <button class="absolute top-4 right-4 z-10" phx-click="hide-location-modal" aria-label="Close">
+          <Heroicons.LiveView.icon name="x-mark" type="solid" class="h-6 w-6 text-gray-400 hover:text-gray-600" />
+        </button>
+        <%= live_render(@socket, HamsatWeb.LocationLive.Modal,
+          id: "location-modal-live",
+          session: %{"redirect" => @location_modal_redirect}
+        ) %>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -8,8 +8,9 @@
   </form>
 </.filter_panel>
 
-<%= for {group, sats} <- group_sats(@sats) do %>
+<%= for {group, description, sats} <- group_sats(@sats) do %>
   <h3 class="text-xl px-8 pt-4"><%= group %></h3>
+  <h4 class="text-gray-500 px-8 mb-2"><%= description %></h4>
   <%= if sats == [] do %>
     <div class="text-gray-500 p-8">
       <div class="mb-4">No <%= String.downcase(group) %> satellites found.</div>
@@ -24,9 +25,11 @@
             <div><.sat_modulation_labels sat={sat} class="!text-lg !px-3" /></div>
           </div>
 
-          <div class="mb-4"><%= sat.total_activation_count %> activations</div>
+          <%= if sat.recent_activation_count > 0 do %>
+            <div><%= sat.recent_activation_count %> recent activations</div>
+          <% end %>
 
-          <div class="flex gap-8">
+          <div class="flex gap-8 mt-4">
             <.link navigate={~p"/sats/#{sat.number}"} class="link">Details</.link>
             <.link href={~p"/alerts/new?sat=#{sat.number}"} class="link">Post an Activation</.link>
           </div>

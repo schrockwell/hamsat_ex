@@ -9,28 +9,39 @@ defmodule HamsatWeb.LayoutView do
   # so we instruct Elixir to not warn if the dashboard route is missing.
   @compile {:no_warn_undefined, {Routes, :live_dashboard_path, 2}}
 
-  def location_nav_button_text(%{context: _context} = assigns) do
-    if assigns.context.location do
-      ~H"""
-      <span class="hidden md:inline">@</span> <%= Grid.encode!(@context.location, 4) %>
-      """
-    else
-      ~H"""
-      <Heroicons.LiveView.icon name="exclamation-triangle" type="outline" class="inline-block h-6 w-6" />
-      <span class="hidden md:inline">Set Location</span>
-      """
-    end
+  # In a LiveView, editing the location always happens in the location modal.
+  # The /location page remains as a fallback for non-LiveView pages, which
+  # cannot open the modal. The Passes nav button opens the modal too when no
+  # location is set yet.
+  defp passes_nav_attrs(%{live?: true, context: %{location: nil}}) do
+    [href: "#", "phx-click": "show-location-modal", "phx-value-redirect": ~p"/passes"]
   end
 
+  defp passes_nav_attrs(_assigns), do: [navigate: ~p"/passes"]
+
+  defp location_nav_attrs(%{live?: true} = assigns) do
+    [href: "#", "phx-click": "show-location-modal", "phx-value-redirect": assigns.current_path || "/"]
+  end
+
+  defp location_nav_attrs(_assigns), do: [navigate: ~p"/location"]
+
   def page_layout(assigns) do
+    assigns =
+      assigns
+      |> assign_new(:live?, fn -> false end)
+      |> assign_new(:current_path, fn -> nil end)
+
+    assigns =
+      assign(assigns,
+        passes_nav_attrs: passes_nav_attrs(assigns),
+        location_nav_attrs: location_nav_attrs(assigns)
+      )
+
     ~H"""
     <div class="md:mt-4 md:mx-4 md:px-6 md:py-2 px-3 py-1 flex items-center justify-between md:rounded-t-xl bg-gray-700 text-white shadow-md">
       <div class="flex items-center">
         <.link navigate={~p"/"} class="text-lg font-medium md:mr-8 flex items-center gap-2">
           <img src={~s"/images/logo.png"} alt="Hamsat" class="h-8 w-8" /> Hams.at
-          <span class="hidden md:inline uppercase rounded bg-orange-600 text-white text-xs px-1 py-px ml-1 font-semibold">
-            Beta
-          </span>
         </.link>
 
         <div class="hidden md:flex items-center">
@@ -40,11 +51,8 @@ defmodule HamsatWeb.LayoutView do
           <.nav_pill_button navigate={~p"/alerts"} active={@active_nav_item == :alerts}>
             Activations
           </.nav_pill_button>
-          <.nav_pill_button navigate={~p"/passes"} active={@active_nav_item == :passes}>
+          <.nav_pill_button {@passes_nav_attrs} active={@active_nav_item == :passes}>
             Passes
-          </.nav_pill_button>
-          <.nav_pill_button navigate={~p"/location"} active={@active_nav_item == :location}>
-            <.location_nav_button_text context={@context} />
           </.nav_pill_button>
         </div>
       </div>
@@ -71,11 +79,8 @@ defmodule HamsatWeb.LayoutView do
         <.nav_pill_button navigate={~p"/alerts"} active={@active_nav_item == :alerts}>
           <Heroicons.LiveView.icon name="calendar" type="outline" class="h-6 w-6" />
         </.nav_pill_button>
-        <.nav_pill_button navigate={~p"/passes"} active={@active_nav_item == :passes}>
+        <.nav_pill_button {@passes_nav_attrs} active={@active_nav_item == :passes}>
           <Heroicons.LiveView.icon name="table-cells" type="outline" class="h-6 w-6" />
-        </.nav_pill_button>
-        <.nav_pill_button navigate={~p"/location"} active={@active_nav_item == :location}>
-          <.location_nav_button_text context={@context} />
         </.nav_pill_button>
 
         <button class="btn-nav" data-toggle="mobile-nav-extras">
@@ -110,13 +115,12 @@ defmodule HamsatWeb.LayoutView do
     </div>
 
     <div class="my-6 text-sm text-gray-500 flex gap-1 justify-center">
-      DE
-      <.link href="https://mastodon.hams.social/@ww1x" class="hover:underline hover:text-gray-700">
-        WW1X
-      </.link>
-      ·
-      <.link navigate={~p"/location"} class="hover:underline hover:text-gray-700">
-        <%= timezone_name(@context.timezone) %>
+      <.link {@location_nav_attrs} class="hover:underline hover:text-gray-700">
+        <%= if @context.location do %>
+          <%= Grid.encode!(@context.location, 4) %>
+        <% else %>
+          Set Location
+        <% end %>
       </.link>
       ·
       <.link navigate={~p"/changelog"} class="hover:underline hover:text-gray-700">
@@ -129,6 +133,11 @@ defmodule HamsatWeb.LayoutView do
       ·
       <.link navigate={~p"/about"} class="hover:underline hover:text-gray-700">
         About
+      </.link>
+      ·
+      DE
+      <.link href="https://mastodon.hams.social/@ww1x" class="hover:underline hover:text-gray-700">
+        WW1X
       </.link>
     </div>
     """
