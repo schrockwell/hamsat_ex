@@ -1,8 +1,6 @@
 defmodule Hamsat.Factory do
   def guest_context(context, key) do
-    Map.put(context, key, %Hamsat.Context{
-      observer: Observer.create_from(0, 0, 0)
-    })
+    Map.put(context, key, %Hamsat.Context{})
   end
 
   def satellite(context, key, slug) do

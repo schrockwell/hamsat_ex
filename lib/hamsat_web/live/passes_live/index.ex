@@ -8,7 +8,6 @@ defmodule HamsatWeb.PassesLive.Index do
   alias Hamsat.Satellites
   alias Hamsat.Util
   alias HamsatWeb.PassesLive.Components.PassTableRow
-  alias HamsatWeb.LocationSetter
 
   on_mount HamsatWeb.Live.NowTicker
 

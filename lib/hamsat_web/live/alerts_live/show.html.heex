@@ -228,12 +228,7 @@
       </div>
     <% else %>
       <div class="md:w-1/2 mx-auto">
-        <LocationSetter.component
-          id="location-setter"
-          context={@context}
-          redirect={~p"/alerts/#{@alert.id}"}
-          show_log_in_link?={true}
-        />
+        <.location_prompt context={@context} redirect={~p"/alerts/#{@alert.id}"} />
       </div>
     <% end %>
   </div>

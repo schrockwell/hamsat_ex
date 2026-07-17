@@ -1,7 +1,7 @@
 <%= if @needs_location? do %>
   <div class="flex justify-center">
     <div class="p-6 w-full md:w-1/2">
-      <LocationSetter.component id="location-setter" context={@context} redirect={~p"/passes"} show_log_in_link?={true} />
+      <.location_prompt context={@context} redirect={~p"/passes"} />
     </div>
   </div>
 <% else %>

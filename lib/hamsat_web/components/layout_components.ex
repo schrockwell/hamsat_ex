@@ -1,6 +1,35 @@
 defmodule HamsatWeb.LayoutComponents do
   use HamsatWeb, :component
 
+  attr :context, Hamsat.Context, required: true
+  attr :redirect, :string, required: true
+
+  def location_prompt(assigns) do
+    ~H"""
+    <div class="border rounded-lg shadow-lg p-8">
+      <div class="flex gap-4 items-center text-xl mb-8 font-medium text-gray-700">
+        <Heroicons.LiveView.icon name="map-pin" type="outline" class="block h-8 w-8" />
+        <div>Set your location</div>
+      </div>
+
+      <div class="mb-8">
+        <%= if @context.user == :guest do %>
+          To view satellite predictions at your current location, you must <.link
+            navigate={~p"/users/log_in"}
+            class="link"
+          >log in to your account</.link>, or set your station location.
+        <% else %>
+          To view satellite predictions at your current location, set your station location.
+        <% end %>
+      </div>
+
+      <button class="btn btn-default" phx-click="show-location-modal" phx-value-redirect={@redirect}>
+        Set Location
+      </button>
+    </div>
+    """
+  end
+
   def form_row(%{label: _label} = assigns) do
     extra_class = if assigns[:input?], do: "mt-1", else: ""
 
