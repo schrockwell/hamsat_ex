@@ -24,9 +24,11 @@
             <div><.sat_modulation_labels sat={sat} class="!text-lg !px-3" /></div>
           </div>
 
-          <div class="mb-4"><%= sat.total_activation_count %> activations</div>
+          <%= if sat.recent_activation_count > 0 do %>
+            <div><%= sat.recent_activation_count %> recent activations</div>
+          <% end %>
 
-          <div class="flex gap-8">
+          <div class="flex gap-8 mt-4">
             <.link navigate={~p"/sats/#{sat.number}"} class="link">Details</.link>
             <.link href={~p"/alerts/new?sat=#{sat.number}"} class="link">Post an Activation</.link>
           </div>

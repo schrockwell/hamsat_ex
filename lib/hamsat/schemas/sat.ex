@@ -16,6 +16,8 @@ defmodule Hamsat.Schemas.Sat do
 
     # Aggregate fields
     field :total_activation_count, :integer, virtual: true
+    field :recent_activation_count, :integer, virtual: true, default: 0
+    field :is_popular, :boolean, virtual: true, default: false
 
     has_many :transponders, Transponder, foreign_key: :satellite_id, on_replace: :delete
 
