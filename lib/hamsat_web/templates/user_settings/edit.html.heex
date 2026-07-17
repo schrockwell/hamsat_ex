@@ -13,6 +13,13 @@
   <.form :let={f} for={@match_preferences_changeset} action={~p"/users/settings"} id="update_match_preferences">
     <%= hidden_input(f, :action, name: "action", value: "update_match_preferences") %>
 
+    <.form_row label="">
+      <p class="text-sm text-gray-500 md:w-96">
+        At the moment of closest approach between the two stations, prefer that the satellite is above these elevations. Below
+        these elevations, the match score is reduced.
+      </p>
+    </.form_row>
+
     <%= for {label, field} <- [{"My Minimum Elevation", :prefer_my_el}, {"DX Minimum Elevation", :prefer_dx_el}] do %>
       <.form_row label={label} class="w-full pr-4 md:w-96">
         <div class="flex space-x-4">
@@ -24,10 +31,9 @@
       </.form_row>
     <% end %>
 
-    <.form_row label="" class="mb-4">
+    <.form_row label="" class="mt-4">
       <p class="text-sm text-gray-500 md:w-96">
-        At the moment of closest approach between the two stations, prefer that the satellite is above these elevations. Below
-        these elevations, the match score is reduced.
+        Prefer activations with certain modes of operation. The match score is reduced relative to the other mode preferences.
       </p>
     </.form_row>
 
@@ -42,11 +48,6 @@
       </.form_row>
     <% end %>
 
-    <.form_row label="">
-      <p class="text-sm text-gray-500 md:w-96">
-        Prefer activations with certain modes of operation. The match score is reduced relative to the other mode preferences.
-      </p>
-    </.form_row>
 
     <.form_row label="">
       <%= submit("Save Match Preferences", class: "btn btn-default") %>
