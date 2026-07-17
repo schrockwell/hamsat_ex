@@ -9,7 +9,6 @@ defmodule Hamsat.Satellites do
       satellites_json = Jason.decode!(json)["data"]
 
       satellites_json
-      |> Enum.filter(fn sat -> sat["status"] != "unknown" end)
       |> Enum.map(&satellite_attrs_from_json/1)
       |> Enum.map(&upsert_satellite!/1)
       |> Enum.map(&check_in_orbit/1)
