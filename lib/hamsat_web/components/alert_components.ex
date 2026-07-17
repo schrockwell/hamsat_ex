@@ -7,9 +7,7 @@ defmodule HamsatWeb.AlertComponents do
       |> assign_new(:suffix, fn -> "" end)
 
     ~H"""
-    <span class={["text-xs px-1.5 py-0.5 mr-1 uppercase", match_color_class(@pct)]}>
-      <%= pct(@pct) %><%= @suffix %>
-    </span>
+    <span class={["text-xs px-1.5 py-0.5 mr-1 uppercase font-medium", match_color_class(@pct)]}><%= pct(@pct) %><%= @suffix %></span>
     """
   end
 
@@ -20,7 +18,7 @@ defmodule HamsatWeb.AlertComponents do
 
   defp match_color_class(total) do
     cond do
-      total >= 0.75 -> "bg-emerald-100 text-emerald-700"
+      total >= 0.75 -> "bg-emerald-100 text-emerald-600"
       total >= 0.25 -> "bg-amber-100 text-amber-600"
       true -> "bg-gray-200 text-gray-500"
     end
