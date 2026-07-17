@@ -51,7 +51,7 @@ defmodule HamsatWeb.LocationModalTest do
     # Passes nav navigates normally when a location is set
     refute html =~ ~s(phx-value-redirect="/passes")
 
-    view |> element(~s{a[phx-click="show-location-modal"]}) |> render_click()
+    view |> element(~s{a[phx-click="show-location-modal"]}, "FN42") |> render_click()
 
     assert find_live_child(view, "location-modal-live")
   end
