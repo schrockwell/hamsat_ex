@@ -22,7 +22,7 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
             <th>Grid</th>
             <th>Freq</th>
             <th>Mode</th>
-            <th>Comment</th>
+            <th class="text-left px-2">Comment</th>
             <th>Match</th>
             <th>Max El</th>
             <th>Visible</th>
