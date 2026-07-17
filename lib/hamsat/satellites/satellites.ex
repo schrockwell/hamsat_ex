@@ -167,7 +167,7 @@ defmodule Hamsat.Satellites do
   end
 
   def list_satellite_options do
-    for {group, sats} <- list_all_satellites_grouped() do
+    for {group, _description, sats} <- list_all_satellites_grouped() do
       {group, Enum.map(sats, &{&1.name, &1.id})}
     end
   end
