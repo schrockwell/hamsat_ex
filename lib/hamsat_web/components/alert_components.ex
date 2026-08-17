@@ -14,7 +14,7 @@ defmodule HamsatWeb.AlertComponents do
   def match_percentage(%{alert: %{match: %{total: total}}} = assigns),
     do: match_percentage(Map.put(assigns, :pct, total))
 
-  def match_percentage(assigns), do: ~H"<%= inspect(assigns) %>"
+  def match_percentage(assigns), do: ~H""
 
   defp match_color_class(total) do
     cond do

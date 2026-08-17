@@ -1,5 +1,6 @@
 defmodule Hamsat.Satellites.PeriodicSync do
   use GenServer
+  require Logger
 
   alias Hamsat.Satellites
 
@@ -23,9 +24,15 @@ defmodule Hamsat.Satellites.PeriodicSync do
 
   defp do_sync(state) do
     state =
-      case Satellites.sync_now() do
-        {:ok, updated_at} -> %{state | updated_at: updated_at}
-        _ -> state
+      try do
+        case Satellites.sync_now() do
+          {:ok, updated_at} -> %{state | updated_at: updated_at}
+          _ -> state
+        end
+      rescue
+        e ->
+          Logger.error("Satellite sync failed: #{Exception.format(:error, e, __STACKTRACE__)}")
+          state
       end
 
     # this purge isn't really necessary here, but it's a good time to do it
