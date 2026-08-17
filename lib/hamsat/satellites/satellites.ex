@@ -178,8 +178,13 @@ defmodule Hamsat.Satellites do
   end
 
   def upsert_satellite!(attrs) do
-    Sat
-    |> Repo.get_by(number: attrs.number)
+    # Match by NORAD number first; fall back to name in case a satellite has
+    # been renumbered upstream (otherwise we'd insert a duplicate name).
+    existing =
+      Repo.get_by(Sat, number: attrs.number) ||
+        Repo.get_by(Sat, name: attrs.name)
+
+    existing
     |> Repo.preload(:transponders)
     |> case do
       nil ->
