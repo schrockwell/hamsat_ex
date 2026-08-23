@@ -153,6 +153,38 @@ defmodule Hamsat.Satellites do
     from a in recent_alerts_query(), select: count()
   end
 
+  @doc """
+  Per-satellite daily activation counts within the recent (30-day) window.
+
+  Returns `%{satellite_id => %{"YYYY-MM-DD" => count}}` keyed by the date the
+  alert was posted, for the activity sparklines on the satellites index.
+  """
+  def recent_activation_days do
+    cutoff =
+      DateTime.utc_now()
+      |> DateTime.add(-@popular_window_days, :day)
+      |> DateTime.truncate(:second)
+
+    from(a in Alert,
+      where: a.inserted_at >= ^cutoff,
+      group_by: [a.satellite_id, fragment("date(?)", a.inserted_at)],
+      select: {a.satellite_id, fragment("date(?)", a.inserted_at), count()}
+    )
+    |> Repo.all()
+    |> Enum.group_by(fn {id, _date, _count} -> id end, fn {_id, date, count} -> {date, count} end)
+    |> Map.new(fn {id, days} -> {id, Map.new(days)} end)
+  end
+
+  @doc "Returns `%{satellite_id => most_recent_aos_at}` across all alerts."
+  def last_activation_dates do
+    from(a in Alert,
+      group_by: a.satellite_id,
+      select: {a.satellite_id, max(a.aos_at)}
+    )
+    |> Repo.all()
+    |> Map.new()
+  end
+
   defp put_popular(nil), do: nil
   defp put_popular(sat), do: %{sat | is_popular: sat.recent_activation_count > 0}
 

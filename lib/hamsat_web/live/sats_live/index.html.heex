@@ -1,40 +1,89 @@
-<.filter_panel>
-  <h2 class="block md:hidden mb-2 text-h2">
-    Satellites
-  </h2>
-
-  <form phx-change="search">
-    <input type="search" name="query" value={@query} placeholder="Search" />
+<%!-- Toolbar --%>
+<div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5 px-3 py-3 md:px-6 md:py-5 bg-gray-50 border-b">
+  <h1 class="text-2xl font-medium text-gray-700">Satellites</h1>
+  <form phx-change="search" class="sm:ml-auto w-full sm:w-72">
+    <input
+      type="search"
+      name="query"
+      value={@query}
+      placeholder="Search by name or alias"
+      phx-debounce="150"
+      class="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm placeholder:text-gray-400"
+    />
   </form>
-</.filter_panel>
+</div>
 
-<%= for {group, description, sats} <- group_sats(@sats) do %>
-  <h3 class="text-xl px-8 pt-4"><%= group %></h3>
-  <h4 class="text-gray-500 px-8 mb-2"><%= description %></h4>
-  <%= if sats == [] do %>
-    <div class="text-gray-500 p-8">
-      <div class="mb-4">No <%= String.downcase(group) %> satellites found.</div>
-      <.link patch={~p"/sats"} class="link">Clear search</.link>
+<%!-- Active group --%>
+<div class="px-3 pt-4 pb-6 md:px-6 md:pt-6 md:pb-8">
+  <h2 class="text-xl font-medium text-gray-700">
+    <%= pluralized_count(@active_sats, "active satellite", "active satellites") %>
+  </h2>
+  <div class="text-sm text-gray-500 mt-0.5">Showing activations within the past 30 days</div>
+
+  <%= if @active_sats == [] do %>
+    <div class="text-sm text-gray-500 py-6">
+      No active satellites found. <.link patch={~p"/sats"} class="link font-normal">Clear search</.link>
     </div>
   <% else %>
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 p-4 mb-24">
-      <%= for sat <- sats do %>
-        <div class="border rounded-lg shadow-lg p-6">
-          <div class="flex items-center text-xl font-medium justify-between">
-            <div><%= sat_names(sat) %></div>
-            <div><.sat_modulation_labels sat={sat} class="!text-lg !px-3" /></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+      <%= for sat <- @active_sats do %>
+        <.link
+          navigate={~p"/sats/#{sat.number}"}
+          title="Satellite details"
+          class="bg-gray-50 border rounded-lg px-5 py-4 flex flex-col gap-3 hover:border-gray-300 hover:shadow-md transition-all"
+        >
+          <div class="flex items-baseline gap-2 min-w-0">
+            <span class="text-lg font-semibold text-gray-800 whitespace-nowrap"><%= sat.name %></span>
+            <span class="text-[13px] text-gray-400 truncate"><%= alias_text(sat) %></span>
+            <span class="ml-auto flex gap-1"><.sat_modulation_labels sat={sat} /></span>
           </div>
-
-          <%= if sat.recent_activation_count > 0 do %>
-            <div><%= sat.recent_activation_count %> recent activations</div>
-          <% end %>
-
-          <div class="flex gap-8 mt-4">
-            <.link navigate={~p"/sats/#{sat.number}"} class="link">Details</.link>
-            <.link href={~p"/alerts/new?sat=#{sat.number}"} class="link">Post an Activation</.link>
+          <div class="flex items-center gap-3.5" title="Activations in the last 30 days">
+            <div class="text-[32px] font-semibold text-emerald-600 leading-none min-w-[36px]">
+              <%= sat.recent_activation_count %>
+            </div>
+            <div class="flex items-end gap-0.5 h-7 flex-1" title="Activations per day, last 30 days">
+              <%= for {class, height} <- sparkline_bars(@activation_days, sat) do %>
+                <div class={["flex-1", class]} style={"height: #{height}px"}></div>
+              <% end %>
+            </div>
           </div>
-        </div>
+        </.link>
       <% end %>
     </div>
   <% end %>
-<% end %>
+</div>
+
+<%!-- Inactive group --%>
+<div class="px-3 pb-6 md:px-6 md:pb-8">
+  <h2 class="text-xl font-medium text-gray-700">
+    <%= pluralized_count(@inactive_sats, "inactive satellite", "inactive satellites") %>
+  </h2>
+  <div class="text-sm text-gray-500 mt-0.5 mb-3">No activations in the past 30 days</div>
+
+  <%= if @inactive_sats == [] do %>
+    <div class="text-sm text-gray-500 pt-2 pb-4">
+      No inactive satellites found. <.link patch={~p"/sats"} class="link font-normal">Clear search</.link>
+    </div>
+  <% else %>
+    <div class="border rounded-lg overflow-x-auto">
+      <div class="min-w-[560px]">
+        <div class="grid grid-cols-[140px_220px_130px_minmax(0,1fr)] gap-3 px-4 py-2 bg-gray-50 border-b text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+          <div>Satellite</div>
+          <div>Aliases</div>
+          <div>Modes</div>
+          <div>Last activation</div>
+        </div>
+        <%= for sat <- @inactive_sats do %>
+          <div class="grid grid-cols-[140px_220px_130px_minmax(0,1fr)] gap-3 items-baseline px-4 py-2.5 border-t border-gray-100 text-sm hover:bg-gray-50">
+            <div class="truncate">
+              <.link navigate={~p"/sats/#{sat.number}"} title="Satellite details" class="link"><%= sat.name %></.link>
+            </div>
+            <div class="text-[13px] text-gray-400 truncate"><%= alias_text(sat) %></div>
+            <div class="flex gap-1"><.sat_modulation_labels sat={sat} /></div>
+            <div class="text-gray-500"><%= last_activation_text(@last_activations, @context, sat) %></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
