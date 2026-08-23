@@ -1,112 +1,118 @@
-<div class="flex flex-col md:flex-row md:space-x-8 space-y-12 md:space-y-0 p-3 md:p-6">
-  <div class="flex-1">
-    <div class="flex items-center justify-between mb-4 md:mb-6">
-      <div>
-        <h1 class="text-h2 md:text-h1">Upcoming <span class="hidden md:inline">Satellite</span> Activations</h1>
+<div>
+  <%= if @context.location == nil do %>
+    <div class="flex items-center gap-4 bg-amber-50 border-b border-amber-200 px-3 md:px-6 py-3 text-sm text-amber-800">
+      <Heroicons.LiveView.icon name="map-pin" type="outline" class="h-5 w-5 shrink-0" />
+      <div class="flex-1">
+        Welcome to Hamsat! You're seeing passes over <strong><%= @grid_label %></strong>.
+        Set your location to see predictions from your QTH.
       </div>
-      <div class="hidden md:block text-right">
-        <.link navigate={~p"/alerts"} class="btn btn-link">Browse</.link>
-        <.link navigate={~p"/alerts/new"} class="btn btn-link">Post</.link>
+      <button
+        class="btn btn-default btn-sm border-gray-300 whitespace-nowrap"
+        phx-click="show-location-modal"
+        phx-value-redirect="/"
+      >
+        Set Location
+      </button>
+    </div>
+  <% end %>
+
+  <div class="grid md:grid-cols-[minmax(0,7fr)_minmax(0,4fr)]">
+    <div class="p-3 md:p-6 md:border-r">
+      <div class="flex items-center justify-between mb-1">
+        <h1 class="text-2xl font-medium text-gray-700 whitespace-nowrap">Upcoming activations</h1>
+        <.link navigate={~p"/alerts"} class="link text-sm">All activations →</.link>
+      </div>
+
+      <div class="text-sm text-gray-500 border-b pb-3">
+        <%= @visible_count %> visible from <a
+          href="#"
+          phx-click="show-location-modal"
+          phx-value-redirect="/"
+          title="Edit your location"
+          class="text-gray-500 underline hover:text-gray-700"
+          phx-no-format
+        ><%= @grid_label %></a> · <%= @not_visible_count %> more not visible
+      </div>
+
+      <%= if @visible_alerts == [] do %>
+        <div class="my-6 text-gray-400 italic text-center">
+          No upcoming activations are visible from <%= @grid_label %>.
+        </div>
+      <% else %>
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse text-sm slashed-zero">
+            <tbody>
+              <%= for alert <- @visible_alerts do %>
+                <.activation_rows alert={alert} context={@context} now={@now} />
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+
+      <div class="mt-6">
+        <button class="text-gray-400 font-medium flex items-center" phx-click="toggle-rss-feed">
+          <%= if @show_rss_feed do %>
+            <Heroicons.LiveView.icon name="chevron-down" class="h-4 w-4" type="solid" /> RSS Feed
+          <% else %>
+            <Heroicons.LiveView.icon name="chevron-right" class="h-4 w-4" type="solid" /> RSS Feed
+          <% end %>
+        </button>
+        <%= if @show_rss_feed do %>
+          <div class="mt-2">
+            <.mono_copy text={upcoming_feed_url(@context)} />
+          </div>
+
+          <%= if @context.user == :guest do %>
+            <div class="mt-2 text-gray-500 flex items-center gap-1">
+              <Heroicons.LiveView.icon name="information-circle" class="inline h-4 w-4" type="outline" />
+              This is a generic public feed. Log in to access your personalized feed.
+            </div>
+          <% end %>
+        <% end %>
       </div>
     </div>
 
-    <AlertsList.component id="upcoming-alerts-list" now={@now} context={@context} alerts={@upcoming_alerts}>
-      <:empty>
-        <div class="m-6 text-gray-400 italic text-center">No upcoming activations have been posted.</div>
-      </:empty>
-    </AlertsList.component>
+    <div class="p-3 md:p-6 bg-gray-50">
+      <div class="flex items-baseline justify-between mb-1">
+        <h2 class="text-2xl font-medium text-gray-700">Upcoming passes</h2>
+        <.link navigate={~p"/passes"} class="link text-sm">All passes →</.link>
+      </div>
 
-    <%= if @upcoming_alert_count > 25 do %>
-      <.link navigate={~p"/alerts"} class="link block mt-6 mb-2 text-center">
-        View <%= pluralized_count(@upcoming_alert_count, "future activation", "future activations") %>
-      </.link>
-    <% end %>
+      <div class="text-sm text-gray-500 pb-3 border-b">Next 6 hours</div>
 
-    <div class="mt-6">
-      <button class="text-gray-400 font-medium flex items-center" phx-click="toggle-rss-feed">
-        <%= if @show_rss_feed do %>
-          <Heroicons.LiveView.icon name="chevron-down" class="h-4 w-4" type="solid" /> RSS Feed
-        <% else %>
-          <Heroicons.LiveView.icon name="chevron-right" class="h-4 w-4" type="solid" /> RSS Feed
-        <% end %>
-      </button>
-      <%= if @show_rss_feed do %>
-        <div class="mt-2">
-          <.mono_copy text={upcoming_feed_url(@context)} />
-        </div>
-
-        <%= if @context.user == :guest do %>
-          <div class="mt-2 text-gray-500 flex items-center gap-1">
-            <Heroicons.LiveView.icon name="information-circle" class="inline h-4 w-4" type="outline" />
-            This is a generic public feed. Log in to access your personalized feed.
+      <div class="flex flex-col">
+        <%= for pass <- @quiet_passes do %>
+          <div class="flex items-center justify-between gap-3 py-3 border-b">
+            <div>
+              <div class="text-sm font-semibold text-gray-700">
+                <%= pass_sat_name(pass) %> <SatComponents.sat_modulation_labels sat={pass.sat} />
+              </div>
+              <div class="text-[13px] text-gray-500">
+                <%= short_time(@context, pass.info.aos.datetime) %> – <%= short_time(
+                  @context,
+                  pass.info.los.datetime
+                ) %> · max <%= pass_max_el(pass) %>
+              </div>
+            </div>
+            <.link
+              navigate={~p"/alerts/new?pass=#{Pass.encode_hash(pass)}"}
+              class="btn btn-default btn-sm border-gray-300 whitespace-nowrap"
+              title="Post an activation for this pass"
+            >
+              Activate
+            </.link>
           </div>
         <% end %>
-      <% end %>
-    </div>
-  </div>
 
-  <div class="flex-1 md:mx-0 -mx-3">
-    <div class="flex items-center justify-between mb-4 md:mb-6">
-      <div>
-        <h1 class="text-h2 md:text-h1">
-          <%= pluralized_count(@popular_sat_count, "Active Satellite", "Active Satellites") %>
-        </h1>
-      </div>
-      <div class="hidden md:block text-right">
-        <.link navigate={~p"/sats"} class="btn btn-link">See All</.link>
-      </div>
-    </div>
-
-    <div class="flex flex-wrap gap-2 mb-4">
-      <%= for sat <- @popular_sat_infos do %>
-        <.link navigate={~p"/sats/#{sat.number}"} class="btn btn-link">
-          <%= sat.name %>
-        </.link>
-      <% end %>
-    </div>
-
-    <SatTracker.component
-      id="sat-tracker"
-      sat_positions={@sat_positions}
-      observer_positions={Enum.reject([@context.location], &is_nil/1)}
-    />
-
-    <div class="mt-2">
-      <%= if @detail_sat do %>
-        <h3 class="text-h2"><%= @detail_sat.name %></h3>
-
-        <%= if @context.location do %>
-          <%= length(@detail_sat_passes) %> passes in the next 24 hours over <%= Hamsat.Grid.encode!(
-            @context.location,
-            4
-          ) %>
-
-          <table class="table w-full">
-            <thead>
-              <tr>
-                <th class="text-left">AOS</th>
-                <th class="text-center">Length</th>
-                <th class="text-center">Max El.</th>
-              </tr>
-            </thead>
-
-            <%= for pass <- @detail_sat_passes do %>
-              <tr>
-                <td class="text-left">
-                  <%= date(@context, pass.info.aos.datetime) %>
-                  <%= time(@context, pass.info.aos.datetime) %>
-                </td>
-                <td class="text-center"><%= pass_duration(pass) %></td>
-                <td class="text-center"><%= pass_max_el(pass) %></td>
-              </tr>
-            <% end %>
-          </table>
-        <% else %>
-          <div class="text-gray-400 italic">Set your location to see upcoming passes.</div>
+        <%= if @passes_loading? do %>
+          <div class="py-3 text-gray-400 italic">Calculating passes…</div>
         <% end %>
-      <% else %>
-        <div class="text-gray-400 italic">Click a satellite for details.</div>
-      <% end %>
+
+        <%= if not @passes_loading? and @quiet_passes == [] do %>
+          <div class="py-3 text-gray-400 italic">No quiet passes in the next 6 hours.</div>
+        <% end %>
+      </div>
     </div>
   </div>
 </div>

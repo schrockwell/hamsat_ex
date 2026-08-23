@@ -14,6 +14,8 @@ defmodule HamsatWeb.AlertsLive.New do
   alias Hamsat.Schemas.Sat
   alias HamsatWeb.LocationPicker
 
+  on_mount {HamsatWeb.UserAuth, :require_authenticated_user}
+
   defp assign_defaults(socket) do
     assign(socket,
       alert: nil,

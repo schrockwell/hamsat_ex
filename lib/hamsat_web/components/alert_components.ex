@@ -7,7 +7,7 @@ defmodule HamsatWeb.AlertComponents do
       |> assign_new(:suffix, fn -> "" end)
 
     ~H"""
-    <span class={["text-xs px-1.5 py-0.5 mr-1 uppercase font-medium", match_color_class(@pct)]}><%= pct(@pct) %><%= @suffix %></span>
+    <span class={match_class(@pct)}><%= pct(@pct) %><%= @suffix %></span>
     """
   end
 
@@ -15,6 +15,12 @@ defmodule HamsatWeb.AlertComponents do
     do: match_percentage(Map.put(assigns, :pct, total))
 
   def match_percentage(assigns), do: ~H""
+
+  # Kept as a function so the badge span stays on one line in the template —
+  # a line break inside the span renders as visible whitespace in the label
+  defp match_class(pct) do
+    ["text-xs px-1.5 py-0.5 mr-1 uppercase font-medium", match_color_class(pct)]
+  end
 
   defp match_color_class(total) do
     cond do
