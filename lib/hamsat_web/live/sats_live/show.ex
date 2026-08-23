@@ -1,16 +1,25 @@
 defmodule HamsatWeb.SatsLive.Show do
   use HamsatWeb, :live_view
 
+  import HamsatWeb.ActivationComponents
+  import HamsatWeb.SatComponents, only: [sat_modulation_labels: 1]
+
   alias Hamsat.Alerts
+  alias Hamsat.Alerts.Pass
+  alias Hamsat.Grid
   alias Hamsat.Passes
   alias Hamsat.Satellites
   alias Hamsat.Satellites.PositionServer
+  alias Hamsat.Util
 
-  alias HamsatWeb.Alerts.Components.AlertTableRow
-  alias HamsatWeb.PassesLive.Components.PassTableRow
   alias HamsatWeb.SatTracker
 
   on_mount HamsatWeb.Live.NowTicker
+
+  # Earth's gravitational parameter (km³/s²) and mean radius (km), for
+  # deriving the orbit summary from the TLE's mean motion and eccentricity
+  @mu 398_600.4418
+  @earth_radius 6371.0
 
   def mount(%{"number" => number}, _session, socket) do
     sat = Satellites.get_satellite_by_number!(number)
@@ -24,11 +33,13 @@ defmodule HamsatWeb.SatsLive.Show do
       socket
       |> assign(:page_title, sat.name)
       |> assign(sat: sat)
+      |> assign(stats: Satellites.activation_stats(sat))
+      |> assign(orbit: orbital_details(sat))
       |> assign_alerts()
       |> assign_passes()
       |> assign_sat_positions()
 
-    {:ok, assign(socket, sat: sat)}
+    {:ok, socket}
   end
 
   def handle_info({event, _info} = message, socket)
@@ -70,6 +81,19 @@ defmodule HamsatWeb.SatsLive.Show do
     )
   end
 
+  defp grid_label(context), do: Grid.encode!(context.location, 4)
+
+  defp delimited(int) do
+    int
+    |> Integer.to_charlist()
+    |> Enum.reverse()
+    |> Enum.chunk_every(3)
+    |> Enum.join(",")
+    |> String.reverse()
+  end
+
+  # -- Transponders and status ------------------------------------------------
+
   defp transponder_mode(:linear), do: "Linear Transponder (Inverting)"
   defp transponder_mode(:linear_non_inv), do: "Linear Transponder (Non-Inverting)"
   defp transponder_mode(:fm), do: "FM Transponder"
@@ -78,75 +102,202 @@ defmodule HamsatWeb.SatsLive.Show do
   defp transponder_mode(:telemetry), do: "Telemetry"
   defp transponder_mode(other), do: to_string(other)
 
-  defp transponder_status_badge(%{status: :active} = assigns) do
+  # The page-level status: the "best" status among the satellite's transponders
+  defp overall_status(sat) do
+    statuses = Enum.map(sat.transponders, & &1.status)
+
+    Enum.find([:active, :problems, :conflicting, :inactive], :unknown, &(&1 in statuses))
+  end
+
+  attr :status, :atom, required: true
+
+  defp status_badge(%{status: :active} = assigns) do
     ~H"""
-    <span class="bg-green-600 text-white px-2 py-1 uppercase text-sm font-semibold flex items-center gap-1">
-      <Heroicons.LiveView.icon name="check" type="mini" class="h-4 w-4" />Active
+    <span
+      class="inline-flex items-center gap-1 bg-emerald-500 text-white px-2 py-0.5 uppercase text-[11px] font-semibold rounded tracking-wide"
+      title="Transponder status"
+    >
+      <Heroicons.LiveView.icon name="check" type="mini" class="h-3 w-3" />Active
     </span>
     """
   end
 
-  defp transponder_status_badge(%{status: :inactive} = assigns) do
+  defp status_badge(%{status: :problems} = assigns) do
     ~H"""
-    <span class="bg-red-600 text-white px-2 py-1 uppercase text-sm font-semibold flex items-center gap-1">
-      <Heroicons.LiveView.icon name="x-mark" type="mini" class="h-4 w-4" /> Inactive
+    <span
+      class="inline-flex items-center gap-1 bg-orange-500 text-white px-2 py-0.5 uppercase text-[11px] font-semibold rounded tracking-wide"
+      title="Transponder status"
+    >
+      <Heroicons.LiveView.icon name="exclamation-triangle" type="mini" class="h-3 w-3" />Problems
     </span>
     """
   end
 
-  defp transponder_status_badge(%{status: :problems} = assigns) do
+  defp status_badge(%{status: :conflicting} = assigns) do
     ~H"""
-    <span class="bg-orange-500 text-white px-2 py-1 uppercase text-sm font-semibold flex items-center gap-1">
-      <Heroicons.LiveView.icon name="exclamation-triangle" type="mini" class="h-4 w-4" />Problems
+    <span
+      class="inline-flex items-center gap-1 bg-orange-500 text-white px-2 py-0.5 uppercase text-[11px] font-semibold rounded tracking-wide"
+      title="Transponder status"
+    >
+      <Heroicons.LiveView.icon name="question-mark-circle" type="mini" class="h-3 w-3" />Conflicting
     </span>
     """
   end
 
-  defp transponder_status_badge(%{status: :conflicting} = assigns) do
+  defp status_badge(%{status: :inactive} = assigns) do
     ~H"""
-    <span class="bg-orange-500 text-white px-2 py-1 uppercase text-sm font-semibold flex items-center gap-1">
-      <Heroicons.LiveView.icon name="question-mark-circle" type="mini" class="h-4 w-4" />Conflicting Reports
+    <span
+      class="inline-flex items-center gap-1 bg-red-600 text-white px-2 py-0.5 uppercase text-[11px] font-semibold rounded tracking-wide"
+      title="Transponder status"
+    >
+      <Heroicons.LiveView.icon name="x-mark" type="mini" class="h-3 w-3" />Inactive
     </span>
     """
   end
 
-  defp transponder_status_badge(%{status: :unknown} = assigns) do
+  defp status_badge(assigns) do
     ~H"""
-    <span class="bg-red-600 text-white px-2 py-1 uppercase text-sm font-semibold flex items-center gap-1">
-      <Heroicons.LiveView.icon name="question-mark-circle" type="mini" class="h-4 w-4" /> Unknown
+    <span
+      class="inline-flex items-center gap-1 bg-red-600 text-white px-2 py-0.5 uppercase text-[11px] font-semibold rounded tracking-wide"
+      title="Transponder status"
+    >
+      <Heroicons.LiveView.icon name="question-mark-circle" type="mini" class="h-3 w-3" />Unknown
     </span>
     """
   end
 
-  defp transponder_panel(assigns) do
-    ~H"""
-    <div class="border rounded p-4 mb-4 space-y-4">
-      <div class="flex items-center justify-between">
-        <div class="text-lg"><%= transponder_mode(@transponder.mode) %></div>
-        <div><.transponder_status_badge status={@transponder.status} /></div>
-      </div>
-      <div class="flex">
-        <%= if @transponder.downlink do %>
-          <div class="flex-1">
-            <div class="text-xl">
-              <%= subband_range(@transponder.downlink) %>
-            </div>
-            <div>Downlink</div>
-          </div>
-        <% end %>
-        <%= if @transponder.uplink do %>
-          <div class="flex-1">
-            <div class="text-xl">
-              <%= subband_range(@transponder.uplink) %>
-            </div>
-            <div>Uplink</div>
-          </div>
-        <% end %>
-      </div>
-      <%= if @transponder.notes do %>
-        <div><%= @transponder.notes %></div>
-      <% end %>
-    </div>
-    """
+  # -- Orbital details from the TLE -------------------------------------------
+
+  # Parses the fixed-column TLE fields needed for the Details section. Returns
+  # a map (values nil when unparsable) or nil when there is no usable TLE.
+  defp orbital_details(sat) do
+    with tle when is_binary(tle) <- sat.tle,
+         [line1, line2] <- String.split(tle, "\n") do
+      designator = intl_designator(line1)
+      inclination = parse_float(String.slice(line2, 8, 8))
+      eccentricity = parse_float("0." <> String.trim(String.slice(line2, 26, 7)))
+      mean_motion = parse_float(String.slice(line2, 52, 11))
+
+      {period_min, orbit} = orbit_from_elements(mean_motion, eccentricity)
+
+      %{
+        designator: designator,
+        launch_year: launch_year(designator),
+        inclination: inclination,
+        period_min: period_min,
+        orbit: orbit
+      }
+    else
+      _ -> nil
+    end
   end
+
+  # "19096E" (TLE columns 10–17) → "2019-096E"
+  defp intl_designator(line1) do
+    case String.trim(String.slice(line1, 9, 8)) do
+      <<yy::binary-size(2), rest::binary>> = raw ->
+        case Integer.parse(yy) do
+          {year, ""} -> "#{launch_century(year) + year}-#{rest}"
+          _ -> raw
+        end
+
+      _ ->
+        nil
+    end
+  end
+
+  defp launch_century(year) when year >= 57, do: 1900
+  defp launch_century(_year), do: 2000
+
+  defp launch_year(nil), do: nil
+  defp launch_year(designator), do: designator |> String.slice(0, 4)
+
+  defp orbit_from_elements(mean_motion, eccentricity)
+       when is_float(mean_motion) and mean_motion > 0 and is_float(eccentricity) do
+    period_sec = 86_400 / mean_motion
+    semi_major = :math.pow(@mu * :math.pow(period_sec / (2 * :math.pi()), 2), 1 / 3)
+    perigee = semi_major * (1 - eccentricity) - @earth_radius
+    apogee = semi_major * (1 + eccentricity) - @earth_radius
+
+    {round(period_sec / 60), "#{delimited(round(perigee))} × #{delimited(round(apogee))} km"}
+  end
+
+  defp orbit_from_elements(_, _), do: {nil, nil}
+
+  defp parse_float(string) do
+    case Float.parse(String.trim(string)) do
+      {float, _} -> float
+      :error -> nil
+    end
+  end
+
+  # -- Passes -----------------------------------------------------------------
+
+  defp pass_aos_at(pass), do: Util.erl_to_utc_datetime(pass.info.aos.datetime)
+
+  # "11:46 – 12:03", prefixed with a short weekday when beyond today
+  defp pass_time_span(context, pass) do
+    aos = pass_aos_at(pass)
+    los = Util.erl_to_utc_datetime(pass.info.los.datetime)
+    aos_local = Timex.to_datetime(aos, context.timezone)
+
+    prefix =
+      if Timex.to_date(aos_local) == Timex.today(context.timezone) do
+        ""
+      else
+        Timex.format!(aos_local, "{WDshort} ")
+      end
+
+    prefix <> short_time(context, aos) <> " – " <> short_time(context, los)
+  end
+
+  # "in 1:44" / "in 1d 1:00" until AOS; "now" once the pass has started
+  defp pass_countdown(pass, now) do
+    seconds = Timex.diff(pass_aos_at(pass), now, :second)
+
+    if seconds <= 0 do
+      "now"
+    else
+      days = div(seconds, 86_400)
+      hours = div(rem(seconds, 86_400), 3600)
+      minutes = div(rem(seconds, 3600), 60)
+      minutes = if minutes < 10, do: "0#{minutes}", else: to_string(minutes)
+
+      if days > 0 do
+        "in #{days}d #{hours}:#{minutes}"
+      else
+        "in #{hours}:#{minutes}"
+      end
+    end
+  end
+
+  # "212° SW → 38° NE"
+  defp pass_azimuths(pass) do
+    aos_az = pass.info.aos.azimuth_in_degrees
+    los_az = pass.info.los.azimuth_in_degrees
+
+    "#{round(aos_az)}° #{cardinal_direction(aos_az)} → #{round(los_az)}° #{cardinal_direction(los_az)}"
+  end
+
+  # "Next pass over FN42 · today 11:46 · max 62°"
+  defp next_pass_caption(context, [pass | _], now) do
+    aos = pass_aos_at(pass)
+    aos_local = Timex.to_datetime(aos, context.timezone)
+
+    day =
+      cond do
+        Timex.compare(now, aos) == 1 -> "now"
+        Timex.to_date(aos_local) == Timex.today(context.timezone) -> "today"
+        true -> Timex.format!(aos_local, "{WDshort}")
+      end
+
+    time =
+      if day == "now",
+        do: "until #{short_time(context, Util.erl_to_utc_datetime(pass.info.los.datetime))}",
+        else: short_time(context, aos)
+
+    "Next pass over #{grid_label(context)} · #{day} #{time} · max #{pass_max_el(pass)}"
+  end
+
+  defp next_pass_caption(_context, _passes, _now), do: nil
 end
