@@ -1,54 +1,239 @@
-<section class="flex flex-col md:flex-row gap-4 p-3 md:p-6">
-  <div class="flex-1">
-    <div class="mb-4">
-      <h1 class="block text-h1"><%= @sat.name %></h1>
-      <%= if @sat.aliases != [] do %>
-        <div>aka <%= Enum.join(@sat.aliases, ", ") %></div>
-      <% end %>
+<%!-- Header --%>
+<div class="flex items-center gap-3 px-3 py-3 md:px-6 md:py-5 bg-gray-50 border-b flex-wrap">
+  <div class="flex flex-col">
+    <h1 class="text-2xl font-medium text-gray-700 whitespace-nowrap"><%= @sat.name %></h1>
+    <%= if @sat.aliases != [] do %>
+      <span class="text-sm text-gray-400"><%= Enum.join(@sat.aliases, " / ") %></span>
+    <% end %>
+  </div>
+  <span class="flex gap-1"><.sat_modulation_labels sat={@sat} /></span>
+  <span class="ml-auto text-sm text-gray-400 whitespace-nowrap">NORAD <%= @sat.number %></span>
+  <.status_badge status={overall_status(@sat)} />
+</div>
+
+<%= unless @sat.in_orbit do %>
+  <div class="bg-red-600 text-white px-3 md:px-6 py-2">
+    This satellite is no longer in orbit.
+  </div>
+<% end %>
+
+<%!-- Stats --%>
+<div class="flex flex-wrap gap-x-10 md:gap-x-16 gap-y-4 px-3 py-4 md:px-6 md:pt-5 md:pb-4 border-b">
+  <div>
+    <div class="text-[34px] font-semibold text-gray-700 leading-tight"><%= delimited(@stats.total) %></div>
+    <div class="text-[11px] uppercase tracking-wider text-gray-400 mt-1">Activations all-time</div>
+  </div>
+  <div>
+    <div class="text-[34px] font-semibold text-gray-700 leading-tight"><%= delimited(@stats.recent) %></div>
+    <div class="text-[11px] uppercase tracking-wider text-gray-400 mt-1">Past 30 days</div>
+  </div>
+  <div>
+    <div class="text-[34px] font-semibold text-gray-700 leading-tight"><%= delimited(@stats.rovers) %></div>
+    <div class="text-[11px] uppercase tracking-wider text-gray-400 mt-1">Unique rovers</div>
+  </div>
+  <div>
+    <div class="text-[34px] font-semibold text-gray-700 leading-tight"><%= delimited(@stats.grids) %></div>
+    <div class="text-[11px] uppercase tracking-wider text-gray-400 mt-1">Grids activated</div>
+  </div>
+  <div>
+    <div class="text-[34px] font-semibold text-gray-700 leading-tight"><%= length(@alerts) %></div>
+    <div class="text-[11px] uppercase tracking-wider text-gray-400 mt-1">Upcoming activations</div>
+  </div>
+</div>
+
+<div class="md:grid md:grid-cols-[minmax(0,8fr)_minmax(0,3fr)]">
+  <%!-- Left: tables --%>
+  <div class="md:border-r">
+    <%!-- Upcoming activations --%>
+    <div class="px-3 pt-4 md:px-6 md:pt-6 pb-2">
+      <div class="flex items-baseline justify-between">
+        <h2 class="text-xl font-medium text-gray-700">Upcoming activations</h2>
+        <.link navigate={~p"/alerts"} class="link text-sm">All activations →</.link>
+      </div>
+      <div class="text-sm text-gray-500 mt-1">
+        <%= pluralized_count(length(@alerts), "posted", "posted") %> on <%= @sat.name %> ·
+        <.link navigate={~p"/alerts/new?#{%{sat: @sat.number}}"} class="link font-normal">Post an activation</.link>
+      </div>
     </div>
 
-    <%= unless @sat.in_orbit do %>
-      <div class="bg-red-600 text-white px-4 py-2 rounded-md mb-4">
-        This satellite is no longer in orbit.
+    <%= if @alerts == [] do %>
+      <div class="px-3 md:px-6 pt-2 pb-6 text-sm text-gray-500 italic">
+        No upcoming activations posted for <%= @sat.name %>.
+      </div>
+    <% else %>
+      <div class="px-3 md:px-6 pt-2 pb-6 overflow-x-auto hidden md:block">
+        <table class="w-full border-collapse text-sm slashed-zero">
+          <tbody>
+            <%= for alert <- @alerts do %>
+              <.activation_rows alert={alert} context={@context} now={@now} show_sat={false} />
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class="px-3 pb-6 md:hidden">
+        <%= for alert <- @alerts do %>
+          <.activation_card alert={alert} context={@context} now={@now} show_sat={false} />
+        <% end %>
       </div>
     <% end %>
 
-    <%= for transponder <- @sat.transponders do %>
-      <.transponder_panel transponder={transponder} />
-    <% end %>
-  </div>
-  <div class="flex-1">
-    <SatTracker.component
-      id="sat-tracker"
-      observer_positions={Enum.reject([@context.location], &is_nil/1)}
-      sat_positions={@sat_positions}
-    />
-  </div>
-</section>
-
-<section class="mt-4 mb-8 md:mb-16">
-  <h2 class="text-h2 px-3 md:px-6">
-    <%= pluralized_count(length(@alerts), "Upcoming Activation", "Upcoming Activations") %>
-    <.link navigate={~p"/alerts/new?#{%{sat: @sat.number}}"} class="link text-base ml-4">(Post an Activation)</.link>
-  </h2>
-
-  <%= if @alerts != [] do %>
-    <AlertTableRow.table alerts={@alerts} now={@now} context={@context} />
-  <% end %>
-</section>
-
-<section class="my-8 md:my-16">
-  <h2 class="text-h2 px-3 md:px-6">
-    <%= pluralized_count(length(@passes), "Pass", "Passes") %> in the Next 24 Hours
-  </h2>
-
-  <%= if @context.location do %>
-    <%= if @passes != [] do %>
-      <PassTableRow.table context={@context} now={@now} passes={@passes} />
-    <% end %>
-  <% else %>
-    <div class="p-6 w-full md:w-1/2">
-      <.location_prompt context={@context} redirect={~p"/sats/#{@sat.number}"} />
+    <%!-- Upcoming passes --%>
+    <div class="px-3 md:px-6 pb-2">
+      <div class="flex items-baseline justify-between">
+        <h2 class="text-xl font-medium text-gray-700">Upcoming passes</h2>
+        <.link navigate={~p"/passes"} class="link text-sm">All passes →</.link>
+      </div>
+      <%= if @context.location do %>
+        <div class="text-sm text-gray-500 mt-1">
+          Over
+          <a
+            href="#"
+            phx-click="show-location-modal"
+            phx-value-redirect={~p"/sats/#{@sat.number}"}
+            title="Edit your location"
+            class="text-gray-500 underline hover:text-gray-700"
+          >
+            <%= grid_label(@context) %>
+          </a>
+          · next 24 hours
+        </div>
+      <% end %>
     </div>
-  <% end %>
-</section>
+
+    <%= if @context.location do %>
+      <div class="px-3 md:px-6 pt-2 pb-6 md:pb-8 overflow-x-auto">
+        <div class="min-w-[560px]">
+          <div class="grid grid-cols-[200px_90px_minmax(0,1fr)_auto] gap-3 px-4 py-2 bg-gray-50 border-b text-[11px] font-semibold uppercase tracking-wider text-gray-400 rounded-t">
+            <div>Time</div>
+            <div>Max el</div>
+            <div>AOS → LOS</div>
+            <div></div>
+          </div>
+          <%= if @passes == [] do %>
+            <div class="px-4 py-3 text-sm text-gray-500 italic border-b border-gray-100">
+              No passes over <%= grid_label(@context) %> in the next 24 hours.
+            </div>
+          <% end %>
+          <%= for pass <- @passes do %>
+            <div class="grid grid-cols-[200px_90px_minmax(0,1fr)_auto] gap-3 items-center px-4 py-2 border-b border-gray-100 text-[15px] hover:bg-gray-50">
+              <div class="whitespace-nowrap">
+                <%= pass_time_span(@context, pass) %>
+                <span class="text-[13px] text-gray-400"><%= pass_countdown(pass, @now) %></span>
+              </div>
+              <div class="tabular-nums"><%= pass_max_el(pass) %></div>
+              <div class="text-sm text-gray-500 whitespace-nowrap"><%= pass_azimuths(pass) %></div>
+              <.link
+                navigate={~p"/alerts/new?pass=#{Pass.encode_hash(pass)}"}
+                class="btn btn-green btn-sm border-transparent justify-self-end whitespace-nowrap"
+                title="Post an activation for this pass"
+              >
+                Activate
+              </.link>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="mx-3 md:mx-6 mt-3 mb-6 md:mb-8 flex items-center gap-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800">
+        <div class="flex-1">Set your location to see pass predictions for <%= @sat.name %> from your QTH.</div>
+        <button
+          class="btn btn-default btn-sm border-gray-300 whitespace-nowrap"
+          phx-click="show-location-modal"
+          phx-value-redirect={~p"/sats/#{@sat.number}"}
+        >
+          Set Location
+        </button>
+      </div>
+    <% end %>
+  </div>
+
+  <%!-- Right: sidebar --%>
+  <div class="bg-gray-50 px-3 py-4 md:px-6 md:pt-5 md:pb-8 flex flex-col gap-6 text-sm border-t md:border-t-0">
+    <div class="flex flex-col gap-2">
+      <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">Current position</div>
+      <div class="bg-gray-800 rounded-lg overflow-hidden min-h-[180px]">
+        <SatTracker.component
+          id="sat-tracker"
+          height="180px"
+          observer_positions={Enum.reject([@context.location], &is_nil/1)}
+          sat_positions={@sat_positions}
+        />
+      </div>
+      <%= if @context.location && next_pass_caption(@context, @passes, @now) do %>
+        <div class="text-[13px] text-gray-500"><%= next_pass_caption(@context, @passes, @now) %></div>
+      <% end %>
+    </div>
+
+    <%= for transponder <- @sat.transponders do %>
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between gap-2">
+          <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">
+            <%= transponder_mode(transponder.mode) %>
+          </div>
+          <.status_badge status={transponder.status} />
+        </div>
+        <%= if transponder.downlink do %>
+          <div class="flex justify-between text-gray-500">
+            <span>Downlink</span>
+            <span class="text-gray-700"><%= subband_range(transponder.downlink) %> MHz</span>
+          </div>
+        <% end %>
+        <%= if transponder.uplink do %>
+          <div class="flex justify-between text-gray-500">
+            <span>Uplink</span>
+            <span class="text-gray-700"><%= subband_range(transponder.uplink) %> MHz</span>
+          </div>
+        <% end %>
+        <%= if transponder.notes do %>
+          <div class={["text-[13px]", if(transponder.status == :active, do: "text-gray-500", else: "text-amber-700")]}>
+            <%= transponder.notes %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="flex flex-col gap-2">
+      <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">Details</div>
+      <div class="flex justify-between text-gray-500">
+        <span>NORAD ID</span><span class="text-gray-700"><%= @sat.number %></span>
+      </div>
+      <%= if @orbit do %>
+        <%= if @orbit.designator do %>
+          <div class="flex justify-between text-gray-500">
+            <span>Int'l designator</span><span class="text-gray-700"><%= @orbit.designator %></span>
+          </div>
+        <% end %>
+        <%= if @orbit.launch_year do %>
+          <div class="flex justify-between text-gray-500">
+            <span>Launched</span><span class="text-gray-700"><%= @orbit.launch_year %></span>
+          </div>
+        <% end %>
+        <%= if @orbit.orbit do %>
+          <div class="flex justify-between text-gray-500">
+            <span>Orbit</span><span class="text-gray-700"><%= @orbit.orbit %></span>
+          </div>
+        <% end %>
+        <%= if @orbit.inclination do %>
+          <div class="flex justify-between text-gray-500">
+            <span>Inclination</span><span class="text-gray-700"><%= :erlang.float_to_binary(@orbit.inclination, decimals: 1) %>°</span>
+          </div>
+        <% end %>
+        <%= if @orbit.period_min do %>
+          <div class="flex justify-between text-gray-500">
+            <span>Period</span><span class="text-gray-700"><%= @orbit.period_min %> min</span>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">Links</div>
+      <a href={"https://db.satnogs.org/search/?q=#{@sat.number}"} target="_blank" class="link font-normal">
+        SatNOGS DB ↗
+      </a>
+      <a href={"https://www.n2yo.com/satellite/?s=#{@sat.number}"} target="_blank" class="link font-normal">N2YO ↗</a>
+      <a href="https://www.amsat.org/status/" target="_blank" class="link font-normal">AMSAT status ↗</a>
+      <a href="https://www.amsat.org/status/" target="_blank" class="link font-normal">Report transponder status</a>
+    </div>
+  </div>
+</div>

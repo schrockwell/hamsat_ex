@@ -175,6 +175,31 @@ defmodule Hamsat.Satellites do
     |> Map.new(fn {id, days} -> {id, Map.new(days)} end)
   end
 
+  @doc """
+  All-time activation stats for one satellite: total count, count within the
+  recent (30-day) window, unique activator callsigns, and unique grids.
+  """
+  def activation_stats(sat) do
+    cutoff =
+      DateTime.utc_now()
+      |> DateTime.add(-@popular_window_days, :day)
+      |> DateTime.truncate(:second)
+
+    rows =
+      Repo.all(
+        from a in Alert,
+          where: a.satellite_id == ^sat.id,
+          select: {a.callsign, a.grids, a.inserted_at}
+      )
+
+    %{
+      total: length(rows),
+      recent: Enum.count(rows, fn {_, _, at} -> DateTime.compare(at, cutoff) != :lt end),
+      rovers: rows |> Enum.map(fn {callsign, _, _} -> String.upcase(callsign) end) |> Enum.uniq() |> length(),
+      grids: rows |> Enum.flat_map(fn {_, grids, _} -> grids end) |> Enum.uniq() |> length()
+    }
+  end
+
   @doc "Returns `%{satellite_id => most_recent_aos_at}` across all alerts."
   def last_activation_dates do
     from(a in Alert,
