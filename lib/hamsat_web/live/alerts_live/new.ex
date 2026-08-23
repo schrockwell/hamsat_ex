@@ -103,7 +103,7 @@ defmodule HamsatWeb.AlertsLive.New do
   end
 
   def handle_event("change", %{"alert_form" => params}, socket) do
-    {:noreply, update_form(socket, params)}
+    {:noreply, update_form(socket, maybe_sync_observer_coords(socket, params))}
   end
 
   def handle_event("submit", %{"alert_form" => params}, %{assigns: %{alert: nil}} = socket) do
@@ -167,6 +167,35 @@ defmodule HamsatWeb.AlertsLive.New do
       )
 
     {:noreply, assign(socket, passes: passes)}
+  end
+
+  @grid_param_keys ~w(grid_1 grid_2 grid_3 grid_4)
+
+  # When the activator edits the grid fields, move the observer location to the
+  # centroid of those grids so the pass predictions and live tracking reflect
+  # where they say they will be operating, rather than wherever their session
+  # location happens to be. Map clicks and manual lat/lon edits don't touch the
+  # grid fields, so they still take precedence.
+  defp maybe_sync_observer_coords(socket, params) do
+    with true <- grids_changed?(socket.assigns.params, params),
+         {:ok, {lat, lon}} <- AlertForm.grids_centroid(Enum.map(@grid_param_keys, &params[&1])) do
+      Map.merge(params, %{"observer_lat" => lat, "observer_lon" => lon})
+    else
+      _ -> params
+    end
+  end
+
+  defp grids_changed?(old_params, new_params) do
+    Enum.any?(@grid_param_keys, fn key ->
+      normalize_grid(old_params[key]) != normalize_grid(new_params[key])
+    end)
+  end
+
+  defp normalize_grid(grid) do
+    case grid && grid |> String.trim() |> String.upcase() do
+      "" -> nil
+      other -> other
+    end
   end
 
   defp use_recommended_grids(socket) do
