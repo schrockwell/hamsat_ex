@@ -19,6 +19,17 @@ defmodule HamsatWeb.LayoutView do
 
   defp passes_nav_attrs(_assigns), do: [navigate: ~p"/passes"]
 
+  defp nav_grid_label(context) do
+    Grid.encode!(Hamsat.Context.effective_location(context), 4)
+  end
+
+  @nav_time_formats %{"12h" => "{h12}:{m} {AM}", "24h" => "{h24}:{m}"}
+
+  defp nav_time(context) do
+    now = Timex.now(context.timezone)
+    Timex.format!(now, @nav_time_formats[context.time_format]) <> " " <> Timex.format!(now, "{Zabbr}")
+  end
+
   defp location_nav_attrs(%{live?: true} = assigns) do
     [href: "#", "phx-click": "show-location-modal", "phx-value-redirect": assigns.current_path || "/"]
   end
@@ -47,31 +58,46 @@ defmodule HamsatWeb.LayoutView do
         </.link>
 
         <div class="hidden md:flex items-center">
-          <.nav_pill_button navigate={~p"/sats"} active={@active_nav_item == :sats}>
-            Sats
-          </.nav_pill_button>
-          <.nav_pill_button navigate={~p"/alerts"} active={@active_nav_item == :alerts}>
-            Activations
+          <.nav_pill_button navigate={~p"/"} active={@active_nav_item == :home}>
+            Home
           </.nav_pill_button>
           <.nav_pill_button {@passes_nav_attrs} active={@active_nav_item == :passes}>
             Passes
           </.nav_pill_button>
+          <.nav_pill_button navigate={~p"/alerts"} active={@active_nav_item == :alerts}>
+            Activations
+          </.nav_pill_button>
+          <.nav_pill_button navigate={~p"/sats"} active={@active_nav_item == :sats}>
+            Sats
+          </.nav_pill_button>
         </div>
       </div>
 
-      <div class="hidden md:flex items-center">
+      <div class="hidden md:flex items-center gap-4">
+        <.link
+          {@location_nav_attrs}
+          title="Your grid and timezone"
+          class="text-sm text-gray-300 hover:text-white transition-all whitespace-nowrap"
+        >
+          <%= nav_grid_label(@context) %> · <%= nav_time(@context) %>
+        </.link>
+
         <%= if @context.user != :guest do %>
           <.nav_pill_button navigate={~p"/users/settings"} active={@active_nav_item == :settings} class="flex items-center">
-            Settings
+            <%= @context.user.callsign || "Settings" %>
           </.nav_pill_button>
         <% else %>
-          <.nav_pill_button navigate={~p"/users/register"} active={@active_nav_item == :register}>
-            Register
-          </.nav_pill_button>
           <.nav_pill_button navigate={~p"/users/log_in"} active={@active_nav_item == :log_in}>
             Log In
           </.nav_pill_button>
         <% end %>
+
+        <.link
+          navigate={~p"/alerts/new"}
+          class="rounded bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium px-4 py-2 transition-all whitespace-nowrap"
+        >
+          + Post Activation
+        </.link>
       </div>
 
       <div class="md:hidden flex items-center">
@@ -148,8 +174,7 @@ defmodule HamsatWeb.LayoutView do
       <%= if @keps_updated_at do %>
         ·
         <span title="When the satellite Keplerian elements were last updated">
-          Updated <%= date(@context, @keps_updated_at) %> at
-          <%= short_time(@context, @keps_updated_at) %>
+          Updated <%= date(@context, @keps_updated_at) %> at <%= short_time(@context, @keps_updated_at) %>
         </span>
       <% end %>
     </div>

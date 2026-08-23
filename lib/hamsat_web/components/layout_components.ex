@@ -14,10 +14,7 @@ defmodule HamsatWeb.LayoutComponents do
 
       <div class="mb-8">
         <%= if @context.user == :guest do %>
-          To view satellite predictions at your current location, you must <.link
-            navigate={~p"/users/log_in"}
-            class="link"
-          >log in to your account</.link>, or set your station location.
+          To view satellite predictions at your current location, you must <.link navigate={~p"/users/log_in"} class="link">log in to your account</.link>, or set your station location.
         <% else %>
           To view satellite predictions at your current location, set your station location.
         <% end %>

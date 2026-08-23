@@ -12,6 +12,28 @@ defmodule HamsatWeb.UserAuth do
   @remember_me_options [sign: true, max_age: @max_age, same_site: "Lax"]
 
   @doc """
+  LiveView `on_mount` counterpart of `require_authenticated_user/2`.
+
+  The plug only runs on full HTTP requests, so LiveViews reached via live
+  navigation (e.g. `navigate={~p"/alerts/new"}`) must also declare
+  `on_mount {HamsatWeb.UserAuth, :require_authenticated_user}` to redirect
+  guests instead of crashing in mount. Relies on the context assigned by
+  `HamsatWeb.ContextHook`, which runs first.
+  """
+  def on_mount(:require_authenticated_user, _params, _session, socket) do
+    if socket.assigns.context.user == :guest do
+      socket =
+        socket
+        |> Phoenix.LiveView.put_flash(:error, "Please log in or register to continue.")
+        |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")
+
+      {:halt, socket}
+    else
+      {:cont, socket}
+    end
+  end
+
+  @doc """
   Logs the user in.
 
   It renews the session ID and clears the whole session

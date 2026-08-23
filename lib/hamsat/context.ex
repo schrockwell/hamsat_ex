@@ -4,6 +4,27 @@ defmodule Hamsat.Context do
   alias Hamsat.Accounts
   alias Hamsat.Accounts.User
 
+  # Center of grid FN31, the default location shown to visitors who have not
+  # set their own location yet
+  @default_location %Hamsat.Coord{lat: 41.5, lon: -73.0}
+
+  @doc """
+  Returns the context's location, falling back to the default (FN31) when unset.
+  """
+  def effective_location(%__MODULE__{location: %Hamsat.Coord{lat: lat, lon: lon} = coord})
+      when is_number(lat) and is_number(lon),
+      do: coord
+
+  def effective_location(%__MODULE__{}), do: @default_location
+
+  @doc """
+  Returns the context with `:location` guaranteed to be set, falling back to
+  the default location.
+  """
+  def effective(%__MODULE__{} = context) do
+    %{context | location: effective_location(context)}
+  end
+
   def from_session(session) do
     if user = get_session_user(session) do
       from_user(user)

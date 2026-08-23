@@ -203,6 +203,7 @@ defmodule HamsatWeb.ViewHelpers do
 
   def active_nav_item(path) do
     cond do
+      path == "/" -> :home
       Regex.match?(~r/^(\/sats)/, path) -> :sats
       Regex.match?(~r/^(\/alerts)/, path) -> :alerts
       Regex.match?(~r/^\/passes/, path) -> :passes
