@@ -1,8 +1,7 @@
 import Config
 
 # Configure your database
-config :hamsat, Hamsat.Repo,
-  database: "priv/repo/hamsat_dev.db"
+config :hamsat, Hamsat.Repo, database: "priv/repo/hamsat_dev.db"
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
