@@ -8,7 +8,6 @@ defmodule HamsatWeb.AlertsLive.Show do
   alias Hamsat.PassMatch
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.Sat
-  alias HamsatWeb.AlertComponents
   alias HamsatWeb.SatTracker
   alias HamsatWeb.LiveComponents.AlertSaver
   alias HamsatWeb.LiveComponents.PassTracker
@@ -43,6 +42,19 @@ defmodule HamsatWeb.AlertsLive.Show do
     {:ok, socket}
   end
 
+  def handle_event("delete", _, socket) do
+    if Alert.owned?(socket.assigns.alert, socket.assigns.context.user) do
+      Alerts.delete_alert(socket.assigns.alert)
+
+      {:noreply,
+       socket
+       |> put_flash(:info, "Activation deleted.")
+       |> redirect(to: ~p"/alerts")}
+    else
+      {:noreply, socket}
+    end
+  end
+
   def handle_info(:tick, socket) do
     socket =
       socket
@@ -75,34 +87,48 @@ defmodule HamsatWeb.AlertsLive.Show do
     socket
   end
 
-  defp workable_start_marker_style(alert) do
-    if alert.is_workable? do
-      "left: #{progress(alert, alert.workable_start_at) * 100}%"
-    end
-  end
+  # Position (0.0–1.0) of a moment within the pass, for the timeline bar
+  defp marker_left(alert, datetime), do: "left: #{progress(alert, datetime) * 100}%"
 
-  defp workable_end_marker_style(alert) do
-    if alert.is_workable? do
-      "right: #{(1.0 - progress(alert, alert.workable_end_at)) * 100}%"
-    end
+  # When the visible window begins at rise (or ends at set) the emerald node
+  # takes over the rise/set node rather than drawing two nodes on top of each other.
+  defp separate_node?(%Alert{is_workable?: false}, _end), do: false
+  defp separate_node?(alert, :rise), do: alert.workable_start_at != alert.aos_at
+  defp separate_node?(alert, :set), do: alert.workable_end_at != alert.los_at
+
+  defp coincident?(%Alert{is_workable?: false}, _end), do: false
+  defp coincident?(alert, :rise), do: alert.workable_start_at == alert.aos_at
+  defp coincident?(alert, :set), do: alert.workable_end_at == alert.los_at
+
+  defp node_class(alert, which),
+    do: if(coincident?(alert, which), do: "border-emerald-500", else: "border-gray-300")
+
+  defp node_time_class(alert, which),
+    do: if(coincident?(alert, which), do: "text-emerald-700", else: "text-gray-700")
+
+  defp node_label(alert, :rise), do: if(coincident?(alert, :rise), do: "Rise · Visible", else: "Rise")
+  defp node_label(alert, :set), do: if(coincident?(alert, :set), do: "End visible · Set", else: "Set")
+
+  defp workable_segment_style(alert) do
+    start = progress(alert, alert.workable_start_at)
+    stop = progress(alert, alert.workable_end_at)
+    "left: #{start * 100}%; width: #{(stop - start) * 100}%"
   end
 
   def assign_tick(socket) do
     alert = socket.assigns.alert
     now = socket.assigns.now
-    progress = max(min(progress(alert, now), 1.05), -0.05)
+    progress = max(min(progress(alert, now), 1.0), 0.0)
 
     progression = Alert.progression(alert, now)
     events = Alert.events(alert, now)
 
     cursor_class =
       case progression do
-        :upcoming -> "bg-gray-200"
-        :passed -> "bg-gray-200"
-        :before_workable -> "bg-gray-400"
-        :after_workable -> "bg-gray-400"
-        :in_progress -> "bg-gray-400"
+        :upcoming -> "bg-gray-400"
+        :passed -> "bg-gray-300"
         :workable -> "bg-emerald-500"
+        _ -> "bg-gray-500"
       end
 
     my_sat_position =
@@ -127,8 +153,35 @@ defmodule HamsatWeb.AlertsLive.Show do
       cursor_style: "left: #{progress * 100}%",
       events: events,
       my_sat_position: my_sat_position,
-      progression: progression
+      progression: progression,
+      status: status(alert, progression, now)
     )
+  end
+
+  # The single status chip shown above the timeline: {label, timer, class}
+  defp status(alert, progression, now) do
+    gray = "border-gray-300 bg-gray-100 text-gray-700"
+
+    case progression do
+      :upcoming ->
+        {"Upcoming", "rises in #{duration(now, alert.aos_at)}", gray}
+
+      :before_workable ->
+        {"In progress", "visible in #{duration(now, alert.workable_start_at)}", gray}
+
+      :workable ->
+        {"Visible", "for another #{duration(now, alert.workable_end_at)}",
+         "border-emerald-500 bg-emerald-100 text-emerald-700"}
+
+      :after_workable ->
+        {"In progress", "sets in #{duration(now, alert.los_at)}", gray}
+
+      :in_progress ->
+        {"In progress", "sets in #{duration(now, alert.los_at)}", gray}
+
+      :passed ->
+        {"Passed", "#{Timex.from_now(alert.los_at, now)}", "border-gray-200 bg-gray-100 text-gray-400"}
+    end
   end
 
   defp progress(alert, now) do
@@ -137,25 +190,71 @@ defmodule HamsatWeb.AlertsLive.Show do
     after_aos / duration
   end
 
-  defp progression_class(:workable, :workable),
-    do: "uppercase px-4 py-2 border-2 border-emerald-500 bg-emerald-100 text-emerald-600 font-medium"
-
-  defp progression_class(match, match),
-    do: "uppercase px-4 py-2 border-2 border-gray-300 bg-gray-100 text-gray-600 font-medium"
-
-  defp progression_class(_, _),
-    do: "uppercase px-4 py-2 border text-gray-400"
-
   defp elevation_class(elevation) when elevation <= 0, do: "text-red-600"
-  defp elevation_class(_), do: nil
+  defp elevation_class(_), do: "text-gray-800"
 
-  defp event_timer(event, now, passed \\ "") do
-    cond do
-      # event.event == :passed and DateTime.event.end_at, now) :lt -> passed
-      DateTime.compare(event.end_at, now) == :lt -> passed
-      DateTime.compare(event.start_at, now) == :gt -> "in #{duration(now, event.start_at)}"
-      true -> "for #{duration(now, event.end_at)}"
+  # "Sat Aug 23 · 11:46 – 12:03 EDT", in the viewer's timezone
+  defp when_text(context, alert) do
+    aos = Timex.to_datetime(alert.aos_at, context.timezone)
+    los = Timex.to_datetime(alert.los_at, context.timezone)
+
+    date = Timex.format!(aos, "{WDshort} {Mshort} {D}")
+    zone = Timex.format!(aos, "{Zabbr}")
+
+    "#{date} · #{short_time(context, aos)} – #{short_time(context, los)} #{zone}"
+  end
+
+  defp uplink_text(alert) do
+    [mhz(alert, 3, nil), alert.mode]
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join(" ")
+    |> case do
+      "" -> "–"
+      text -> text
     end
+  end
+
+  defp match_tooltip(alert) do
+    "My elevation #{pct(alert.match.my_el)} · #{alert.callsign} elevation #{pct(alert.match.dx_el)} · Mode #{pct(alert.match.mode)}"
+  end
+
+  defp saved_by_count({callsigns, extra}), do: length(callsigns) + extra
+
+  attr :id, :string, required: true
+  attr :title, :string, required: true
+  attr :position, :map, required: true
+  attr :alert, Alert, required: true
+  attr :now, DateTime, required: true
+  attr :pass_plot, :any, default: nil
+  attr :class, :string, default: nil
+
+  defp station_tracker(assigns) do
+    ~H"""
+    <div class={["flex flex-col", @class]}>
+      <div class="flex items-stretch bg-gray-50 border-b">
+        <div class="flex-1 flex items-center px-6 py-2.5 text-xl font-semibold text-gray-700 whitespace-nowrap">
+          <%= @title %>
+        </div>
+        <div class="flex items-baseline gap-2 px-4 py-2.5 border-l">
+          <span class="uppercase text-sm tracking-wider text-gray-400">Az</span>
+          <span class="text-xl text-gray-800 tabular-nums whitespace-nowrap">
+            <%= deg(@position.azimuth_in_degrees) %>
+          </span>
+        </div>
+        <div class="flex items-baseline gap-2 px-4 py-2.5 border-l">
+          <span class="uppercase text-sm tracking-wider text-gray-400">El</span>
+          <span class={["text-xl tabular-nums whitespace-nowrap", elevation_class(@position.elevation_in_degrees)]}>
+            <%= deg(@position.elevation_in_degrees) %>
+          </span>
+        </div>
+      </div>
+      <div class="flex justify-center px-6 py-5">
+        <div class="w-[80%]">
+          <PassTracker.component id={@id} sat={@alert.sat} now={@now} pass_plot={@pass_plot} />
+        </div>
+      </div>
+    </div>
+    """
   end
 
   defp microblog_url_text(alert) do
