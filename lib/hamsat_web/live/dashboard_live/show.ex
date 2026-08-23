@@ -185,6 +185,67 @@ defmodule HamsatWeb.DashboardLive.Show do
     """
   end
 
+  # Stacked-card version of an activation for narrow screens, where the
+  # five-column table cannot fit without horizontal scrolling
+
+  attr :alert, Alert, required: true
+  attr :context, Hamsat.Context, required: true
+  attr :now, DateTime, required: true
+
+  defp activation_card(assigns) do
+    in_progress? = Alert.progression(assigns.alert, assigns.now) not in [:upcoming, :passed]
+
+    assigns =
+      assigns
+      |> assign(:in_progress?, in_progress?)
+      |> assign(:card_class, if(in_progress?, do: "bg-emerald-100 text-emerald-700", else: nil))
+      |> assign(:line1_class, if(in_progress?, do: "font-semibold", else: nil))
+      |> assign(:detail_class, if(in_progress?, do: "text-emerald-700", else: "text-gray-500"))
+
+    ~H"""
+    <div class={["py-3 -mx-3 px-3 border-b slashed-zero", @card_class]}>
+      <div class="flex items-center justify-between gap-3">
+        <div class={["text-base whitespace-nowrap", @line1_class]}>
+          <%= if @in_progress? do %>
+            now
+          <% else %>
+            <%= if @alert.match do %>
+              <span class={match_badge_class(@alert.match.total)}><%= pct(@alert.match.total) %></span>
+            <% end %>
+            in <%= countdown(@alert, @now) %>
+          <% end %>
+        </div>
+        <div class="flex gap-1.5 items-center shrink-0">
+          <AlertSaver.component
+            alert={@alert}
+            context={@context}
+            id={"alert-saver-sm-#{@alert.id}"}
+            class="btn btn-default btn-sm border-gray-300 tabular-nums"
+          />
+          <.link navigate={~p"/alerts/#{@alert.id}"} class="btn btn-default btn-sm border-gray-300" title="Track this pass">
+            Track
+          </.link>
+        </div>
+      </div>
+      <div class={["text-base mt-0.5", @line1_class]}>
+        <%= @alert.sat.name %> · <%= @alert.callsign %> · <%= alert_grids(@alert) %>
+      </div>
+      <div class={["text-[13px] mt-0.5", @detail_class]}>
+        <%= alert_time_span(@context, @alert) %><%= if alert_freq_mode(@alert) do %> · <%= alert_freq_mode(@alert) %><% end %>
+      </div>
+      <%= if @alert.comment do %>
+        <div class={["text-[13px] italic", @detail_class]}>“<%= @alert.comment %>”</div>
+      <% end %>
+    </div>
+    """
+  end
+
+  # "145.945↑ SSB", "SSB", or nil when the alert has neither
+  defp alert_freq_mode(alert) do
+    parts = Enum.reject([if(alert.mhz, do: mhz(alert)), alert.mode], &is_nil/1)
+    if parts == [], do: nil, else: Enum.join(parts, " ")
+  end
+
   defp upcoming_feed_url(%Context{user: :guest}), do: url(~p"/feeds/upcoming_alerts")
   defp upcoming_feed_url(%Context{user: %User{feed_key: feed_key}}), do: url(~p"/feeds/upcoming_alerts/#{feed_key}")
 

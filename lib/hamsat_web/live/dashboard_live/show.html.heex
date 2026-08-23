@@ -39,7 +39,7 @@
           No upcoming activations are visible from <%= @grid_label %>.
         </div>
       <% else %>
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto hidden md:block">
           <table class="w-full border-collapse text-sm slashed-zero">
             <tbody>
               <%= for alert <- @visible_alerts do %>
@@ -47,6 +47,12 @@
               <% end %>
             </tbody>
           </table>
+        </div>
+
+        <div class="md:hidden">
+          <%= for alert <- @visible_alerts do %>
+            <.activation_card alert={alert} context={@context} now={@now} />
+          <% end %>
         </div>
       <% end %>
 
