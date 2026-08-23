@@ -4,10 +4,17 @@ defmodule HamsatWeb.SatTracker do
   attr :id, :string, required: true
   attr :observer_positions, :list, required: true
   attr :sat_positions, :list, required: true
+  attr :height, :string, default: "400px"
 
   def component(assigns) do
     ~H"""
-    <.live_component module={__MODULE__} id={@id} observer_positions={@observer_positions} sat_positions={@sat_positions} />
+    <.live_component
+      module={__MODULE__}
+      id={@id}
+      observer_positions={@observer_positions}
+      sat_positions={@sat_positions}
+      height={@height}
+    />
     """
   end
 

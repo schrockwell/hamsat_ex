@@ -162,7 +162,7 @@ defmodule HamsatWeb.DashboardLive.Show do
             id={"alert-saver-#{@alert.id}"}
             class="btn btn-default btn-sm border-gray-300 tabular-nums"
           />
-          <.link navigate={~p"/alerts/#{@alert.id}"} class="btn btn-default btn-sm border-gray-300" title="Track this pass">
+          <.link navigate={~p"/alerts/#{@alert.id}"} class="btn btn-sm bg-sky-600 hover:bg-sky-700 text-white border-transparent" title="Track this pass">
             Track
           </.link>
         </div>
@@ -222,7 +222,7 @@ defmodule HamsatWeb.DashboardLive.Show do
             id={"alert-saver-sm-#{@alert.id}"}
             class="btn btn-default btn-sm border-gray-300 tabular-nums"
           />
-          <.link navigate={~p"/alerts/#{@alert.id}"} class="btn btn-default btn-sm border-gray-300" title="Track this pass">
+          <.link navigate={~p"/alerts/#{@alert.id}"} class="btn btn-sm bg-sky-600 hover:bg-sky-700 text-white border-transparent" title="Track this pass">
             Track
           </.link>
         </div>

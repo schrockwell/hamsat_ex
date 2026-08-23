@@ -1,219 +1,219 @@
-<.filter_panel>
-  <div class="flex flex-col md:flex-row items-start justify-between md:space-x-4">
-    <div>
-      <div class="flex items-center gap-2">
-        <span>
-          <h1 class="text-h2 md:text-h1"><%= @alert.callsign %> on <%= @alert.sat.name %></h1>
-        </span>
-        <div class="bg-gray-200 px-3 py-0.5 text-md md:text-lg">
-          <%= alert_grids(@alert) %>
-        </div>
-        <div class="bg-gray-200 px-3 py-0.5 text-md md:text-lg">
-          <%= mhz(@alert, 3, "") %>
-          <%= @alert.mode %>
-        </div>
-      </div>
-
-      <div class="text-gray-500 md:text-lg">
-        <%= date(@context, @alert.aos_at) %>
-
-        <%= if @alert.comment do %>
-          <span class="text-gray-500 md:text-lg">
-            &ndash; “<%= @alert.comment %>”
+<div class="grid md:grid-cols-[minmax(0,8fr)_minmax(0,3fr)]">
+  <%!-- Left column: header, timeline, trackers --%>
+  <div class="md:border-r">
+    <%!-- Header --%>
+    <div class="bg-gray-50 border-b px-3 pt-4 pb-3 md:px-6 md:pt-6 md:pb-5 flex flex-col gap-2">
+      <div class="flex items-center gap-3 flex-wrap">
+        <h1 class="text-2xl font-medium text-gray-700 whitespace-nowrap">
+          <%= @alert.callsign %> on <%= @alert.sat.name %>
+        </h1>
+        <%= if @alert.match do %>
+          <span
+            class="bg-emerald-100 text-emerald-600 px-2.5 py-0.5 text-[15px] font-semibold rounded"
+            title={match_tooltip(@alert)}
+          >
+            <%= pct(@alert.match.total) %> match
           </span>
         <% end %>
-      </div>
-
-      <div class="flex items-center gap-1 pt-1 text-sm md:text-base">
         <AlertSaver.component
           alert={@alert}
           context={@context}
           id={"alert-saver-#{@alert.id}"}
-          class="tabular-nums"
-          button_class="rounded bg-gray-200 hover:bg-gray-300 font-medium px-2 min-w-32"
+          class="ml-auto tabular-nums text-sm font-medium text-gray-700"
+          button_class="inline-flex items-center rounded bg-gray-200 hover:bg-gray-300 border border-gray-300 px-3 py-1"
         />
-        <span>by <%= alert_saved_by(@saved_by) %></span>
       </div>
-    </div>
-    <div class="flex items-center space-x-2 md:space-x-4 my-2 md:my-0">
-      <a href={satmatch_url(@context, @alert)} class="btn btn-link" target="_blank">
-        <span class="hidden md:inline">View on</span> SatMatch
-      </a>
-      <a href={tweet_url(@alert)} class="btn btn-link">
-        <span class="hidden md:inline">Share on </span> Twitter
-      </a>
-      <a href={mastodon_url(@alert)} class="btn btn-link">
-        <span class="hidden md:inline">Share on</span> Mastodon
-      </a>
-      <%= if Alert.owned?(@alert, @context.user) do %>
-        <.link navigate={~p"/alerts/#{@alert.id}/edit"} class="btn btn-link">
-          Edit <span class="hidden md:inline">Activation</span>
-        </.link>
-      <% end %>
-    </div>
-  </div>
-</.filter_panel>
 
-<div class="p-3 md:p-6">
-  <%!-- Timeline --%>
-  <div class="flex px-16 justify-between mb-1">
-    <div class="text-left"><%= time(@context, @alert.aos_at) %></div>
-    <div class="text-right"><%= time(@context, @alert.los_at) %></div>
-  </div>
-  <div class="w-full relative h-8 overflow-hidden flex items-center">
-    <div class="absolute h-1 bg-gray-200 w-full"></div>
-
-    <div class="w-full absolute top-0 pl-16 pr-16">
-      <div class="relative h-8 top-0">
-        <div class="absolute w-8 h-8 rounded-full border-4 left-0 bg-white"></div>
-        <div class="absolute w-8 h-8 rounded-full border-4 right-0 bg-white"></div>
-      </div>
-    </div>
-
-    <div class="w-full absolute top-0 pl-16 pr-24">
-      <%= if @alert.is_workable? do %>
-        <div class="relative">
-          <div
-            class="absolute h-8 flex items-center ml-4 -mr-4"
-            style={"#{workable_start_marker_style(@alert)}; #{workable_end_marker_style(@alert)}"}
-          >
-            <div class="w-full h-1 bg-emerald-500"></div>
-            <div class="absolute w-8 h-8 rounded-full border-4 border-emerald-500 left-0 bg-white -ml-4"></div>
-            <div class="absolute w-8 h-8 rounded-full border-4 border-emerald-500 right-0 bg-white -mr-4"></div>
+      <div class="flex flex-wrap gap-x-10 gap-y-3 text-sm">
+        <div>
+          <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5">When</div>
+          <div class="text-gray-700"><%= when_text(@context, @alert) %></div>
+        </div>
+        <div>
+          <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5">Grid</div>
+          <div class="text-gray-700"><%= alert_grids(@alert) %></div>
+        </div>
+        <div>
+          <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5">Uplink</div>
+          <div class="text-gray-700"><%= uplink_text(@alert) %></div>
+        </div>
+        <%= if @alert.comment do %>
+          <div>
+            <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5">Comment</div>
+            <div class="text-gray-700 italic">“<%= @alert.comment %>”</div>
           </div>
-        </div>
-      <% end %>
-      <div class="relative h-8 top-0">
-        <div class={[@cursor_class, "absolute w-8 h-8 rounded-full"]} style={@cursor_style}>
-          <img src={~p"/images/sat-icon.png"} alt="Satellite" class="p-1" />
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <%!-- Events --%>
-  <div class="flex space-x-2 items-start justify-center flex-wrap mt-4">
-    <div class="text-center my-1">
-      <div class={progression_class(@progression, :upcoming)}>Upcoming</div>
-      <div class="mt-1"><%= event_timer(@events[:upcoming], @now) %></div>
-    </div>
-
-    <div class="text-xl mt-3">→</div>
-
-    <%= if @events[:in_progress] do %>
-      <div class="text-center my-1">
-        <div class={progression_class(@progression, :in_progress)}>In Progress</div>
-        <div class="mt-1"><%= event_timer(@events[:in_progress], @now) %></div>
-      </div>
-
-      <div class="text-xl mt-3">→</div>
-    <% end %>
-
-    <%= if @events[:before_workable] do %>
-      <div class="text-center my-1">
-        <div class={progression_class(@progression, :before_workable)}>Before Visible</div>
-        <div class="mt-1"><%= event_timer(@events[:before_workable], @now) %></div>
-      </div>
-
-      <div class="text-xl mt-3">→</div>
-    <% end %>
-
-    <%= if @events[:workable] do %>
-      <div class="text-center my-1">
-        <div class={progression_class(@progression, :workable)}>Visible</div>
-        <%= if @progression == :workable do %>
-          <div class="mt-1 text-emerald-600 font-medium"><%= event_timer(@events[:workable], @now) %></div>
-        <% else %>
-          <div class="mt-1"><%= event_timer(@events[:workable], @now) %></div>
         <% end %>
       </div>
+    </div>
 
-      <div class="text-xl mt-3">→</div>
-    <% end %>
-
-    <%= if @events[:after_workable] do %>
-      <div class="text-center my-1">
-        <div class={progression_class(@progression, :after_workable)}>After Visible</div>
-        <div class="mt-1"><%= event_timer(@events[:after_workable], @now) %></div>
+    <%!-- Timeline --%>
+    <div class="px-10 pt-5 pb-4 md:pt-7 md:pb-5 flex flex-col md:flex-row gap-10">
+      <% {status_label, status_timer, status_class} = @status %>
+      <div class="flex flex-col items-center gap-1.5 mr-4">
+        <div class={["uppercase tracking-wide px-4 py-1.5 border-2 font-semibold text-sm", status_class]}>
+          <%= status_label %>
+        </div>
+        <div class="text-sm text-gray-500 tabular-nums"><%= status_timer %></div>
       </div>
 
-      <div class="text-xl mt-3">→</div>
-    <% end %>
+      <div class="mx-4 flex-grow">
+        <div class="relative h-8">
+          <%!-- Track --%>
+          <div class="absolute left-0 right-0 top-3.5 h-1 bg-gray-200"></div>
 
-    <div class="text-center my-1">
-      <div class={progression_class(@progression, :passed)}>Passed</div>
-      <div class="mt-1"><%= event_timer(@events[:passed], @now) %></div>
+          <%= if @alert.is_workable? do %>
+            <div class="absolute top-3.5 h-1 bg-emerald-500" style={workable_segment_style(@alert)}></div>
+          <% end %>
+
+          <%!-- Rise / set nodes --%>
+          <div
+            class={["absolute top-1 w-6 h-6 rounded-full bg-white border-4 -ml-3", node_class(@alert, :rise)]}
+            style="left: 0%"
+          >
+          </div>
+          <div
+            class={["absolute top-1 w-6 h-6 rounded-full bg-white border-4 -ml-3", node_class(@alert, :set)]}
+            style="left: 100%"
+          >
+          </div>
+
+          <%!-- Visible window nodes --%>
+          <%= if separate_node?(@alert, :rise) do %>
+            <div
+              class="absolute top-1 w-6 h-6 rounded-full bg-white border-4 border-emerald-500 -ml-3"
+              style={marker_left(@alert, @alert.workable_start_at)}
+              title="Visible from both stations"
+            >
+            </div>
+          <% end %>
+          <%= if separate_node?(@alert, :set) do %>
+            <div
+              class="absolute top-1 w-6 h-6 rounded-full bg-white border-4 border-emerald-500 -ml-3"
+              style={marker_left(@alert, @alert.workable_end_at)}
+            >
+            </div>
+          <% end %>
+
+          <%!-- Satellite cursor --%>
+          <div
+            class={[
+              @cursor_class,
+              "absolute top-px w-[30px] h-[30px] -ml-[15px] rounded-full shadow flex items-center justify-center transition-[left] duration-1000 ease-linear"
+            ]}
+            style={@cursor_style}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+              <g transform="rotate(45 12 12)">
+                <rect x="9.3" y="9.8" width="5.4" height="4.4" rx="0.8"></rect>
+                <rect x="2" y="10.4" width="6.2" height="3.2" rx="0.6"></rect>
+                <rect x="15.8" y="10.4" width="6.2" height="3.2" rx="0.6"></rect>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <%!-- Node labels --%>
+        <div class="relative h-10 text-[13px] text-gray-500">
+          <div class="absolute -translate-x-1/2 text-center pt-1.5 whitespace-nowrap" style="left: 0%">
+            <div class={["font-semibold", node_time_class(@alert, :rise)]}>
+              <%= short_time(@context, @alert.aos_at) %>
+            </div>
+            <div><%= node_label(@alert, :rise) %></div>
+          </div>
+          <%= if separate_node?(@alert, :rise) do %>
+            <div
+              class="absolute -translate-x-1/2 text-center pt-1.5 whitespace-nowrap"
+              style={marker_left(@alert, @alert.workable_start_at)}
+            >
+              <div class="font-semibold text-emerald-700"><%= short_time(@context, @alert.workable_start_at) %></div>
+              <div>Visible</div>
+            </div>
+          <% end %>
+          <%= if separate_node?(@alert, :set) do %>
+            <div
+              class="absolute -translate-x-1/2 text-center pt-1.5 whitespace-nowrap"
+              style={marker_left(@alert, @alert.workable_end_at)}
+            >
+              <div class="font-semibold text-emerald-700"><%= short_time(@context, @alert.workable_end_at) %></div>
+              <div>End visible</div>
+            </div>
+          <% end %>
+          <div class="absolute -translate-x-1/2 text-center pt-1.5 whitespace-nowrap" style="left: 100%">
+            <div class={["font-semibold", node_time_class(@alert, :set)]}>
+              <%= short_time(@context, @alert.los_at) %>
+            </div>
+            <div><%= node_label(@alert, :set) %></div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <%!-- Station trackers --%>
+    <%= if @my_sat_position do %>
+      <div class="grid lg:grid-cols-2 border-t">
+        <.station_tracker
+          id="my-pass-tracker"
+          title={"My station · #{Grid.encode!(@context.location, 4)}"}
+          position={@my_sat_position}
+          alert={@alert}
+          now={@now}
+          pass_plot={Enum.at(@pass_match.plots, 0)}
+          class="md:border-r border-b md:border-b-0"
+        />
+        <.station_tracker
+          id="dx-pass-tracker"
+          title={"#{@alert.callsign} · #{Grid.encode!(@alert.observer_lat, @alert.observer_lon, 4)}"}
+          position={@activator_sat_position}
+          alert={@alert}
+          now={@now}
+          pass_plot={Enum.at(@pass_match.plots, 1)}
+        />
+      </div>
+    <% else %>
+      <div class="border-t p-6">
+        <div class="md:w-2/3 mx-auto">
+          <.location_prompt context={@context} redirect={~p"/alerts/#{@alert.id}"} />
+        </div>
+      </div>
+    <% end %>
   </div>
 
-  <div class="mt-12">
+  <%!-- Right column: aux sidebar --%>
+  <div class="bg-gray-50 px-3 py-4 md:px-6 md:py-5 flex flex-col gap-6 text-sm border-t md:border-t-0">
+    <div class="flex flex-col gap-1.5">
+      <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">
+        Saved by <%= saved_by_count(@saved_by) %>
+      </div>
+      <% {saved_callsigns, saved_extra} = @saved_by %>
+      <div class="text-gray-500 flex flex-wrap gap-x-3 gap-y-1">
+        <%= for callsign <- saved_callsigns do %>
+          <span><%= callsign %></span>
+        <% end %>
+        <%= if saved_extra > 0 do %>
+          <span>+<%= saved_extra %> more</span>
+        <% end %>
+        <%= if saved_callsigns == [] and saved_extra == 0 do %>
+          <span class="italic">nobody yet</span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">Links</div>
+      <a href={satmatch_url(@context, @alert)} class="link font-normal" target="_blank">SatMatch ↗</a>
+      <a href={tweet_url(@alert)} class="link font-normal">Share on X</a>
+      <a href={mastodon_url(@alert)} class="link font-normal">Share on Mastodon</a>
+      <%= if Alert.owned?(@alert, @context.user) do %>
+        <.link navigate={~p"/alerts/#{@alert.id}/edit"} class="link font-normal">Edit activation</.link>
+      <% end %>
+    </div>
+
     <%= if @my_sat_position do %>
-      <div class="lg:flex gap-8">
-        <div class="lg:w-1/3">
-          <div class="text-center font-medium border-b pb-2">
-            From My Location (<%= Grid.encode!(@context.location, 6) %>)
-            <span class="bg-red-500 text-white text-sm uppercase px-1 py-px rounded ml-1">Live</span>
-          </div>
-
-          <div class="flex mt-2">
-            <div class="flex-1 text-center">
-              <span class="text-lg md:text-xl">
-                <%= deg(@my_sat_position.azimuth_in_degrees) %> (<%= cardinal_direction(
-                  @my_sat_position.azimuth_in_degrees
-                ) %>)
-              </span>
-              azimuth
-            </div>
-            <div class="flex-1 text-center">
-              <span class={[elevation_class(@my_sat_position.elevation_in_degrees), "text-lg md:text-xl"]}>
-                <%= deg(@my_sat_position.elevation_in_degrees) %>
-              </span>
-              elevation
-            </div>
-          </div>
-
-          <PassTracker.component
-            id="my-pass-tracker"
-            sat={@alert.sat}
-            now={@now}
-            pass_plot={Enum.at(@pass_match.plots, 0)}
-          />
-        </div>
-
-        <div class="lg:w-1/3 flex flex-col justify-center mt-6 lg:mt-0">
-          <div class="text-center font-medium border-b pb-2">
-            From <%= @alert.callsign %> (<%= Grid.encode!(@alert.observer_lat, @alert.observer_lon, 6) %>)
-            <span class="bg-red-500 text-white text-sm uppercase px-1 py-px rounded ml-1">Live</span>
-          </div>
-
-          <div class="flex mt-2">
-            <div class="flex-1 text-center">
-              <span class="text-lg md:text-xl">
-                <%= deg(@activator_sat_position.azimuth_in_degrees) %> (<%= cardinal_direction(
-                  @activator_sat_position.azimuth_in_degrees
-                ) %>)
-              </span>
-              azimuth
-            </div>
-            <div class="flex-1 text-center">
-              <span class={[elevation_class(@activator_sat_position.elevation_in_degrees), "text-lg md:text-xl"]}>
-                <%= deg(@activator_sat_position.elevation_in_degrees) %>
-              </span>
-              elevation
-            </div>
-          </div>
-
-          <PassTracker.component
-            id="dx-pass-tracker"
-            sat={@alert.sat}
-            now={@now}
-            pass_plot={Enum.at(@pass_match.plots, 1)}
-          />
-        </div>
-
-        <div class="w-full lg:w-1/3 md:mt-0 mt-6">
+      <div class="flex flex-col gap-2">
+        <div class="bg-gray-800 rounded-lg overflow-hidden min-h-[170px]">
           <SatTracker.component
             id="sat-tracker"
+            height="220px"
             sat_positions={[
               %{
                 sat_id: @alert.satellite_id,
@@ -226,34 +226,41 @@
           />
         </div>
       </div>
-    <% else %>
-      <div class="md:w-1/2 mx-auto">
-        <.location_prompt context={@context} redirect={~p"/alerts/#{@alert.id}"} />
+    <% end %>
+
+    <%= if @alert.match do %>
+      <div class="flex flex-col gap-2">
+        <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">Match scoring</div>
+        <div class="flex justify-between text-gray-500">
+          <span>My elevation</span>
+          <span class="text-emerald-600 font-semibold"><%= pct(@alert.match.my_el) %></span>
+        </div>
+        <div class="flex justify-between text-gray-500">
+          <span><%= @alert.callsign %> elevation</span>
+          <span class="text-emerald-600 font-semibold"><%= pct(@alert.match.dx_el) %></span>
+        </div>
+        <div class="flex justify-between text-gray-500">
+          <span>Mode</span>
+          <span class="text-emerald-600 font-semibold"><%= pct(@alert.match.mode) %></span>
+        </div>
+        <div class="flex justify-between text-gray-700 border-t pt-2">
+          <span class="font-semibold">Combined</span>
+          <span class="text-emerald-600 font-semibold"><%= pct(@alert.match.total) %></span>
+        </div>
+      </div>
+    <% end %>
+
+    <%= if Alert.owned?(@alert, @context.user) do %>
+      <div class="mt-auto pt-6 border-t">
+        <button
+          type="button"
+          phx-click="delete"
+          data-confirm="Are you sure you want to delete this activation?"
+          class="text-red-600 hover:text-red-700 font-medium"
+        >
+          Delete activation
+        </button>
       </div>
     <% end %>
   </div>
-
-  <%= if @alert.match do %>
-    <div class="my-6 md:my-0">
-      <h2 class="text-h2 mb-1">Match Scoring</h2>
-      <table>
-        <tr>
-          <th class="font-medium text-left pr-2">My Elevation</th>
-          <td><AlertComponents.match_percentage pct={@alert.match.my_el} /></td>
-        </tr>
-        <tr>
-          <th class="font-medium text-left pr-2"><%= @alert.callsign %> Elevation</th>
-          <td><AlertComponents.match_percentage pct={@alert.match.dx_el} /></td>
-        </tr>
-        <tr>
-          <th class="font-medium text-left pr-2">Mode</th>
-          <td><AlertComponents.match_percentage pct={@alert.match.mode} /></td>
-        </tr>
-        <tr>
-          <th class="font-medium text-left pr-2">Combined</th>
-          <td><AlertComponents.match_percentage pct={@alert.match.total} /></td>
-        </tr>
-      </table>
-    </div>
-  <% end %>
 </div>

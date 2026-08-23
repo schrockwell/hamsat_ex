@@ -53,7 +53,7 @@ defmodule HamsatWeb.LayoutView do
     ~H"""
     <div class="md:mt-4 md:mx-4 md:px-6 md:py-2 px-3 py-1 flex items-center justify-between md:rounded-t-xl bg-gray-700 text-white shadow-md">
       <div class="flex items-center">
-        <.link navigate={~p"/"} class="text-lg font-medium md:mr-8 flex items-center gap-2">
+        <.link navigate={~p"/"} class="text-lg font-medium md:mr-8 flex items-center gap-3">
           <img src={~s"/images/logo.png"} alt="Hamsat" class="h-8 w-8" /> Hams.at
         </.link>
 
