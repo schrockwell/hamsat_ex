@@ -226,35 +226,28 @@ defmodule Hamsat.Schemas.AlertForm do
     !!forced_mhz(changeset, sat)
   end
 
-  # defp validate_grids(changeset) do
-  #   cond do
-  #     Enum.all?(@grid_fields, fn field -> get_field(changeset, field) == nil end) ->
-  #       add_error(changeset, :grid_1, "is required")
-  #   end
-  # end
+  @doc """
+  Returns the centroid coordinate of the given grid squares.
 
-  # def decode_adjacent_grids([]), do: {:error, :invalid}
+  Blank values are ignored. Returns :error if any present grid is invalid, or
+  if no grids are present.
+  """
+  def grids_centroid(grids) do
+    grid_coords =
+      grids
+      |> Enum.reject(fn grid -> grid in [nil, ""] end)
+      |> Enum.map(&Grid.decode/1)
 
-  # def decode_adjacent_grids(grids) do
-  #   grid_coords =
-  #     grids
-  #     |> Enum.reject(&is_nil/1)
-  #     |> Enum.map(&Grid.decode/1)
+    if grid_coords == [] or :error in grid_coords do
+      :error
+    else
+      # Warning: does not account for longitude wrapping from -180 to +180
+      {lats, lons} =
+        grid_coords
+        |> Enum.map(fn {:ok, coord} -> coord end)
+        |> Enum.unzip()
 
-  #   if Enum.any?(grid_coords, &(&1 == :error)) do
-  #     {:error, :invalid}
-  #   else
-  #     grid_coords = Enum.map(grid_coords, fn {:ok, coord} -> coord end)
-
-  #     # This doesn't take -180 and +180 longitude into account
-  #     {min_lat, max_lat} = grid_coords |> Enum.map(fn {lat, _lon} -> lat end) |> Enum.min_max()
-  #     {min_lon, max_lon} = grid_coords |> Enum.map(fn {_lat, lon} -> lon end) |> Enum.min_max()
-
-  #     if max_lat - min_lat > 1.0 or max_lon - min_lon > 2.0 do
-  #       {:error, :not_adjacent}
-  #     else
-  #       {:ok, {(max_lat + min_lat) / 2.0, (max_lon + min_lon) / 2.0}}
-  #     end
-  #   end
-  # end
+      {:ok, {Enum.sum(lats) / length(lats), Enum.sum(lons) / length(lons)}}
+    end
+  end
 end
