@@ -18,6 +18,34 @@
 
   <div class="grid md:grid-cols-[minmax(0,7fr)_minmax(0,4fr)]">
     <div class="p-3 md:p-6 md:border-r">
+      <%= if @my_alerts != [] do %>
+        <div class="mb-10">
+          <div class="flex items-center justify-between mb-1">
+            <h1 class="text-2xl font-medium text-gray-700 whitespace-nowrap">My activations</h1>
+          </div>
+
+          <div class="text-sm text-gray-500 border-b pb-3">
+            <%= length(@my_alerts) %> upcoming
+          </div>
+
+          <div class="overflow-x-auto hidden md:block">
+            <table class="w-full border-collapse text-sm slashed-zero">
+              <tbody>
+                <%= for alert <- @my_alerts do %>
+                  <.activation_rows alert={alert} context={@context} now={@now} show_match={false} id_suffix="-mine" />
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="md:hidden">
+            <%= for alert <- @my_alerts do %>
+              <.activation_card alert={alert} context={@context} now={@now} show_match={false} id_suffix="-mine" />
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
       <div class="flex items-center justify-between mb-1">
         <h1 class="text-2xl font-medium text-gray-700 whitespace-nowrap">Upcoming activations</h1>
         <.link navigate={~p"/alerts"} class="link text-sm">All activations →</.link>

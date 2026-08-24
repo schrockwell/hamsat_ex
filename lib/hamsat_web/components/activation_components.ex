@@ -16,6 +16,10 @@ defmodule HamsatWeb.ActivationComponents do
   attr :context, Hamsat.Context, required: true
   attr :now, DateTime, required: true
   attr :show_sat, :boolean, default: true
+  attr :show_match, :boolean, default: true
+  # Distinguishes stateful child component IDs when the same alert is rendered
+  # in more than one list on a page
+  attr :id_suffix, :string, default: ""
 
   def activation_rows(assigns) do
     in_progress? = Alert.progression(assigns.alert, assigns.now) not in [:upcoming, :passed]
@@ -32,7 +36,7 @@ defmodule HamsatWeb.ActivationComponents do
         <%= if @in_progress? do %>
           now
         <% else %>
-          <%= if @alert.match do %>
+          <%= if @show_match and @alert.match do %>
             <span class={match_badge_class(@alert.match.total)}><%= pct(@alert.match.total) %></span>
           <% end %>
           in <%= countdown(@alert, @now) %>
@@ -53,7 +57,7 @@ defmodule HamsatWeb.ActivationComponents do
           <AlertSaver.component
             alert={@alert}
             context={@context}
-            id={"alert-saver-#{@alert.id}"}
+            id={"alert-saver#{@id_suffix}-#{@alert.id}"}
             class="btn btn-default btn-sm border-gray-300 tabular-nums"
           />
           <.link
@@ -90,6 +94,8 @@ defmodule HamsatWeb.ActivationComponents do
   attr :context, Hamsat.Context, required: true
   attr :now, DateTime, required: true
   attr :show_sat, :boolean, default: true
+  attr :show_match, :boolean, default: true
+  attr :id_suffix, :string, default: ""
 
   def activation_card(assigns) do
     in_progress? = Alert.progression(assigns.alert, assigns.now) not in [:upcoming, :passed]
@@ -108,7 +114,7 @@ defmodule HamsatWeb.ActivationComponents do
           <%= if @in_progress? do %>
             now
           <% else %>
-            <%= if @alert.match do %>
+            <%= if @show_match and @alert.match do %>
               <span class={match_badge_class(@alert.match.total)}><%= pct(@alert.match.total) %></span>
             <% end %>
             in <%= countdown(@alert, @now) %>
@@ -123,7 +129,7 @@ defmodule HamsatWeb.ActivationComponents do
           <AlertSaver.component
             alert={@alert}
             context={@context}
-            id={"alert-saver-sm-#{@alert.id}"}
+            id={"alert-saver-sm#{@id_suffix}-#{@alert.id}"}
             class="btn btn-default btn-sm border-gray-300 tabular-nums"
           />
           <.link

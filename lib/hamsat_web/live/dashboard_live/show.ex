@@ -8,6 +8,7 @@ defmodule HamsatWeb.DashboardLive.Show do
   alias Hamsat.Grid
   alias Hamsat.Passes
   alias Hamsat.Satellites
+  alias Hamsat.Schemas.Alert
 
   import HamsatWeb.ActivationComponents
 
@@ -80,7 +81,8 @@ defmodule HamsatWeb.DashboardLive.Show do
       when event in [:alert_saved, :alert_unsaved] do
     {:noreply,
      assign(socket,
-       visible_alerts: Alerts.patch_alerts(socket.assigns.visible_alerts, socket.assigns.context, message)
+       visible_alerts: Alerts.patch_alerts(socket.assigns.visible_alerts, socket.assigns.context, message),
+       my_alerts: Alerts.patch_alerts(socket.assigns.my_alerts, socket.assigns.context, message)
      )}
   end
 
@@ -97,6 +99,7 @@ defmodule HamsatWeb.DashboardLive.Show do
     {visible, not_visible} = Enum.split_with(alerts, & &1.is_workable?)
 
     assign(socket,
+      my_alerts: Enum.filter(alerts, &Alert.owned?(&1, socket.assigns.context.user)),
       visible_alerts: visible,
       visible_count: length(visible),
       not_visible_count: length(not_visible)
