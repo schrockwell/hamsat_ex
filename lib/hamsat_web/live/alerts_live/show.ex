@@ -3,6 +3,7 @@ defmodule HamsatWeb.AlertsLive.Show do
 
   alias Hamsat.Alerts
   alias Hamsat.Alerts.Chat
+  alias Hamsat.Alerts.Match
   alias Hamsat.Context
   alias Hamsat.Coord
   alias Hamsat.Grid
@@ -251,7 +252,9 @@ defmodule HamsatWeb.AlertsLive.Show do
   end
 
   defp match_tooltip(alert) do
-    "My elevation #{pct(alert.match.my_el)} · #{alert.callsign} elevation #{pct(alert.match.dx_el)} · Mode #{pct(alert.match.mode)}"
+    el_max = Match.el_max_points()
+
+    "My elevation #{alert.match.my_el}/#{el_max} · #{alert.callsign} elevation #{alert.match.dx_el}/#{el_max} · Mode #{alert.match.mode}/#{Match.mode_max_points()}"
   end
 
   defp saved_by_count({callsigns, extra}), do: length(callsigns) + extra

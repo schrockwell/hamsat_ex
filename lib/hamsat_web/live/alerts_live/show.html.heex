@@ -322,19 +322,25 @@
         <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">Match scoring</div>
         <div class="flex justify-between text-gray-500">
           <span>My elevation</span>
-          <span class="text-emerald-600 font-semibold"><%= pct(@alert.match.my_el) %></span>
+          <span class="text-emerald-600 font-semibold">
+            <%= @alert.match.my_el %>/<%= Match.el_max_points() %>%
+          </span>
         </div>
         <div class="flex justify-between text-gray-500">
           <span><%= @alert.callsign %> elevation</span>
-          <span class="text-emerald-600 font-semibold"><%= pct(@alert.match.dx_el) %></span>
+          <span class="text-emerald-600 font-semibold">
+            <%= @alert.match.dx_el %>/<%= Match.el_max_points() %>%
+          </span>
         </div>
         <div class="flex justify-between text-gray-500">
           <span>Mode</span>
-          <span class="text-emerald-600 font-semibold"><%= pct(@alert.match.mode) %></span>
+          <span class="text-emerald-600 font-semibold">
+            <%= @alert.match.mode %>/<%= Match.mode_max_points() %>%
+          </span>
         </div>
         <div class="flex justify-between text-gray-700">
           <span class="font-semibold">Combined</span>
-          <span class="text-emerald-600 font-semibold"><%= pct(@alert.match.total) %></span>
+          <span class="text-emerald-600 font-semibold"><%= round(@alert.match.total * 100) %>/100%</span>
         </div>
       </div>
     <% end %>

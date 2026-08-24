@@ -1,20 +1,31 @@
 defmodule Hamsat.Alerts.Match do
+  # Integer points per category; the three categories sum to 100
+  @el_max_points 25
+  @mode_max_points 50
+
+  def el_max_points, do: @el_max_points
+  def mode_max_points, do: @mode_max_points
+
   def amend_alert(alert, %{user: :guest} = _context) do
     alert
   end
 
   def amend_alert(alert, context) do
-    match =
-      %{}
-      |> score_mode(alert, context.user)
-      |> score_elevation(:dx_el, alert.activator_closest_position, context.user.prefer_dx_el)
-      |> score_elevation(:my_el, alert.my_closest_position, context.user.prefer_my_el)
-      |> score_total()
+    my_el = elevation_points(alert.my_closest_position, context.user.prefer_my_el)
+    dx_el = elevation_points(alert.activator_closest_position, context.user.prefer_dx_el)
+    mode = mode_points(alert, context.user)
+
+    match = %{
+      my_el: my_el,
+      dx_el: dx_el,
+      mode: mode,
+      total: (my_el + dx_el + mode) / 100
+    }
 
     %{alert | match: match}
   end
 
-  defp score_mode(match, alert, user) do
+  defp mode_points(alert, user) do
     max_rank =
       user
       |> Map.take([:prefer_cw_mode, :prefer_ssb_mode, :prefer_data_mode, :prefer_fm_mode])
@@ -31,10 +42,10 @@ defmodule Hamsat.Alerts.Match do
       end
 
     mode_rank = if max_rank == 0, do: 0.0, else: alert_rank / max_rank
-    Map.put(match, :mode, mode_rank)
+    round(mode_rank * @mode_max_points)
   end
 
-  defp score_elevation(match, match_field, sat_position, preferred_el) do
+  defp elevation_points(sat_position, preferred_el) do
     elevation_score =
       cond do
         # Nada
@@ -56,23 +67,10 @@ defmodule Hamsat.Alerts.Match do
         # In between
         true ->
           sat_position.elevation_in_degrees / preferred_el
-          # :math.sin(sat_position.elevation_in_degrees / preferred_el * :math.pi() / 2)
       end
 
-    Map.put(match, match_field, elevation_score)
+    round(sin_curve(elevation_score) * @el_max_points)
   end
-
-  defp score_total(match) do
-    elevation_score = (sin_curve(match.dx_el) + sin_curve(match.my_el)) / 2
-    mode_score = match.mode
-
-    total_score = elevation_score * mode_score
-    Map.put(match, :total, total_score)
-  end
-
-  # defp log10_curve(value) do
-  #   :math.log10(value * 10)
-  # end
 
   defp sin_curve(value) do
     :math.sin(value * :math.pi() / 2)
