@@ -113,7 +113,7 @@ defmodule Hamsat.Schemas.AlertForm do
       :observer_lon
     ])
     |> format_callsign()
-    |> validate_required([:callsign, :grid_1, :satellite_id, :observer_lat, :observer_lon])
+    |> validate_required([:callsign, :grid_1, :satellite_id, :observer_lat, :observer_lon, :mhz_direction])
     |> validate_and_format_grids()
     # |> validate_grids()
     |> put_valid_mode(sat)

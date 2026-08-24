@@ -128,10 +128,17 @@ defmodule HamsatWeb.API.AlertsController do
         params
         |> Map.merge(grid_params)
         |> Map.put("satellite_id", sat.id)
+        |> default_mhz_direction()
 
       {:ok, form_params}
     end
   end
+
+  # Matches the web UI's default so clients aren't forced to send a direction
+  defp default_mhz_direction(%{"mhz_direction" => direction} = params) when direction not in [nil, ""],
+    do: params
+
+  defp default_mhz_direction(params), do: Map.put(params, "mhz_direction", "down")
 
   defp grid_params(%{"grids" => grids}) when is_list(grids) and length(grids) in 1..4 do
     # All four keys, so a shorter grids list clears the higher slots on update

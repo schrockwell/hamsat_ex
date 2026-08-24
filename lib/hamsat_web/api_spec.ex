@@ -244,14 +244,40 @@ defmodule HamsatWeb.APISpec do
         items: %{type: "string"},
         minItems: 1,
         maxItems: 4,
-        description: "Maidenhead grid squares activated during the pass",
+        description: "Maidenhead grid squares (4 or 6 characters) activated during the pass",
         example: ["FN31"]
       },
-      mhz: %{type: "number", nullable: true},
-      mhz_direction: %{type: "string", enum: ["up", "down"], nullable: true},
-      mode: %{type: "string", nullable: true},
+      mhz: %{
+        type: "number",
+        nullable: true,
+        description: """
+        Frequency in MHz. Optional; when the satellite has a single fixed \
+        frequency for the chosen direction and mode, it is set automatically.\
+        """
+      },
+      mhz_direction: %{
+        type: "string",
+        enum: ["up", "down"],
+        default: "down",
+        description: "Whether `mhz` refers to the uplink or downlink. Optional; defaults to \"down\"."
+      },
+      mode: %{
+        type: "string",
+        enum: ["SSB", "CW", "Data", "FM"],
+        nullable: true,
+        description: """
+        Operating mode. Optional. Valid values depend on the satellite's \
+        modulations: linear satellites accept SSB, CW, and Data; FM satellites \
+        accept FM; digital satellites accept Data. An omitted or unsupported \
+        value falls back to the satellite's default mode.\
+        """
+      },
       comment: %{type: "string", maxLength: 50, nullable: true},
-      chat_enabled: %{type: "boolean", nullable: true}
+      chat_enabled: %{
+        type: "boolean",
+        nullable: true,
+        description: "Enable the on-site chat for this activation. Optional; defaults to true."
+      }
     }
   end
 
