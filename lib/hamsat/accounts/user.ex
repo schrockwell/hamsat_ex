@@ -19,12 +19,12 @@ defmodule Hamsat.Accounts.User do
     field :latest_callsign, :string
     field :latest_modes, {:array, :string}, default: []
     field :latest_mhz_direction, Ecto.Enum, values: [:up, :down]
-    field :prefer_ssb_mode, :integer
-    field :prefer_data_mode, :integer
-    field :prefer_cw_mode, :integer
-    field :prefer_fm_mode, :integer
-    field :prefer_dx_el, :integer
-    field :prefer_my_el, :integer
+    field :prefer_ssb_mode, :integer, default: 50
+    field :prefer_data_mode, :integer, default: 50
+    field :prefer_cw_mode, :integer, default: 50
+    field :prefer_fm_mode, :integer, default: 50
+    field :prefer_dx_el, :integer, default: 45
+    field :prefer_my_el, :integer, default: 45
     field :prefer_chat_enabled, :boolean, default: true
     field :feed_key, :string
 

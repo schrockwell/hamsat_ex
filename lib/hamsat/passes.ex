@@ -21,6 +21,31 @@ defmodule Hamsat.Passes do
     pass
   end
 
+  @pass_match_tolerance_sec 30 * 60
+
+  @doc """
+  Finds the pass for a satellite and observer whose max elevation time is
+  closest to `max_at`, within a tolerance (default ±30 minutes).
+  """
+  def find_pass_by_max_at(%Coord{} = coord, sat, %DateTime{} = max_at, opts \\ []) do
+    tolerance = opts[:tolerance] || @pass_match_tolerance_sec
+    starting = DateTime.add(max_at, -tolerance, :second)
+    ending = DateTime.add(max_at, tolerance, :second)
+
+    coord
+    |> list_passes(sat, starting: starting, ending: ending)
+    |> Enum.map(fn pass ->
+      pass_max = Util.erl_to_utc_datetime(pass.info.max.datetime)
+      {pass, abs(DateTime.diff(pass_max, max_at, :second))}
+    end)
+    |> Enum.filter(fn {_pass, diff} -> diff <= tolerance end)
+    |> Enum.min_by(fn {_pass, diff} -> diff end, fn -> nil end)
+    |> case do
+      nil -> {:error, :no_matching_pass}
+      {pass, _diff} -> {:ok, pass}
+    end
+  end
+
   def get_pass_by_alert(alert) do
     coord = %Coord{lat: alert.observer_lat, lon: alert.observer_lon}
     [pass] = list_passes(coord, alert.sat, starting: alert.max_at, ending: alert.max_at)

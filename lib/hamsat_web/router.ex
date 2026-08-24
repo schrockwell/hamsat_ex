@@ -51,11 +51,27 @@ defmodule HamsatWeb.Router do
     post "/session_location", SessionLocationController, :update
   end
 
+  scope "/api", HamsatWeb do
+    pipe_through :browser
+
+    get "/docs", APIDocsController, :index
+  end
+
   # Other scopes may use custom stacks.
   scope "/api", HamsatWeb.API do
     pipe_through :api
 
     get "/alerts/upcoming", AlertsController, :upcoming
+    get "/alerts", AlertsController, :index
+    get "/alerts/:id", AlertsController, :show
+    post "/alerts", AlertsController, :create
+    put "/alerts/:id", AlertsController, :update
+    patch "/alerts/:id", AlertsController, :update
+    delete "/alerts/:id", AlertsController, :delete
+  end
+
+  scope "/api", HamsatWeb do
+    get "/openapi.json", APIDocsController, :spec
   end
 
   scope "/" do

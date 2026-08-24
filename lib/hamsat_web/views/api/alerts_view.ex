@@ -8,6 +8,10 @@ defmodule HamsatWeb.API.AlertsView do
     %{data: Enum.map(alerts, &alert/1)}
   end
 
+  def render("show.json", %{alert: alert}) do
+    %{data: alert(alert)}
+  end
+
   defp alert(%Alert{} = alert) do
     %{
       aos_at: alert.aos_at,

@@ -107,6 +107,23 @@ defmodule Hamsat.Alerts do
     alert
   end
 
+  def get_alert(context, id) do
+    with {:ok, uuid} <- Ecto.UUID.cast(id),
+         %Alert{} = alert <- Repo.get(Alert, uuid) do
+      alert = Repo.preload(alert, sat: [:transponders])
+
+      [alert] =
+        [alert]
+        |> amend_visible_passes(context)
+        |> amend_matches(context)
+        |> preload_saved_fields(context)
+
+      {:ok, alert}
+    else
+      _ -> {:error, :not_found}
+    end
+  end
+
   def get_my_alert!(context, id) do
     Alert
     |> user_alert_query(context.user)

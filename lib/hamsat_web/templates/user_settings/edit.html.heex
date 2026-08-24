@@ -160,11 +160,11 @@
     </div>
   </.form_row>
 
-  <.form_row label="Get Upcoming Alerts" input?={true}>
-    <.mono_copy text={curl_upcoming_alerts(@context.user.feed_key)} />
+  <.form_row label="Documentation" input?={true}>
+    <%= link("API Documentation", to: ~p"/api/docs", class: "link") %>
 
     <div class="text-sm text-gray-500 mt-1">
-      This cURL example shows how to fetch JSON of upcoming alerts, customized for your location. This is currently the only API endpoint.
+      Browse the API reference and try requests with your API key.
     </div>
   </.form_row>
 </div>

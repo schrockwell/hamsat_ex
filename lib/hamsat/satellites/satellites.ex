@@ -256,6 +256,22 @@ defmodule Hamsat.Satellites do
     Sat |> Repo.get!(id) |> preload_sat()
   end
 
+  def fetch_satellite_by_number(number) when is_integer(number) do
+    case Repo.get_by(Sat, number: number) do
+      %Sat{} = sat -> {:ok, preload_sat(sat)}
+      nil -> {:error, :satellite_not_found}
+    end
+  end
+
+  def fetch_satellite_by_number(number) when is_binary(number) do
+    case Integer.parse(number) do
+      {int, ""} -> fetch_satellite_by_number(int)
+      _ -> {:error, :satellite_not_found}
+    end
+  end
+
+  def fetch_satellite_by_number(_number), do: {:error, :satellite_not_found}
+
   def get_satellite_by_number!(number) do
     Sat |> Repo.get_by!(number: number) |> preload_sat()
   end

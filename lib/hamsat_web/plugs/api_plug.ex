@@ -28,7 +28,7 @@ defmodule HamsatWeb.APIPlug do
     else
       conn
       |> put_status(:unauthorized)
-      |> Phoenix.Controller.json(%{error: "Unauthorized"})
+      |> Phoenix.Controller.json(%{errors: ["Unauthorized"]})
       |> halt()
     end
   end
