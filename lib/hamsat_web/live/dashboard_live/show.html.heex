@@ -30,11 +30,9 @@
 
           <div class="overflow-x-auto hidden md:block">
             <table class="w-full border-collapse text-sm slashed-zero">
-              <tbody>
-                <%= for alert <- @my_alerts do %>
-                  <.activation_rows alert={alert} context={@context} now={@now} show_match={false} id_suffix="-mine" />
-                <% end %>
-              </tbody>
+              <%= for alert <- @my_alerts do %>
+                <.activation_rows alert={alert} context={@context} now={@now} show_match={false} id_suffix="-mine" />
+              <% end %>
             </table>
           </div>
 
@@ -69,11 +67,9 @@
       <% else %>
         <div class="overflow-x-auto hidden md:block">
           <table class="w-full border-collapse text-sm slashed-zero">
-            <tbody>
-              <%= for alert <- @visible_alerts do %>
-                <.activation_rows alert={alert} context={@context} now={@now} />
-              <% end %>
-            </tbody>
+            <%= for alert <- @visible_alerts do %>
+              <.activation_rows alert={alert} context={@context} now={@now} />
+            <% end %>
           </table>
         </div>
 

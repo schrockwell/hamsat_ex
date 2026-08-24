@@ -9,6 +9,7 @@ defmodule HamsatWeb.ActivationComponents do
 
   alias Hamsat.Schemas.Alert
   alias HamsatWeb.LiveComponents.AlertSaver
+  alias Phoenix.LiveView.JS
 
   # A two-row group for one upcoming activation
 
@@ -31,59 +32,57 @@ defmodule HamsatWeb.ActivationComponents do
       |> assign(:row2_class, if(in_progress?, do: "bg-emerald-100 text-emerald-700", else: "text-gray-500"))
 
     ~H"""
-    <tr class={@row1_class}>
-      <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base">
-        <%= if @in_progress? do %>
-          now
-        <% else %>
-          <%= if @show_match and @alert.match do %>
-            <span class={match_badge_class(@alert.match.total)}><%= pct(@alert.match.total) %></span>
+    <tbody phx-click={JS.navigate(~p"/alerts/#{@alert.id}")} class="cursor-pointer hover:bg-gray-50" title="Track this pass">
+      <tr class={@row1_class}>
+        <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base">
+          <%= if @in_progress? do %>
+            now
+          <% else %>
+            in <%= countdown(@alert, @now) %>
+            <%= if @show_match and @alert.match do %>
+              <span class={match_badge_class(@alert.match.total)}><%= pct(@alert.match.total) %></span>
+            <% end %>
           <% end %>
-          in <%= countdown(@alert, @now) %>
+        </td>
+        <%= if @show_sat do %>
+          <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base"><%= @alert.sat.name %></td>
         <% end %>
-      </td>
-      <%= if @show_sat do %>
-        <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base"><%= @alert.sat.name %></td>
-      <% end %>
-      <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base"><%= @alert.callsign %></td>
-      <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base"><%= alert_grids(@alert) %></td>
-      <td class="px-1 py-1 border-b text-right align-middle" rowspan="2">
-        <div class="flex gap-1.5 justify-end items-center">
-          <%= if @alert.chat_enabled do %>
-            <span title="Chat enabled">
-              <Heroicons.LiveView.icon name="chat-bubble-left-right" type="mini" class="block h-4 w-4 text-gray-400" />
-            </span>
+        <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base"><%= @alert.callsign %></td>
+        <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base"><%= alert_grids(@alert) %></td>
+        <td class="px-1 py-1 border-b text-right align-middle" rowspan="2">
+          <div class="flex gap-1.5 justify-end items-center">
+            <%= if @alert.chat_enabled do %>
+              <span title="Chat enabled">
+                <Heroicons.LiveView.icon name="chat-bubble-left-right" type="mini" class="block h-4 w-4 text-gray-400" />
+              </span>
+            <% end %>
+            <AlertSaver.component
+              alert={@alert}
+              context={@context}
+              id={"alert-saver#{@id_suffix}-#{@alert.id}"}
+              class="btn btn-default btn-sm border-gray-300 tabular-nums"
+            />
+            <Heroicons.LiveView.icon name="chevron-right" type="mini" class="h-5 w-5 text-gray-400" />
+          </div>
+        </td>
+      </tr>
+      <tr class={@row2_class}>
+        <td class="pt-0.5 pb-3.5 px-1 border-b whitespace-nowrap text-[13px]">
+          <%= alert_time_span(@context, @alert) %>
+        </td>
+        <td class="pt-0.5 pb-3.5 px-1 border-b whitespace-nowrap text-[13px]">
+          <%= if @alert.mhz do %>
+            <%= mhz(@alert) %>
           <% end %>
-          <AlertSaver.component
-            alert={@alert}
-            context={@context}
-            id={"alert-saver#{@id_suffix}-#{@alert.id}"}
-            class="btn btn-default btn-sm border-gray-300 tabular-nums"
-          />
-          <.link
-            navigate={~p"/alerts/#{@alert.id}"}
-            class="btn btn-sm bg-sky-600 hover:bg-sky-700 text-white border-transparent"
-            title="Track this pass"
-          >
-            Track
-          </.link>
-        </div>
-      </td>
-    </tr>
-    <tr class={@row2_class}>
-      <td class="pt-0.5 pb-3.5 px-1 border-b whitespace-nowrap text-[13px]"><%= alert_time_span(@context, @alert) %></td>
-      <td class="pt-0.5 pb-3.5 px-1 border-b whitespace-nowrap text-[13px]">
-        <%= if @alert.mhz do %>
-          <%= mhz(@alert) %>
-        <% end %>
-        <%= @alert.mode %>
-      </td>
-      <td colspan={if @show_sat, do: 2, else: 1} class="pt-0.5 pb-3.5 px-1 border-b text-[13px] italic">
-        <%= if @alert.comment do %>
-          “<%= @alert.comment %>”
-        <% end %>
-      </td>
-    </tr>
+          <%= @alert.mode %>
+        </td>
+        <td colspan={if @show_sat, do: 2, else: 1} class="pt-0.5 pb-3.5 px-1 border-b text-[13px] italic">
+          <%= if @alert.comment do %>
+            “<%= @alert.comment %>”
+          <% end %>
+        </td>
+      </tr>
+    </tbody>
     """
   end
 
@@ -108,54 +107,52 @@ defmodule HamsatWeb.ActivationComponents do
       |> assign(:detail_class, if(in_progress?, do: "text-emerald-700", else: "text-gray-500"))
 
     ~H"""
-    <div class={["py-3 -mx-3 px-3 border-b slashed-zero", @card_class]}>
-      <div class="flex items-center justify-between gap-3">
+    <div
+      phx-click={JS.navigate(~p"/alerts/#{@alert.id}")}
+      class={["py-3 -mx-3 px-3 border-b slashed-zero cursor-pointer flex items-center justify-between gap-3", @card_class]}
+      title="Track this pass"
+    >
+      <div class="min-w-0">
         <div class={["text-base whitespace-nowrap", @line1_class]}>
           <%= if @in_progress? do %>
             now
           <% else %>
+            in <%= countdown(@alert, @now) %>
             <%= if @show_match and @alert.match do %>
               <span class={match_badge_class(@alert.match.total)}><%= pct(@alert.match.total) %></span>
             <% end %>
-            in <%= countdown(@alert, @now) %>
           <% end %>
         </div>
-        <div class="flex gap-1.5 items-center shrink-0">
-          <%= if @alert.chat_enabled do %>
-            <span title="Chat enabled">
-              <Heroicons.LiveView.icon name="chat-bubble-left-right" type="mini" class="block h-4 w-4 text-gray-400" />
-            </span>
+        <div class={["text-base mt-0.5", @line1_class]}>
+          <%= if @show_sat do %>
+            <%= @alert.sat.name %> ·
           <% end %>
-          <AlertSaver.component
-            alert={@alert}
-            context={@context}
-            id={"alert-saver-sm#{@id_suffix}-#{@alert.id}"}
-            class="btn btn-default btn-sm border-gray-300 tabular-nums"
-          />
-          <.link
-            navigate={~p"/alerts/#{@alert.id}"}
-            class="btn btn-sm bg-sky-600 hover:bg-sky-700 text-white border-transparent"
-            title="Track this pass"
-          >
-            Track
-          </.link>
+          <%= @alert.callsign %> · <%= alert_grids(@alert) %>
         </div>
-      </div>
-      <div class={["text-base mt-0.5", @line1_class]}>
-        <%= if @show_sat do %>
-          <%= @alert.sat.name %> ·
-        <% end %>
-        <%= @alert.callsign %> · <%= alert_grids(@alert) %>
-      </div>
-      <div class={["text-[13px] mt-0.5", @detail_class]}>
-        <%= alert_time_span(@context, @alert) %>
-        <%= if alert_freq_mode(@alert) do %>
-          · <%= alert_freq_mode(@alert) %>
+        <div class={["text-[13px] mt-0.5", @detail_class]}>
+          <%= alert_time_span(@context, @alert) %>
+          <%= if alert_freq_mode(@alert) do %>
+            · <%= alert_freq_mode(@alert) %>
+          <% end %>
+        </div>
+        <%= if @alert.comment do %>
+          <div class={["text-[13px] italic", @detail_class]}>“<%= @alert.comment %>”</div>
         <% end %>
       </div>
-      <%= if @alert.comment do %>
-        <div class={["text-[13px] italic", @detail_class]}>“<%= @alert.comment %>”</div>
-      <% end %>
+      <div class="flex gap-1.5 items-center shrink-0">
+        <%= if @alert.chat_enabled do %>
+          <span title="Chat enabled">
+            <Heroicons.LiveView.icon name="chat-bubble-left-right" type="mini" class="block h-4 w-4 text-gray-400" />
+          </span>
+        <% end %>
+        <AlertSaver.component
+          alert={@alert}
+          context={@context}
+          id={"alert-saver-sm#{@id_suffix}-#{@alert.id}"}
+          class="btn btn-default btn-sm border-gray-300 tabular-nums"
+        />
+        <Heroicons.LiveView.icon name="chevron-right" type="mini" class="h-5 w-5 text-gray-400" />
+      </div>
     </div>
     """
   end
@@ -177,7 +174,7 @@ defmodule HamsatWeb.ActivationComponents do
         true -> "bg-gray-200 text-gray-500"
       end
 
-    [color, "text-xs font-semibold px-1.5 py-0.5 rounded mr-1.5"]
+    [color, "text-xs font-semibold px-1.5 py-0.5 rounded ml-1.5"]
   end
 
   # "in 1:44" / "in 2d 2:25" countdown until the activation's AOS
