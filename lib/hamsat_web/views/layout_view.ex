@@ -163,6 +163,10 @@ defmodule HamsatWeb.LayoutView do
         Source
       </.link>
       ·
+      <.link href={~p"/api/docs"} class="hover:underline hover:text-gray-700">
+        API
+      </.link>
+      ·
       <.link navigate={~p"/about"} class="hover:underline hover:text-gray-700">
         About
       </.link>
