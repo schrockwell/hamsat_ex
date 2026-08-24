@@ -1,5 +1,5 @@
 defmodule HamsatWeb.UserConfirmationControllerTest do
-  use HamsatWeb.ConnCase, async: true
+  use HamsatWeb.ConnCase
 
   alias Hamsat.Accounts
   alias Hamsat.Repo
@@ -59,7 +59,7 @@ defmodule HamsatWeb.UserConfirmationControllerTest do
     test "renders the confirmation page", %{conn: conn} do
       conn = get(conn, ~p"/users/confirm/#{"some-token"}")
       response = html_response(conn, 200)
-      assert response =~ "<h1>Confirm account</h1>"
+      assert response =~ "Confirm Account to Complete Registration"
 
       form_action = ~p"/users/confirm/#{"some-token"}"
       assert response =~ "action=\"#{form_action}\""

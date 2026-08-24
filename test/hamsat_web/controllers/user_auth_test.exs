@@ -1,5 +1,5 @@
 defmodule HamsatWeb.UserAuthTest do
-  use HamsatWeb.ConnCase, async: true
+  use HamsatWeb.ConnCase
 
   alias Hamsat.Accounts
   alias HamsatWeb.UserAuth
@@ -131,7 +131,7 @@ defmodule HamsatWeb.UserAuthTest do
       conn = conn |> fetch_flash() |> UserAuth.require_authenticated_user([])
       assert conn.halted
       assert redirected_to(conn) == ~p"/users/log_in"
-      assert get_flash(conn, :error) == "You must log in to access this page."
+      assert get_flash(conn, :error) == "Please log in or register to continue."
     end
 
     test "stores the path to redirect to on GET", %{conn: conn} do

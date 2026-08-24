@@ -28,6 +28,7 @@ defmodule HamsatWeb.ConnCase do
       @endpoint HamsatWeb.Endpoint
 
       use HamsatWeb, :verified_routes
+      alias HamsatWeb.Router.Helpers, as: Routes
     end
   end
 

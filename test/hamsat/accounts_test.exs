@@ -58,11 +58,11 @@ defmodule Hamsat.AccountsTest do
     end
 
     test "validates email and password when given" do
-      {:error, changeset} = Accounts.register_user(%{email: "not valid", password: "not valid"})
+      {:error, changeset} = Accounts.register_user(%{email: "not valid", password: "short"})
 
       assert %{
                email: ["must have the @ sign and no spaces"],
-               password: ["should be at least 12 character(s)"]
+               password: ["should be at least 8 character(s)"]
              } = errors_on(changeset)
     end
 
@@ -96,7 +96,7 @@ defmodule Hamsat.AccountsTest do
   describe "change_user_registration/2" do
     test "returns a changeset" do
       assert %Ecto.Changeset{} = changeset = Accounts.change_user_registration(%User{})
-      assert changeset.required == [:password, :email]
+      assert changeset.required |> Enum.uniq() |> Enum.sort() == [:email, :home_lat, :home_lon, :password]
     end
 
     test "allows fields to be set" do
@@ -257,12 +257,12 @@ defmodule Hamsat.AccountsTest do
     test "validates password", %{user: user} do
       {:error, changeset} =
         Accounts.update_user_password(user, valid_user_password(), %{
-          password: "not valid",
+          password: "short",
           password_confirmation: "another"
         })
 
       assert %{
-               password: ["should be at least 12 character(s)"],
+               password: ["should be at least 8 character(s)"],
                password_confirmation: ["does not match password"]
              } = errors_on(changeset)
     end
@@ -464,12 +464,12 @@ defmodule Hamsat.AccountsTest do
     test "validates password", %{user: user} do
       {:error, changeset} =
         Accounts.reset_user_password(user, %{
-          password: "not valid",
+          password: "short",
           password_confirmation: "another"
         })
 
       assert %{
-               password: ["should be at least 12 character(s)"],
+               password: ["should be at least 8 character(s)"],
                password_confirmation: ["does not match password"]
              } = errors_on(changeset)
     end

@@ -10,7 +10,9 @@ defmodule Hamsat.AccountsFixtures do
   def valid_user_attributes(attrs \\ %{}) do
     Enum.into(attrs, %{
       email: unique_user_email(),
-      password: valid_user_password()
+      password: valid_user_password(),
+      home_lat: 41.5,
+      home_lon: -73.0
     })
   end
 

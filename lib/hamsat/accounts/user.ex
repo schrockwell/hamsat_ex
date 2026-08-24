@@ -134,12 +134,12 @@ defmodule Hamsat.Accounts.User do
 
   It requires the email to change otherwise an error is added.
   """
-  def email_changeset(user, attrs) do
+  def email_changeset(user, attrs, opts \\ []) do
     attrs = trim_params(attrs, [:email])
 
     user
     |> cast(attrs, [:email])
-    |> validate_email()
+    |> validate_email(opts)
     |> case do
       %{changes: %{email: _}} = changeset -> changeset
       %{} = changeset -> add_error(changeset, :email, "did not change")
