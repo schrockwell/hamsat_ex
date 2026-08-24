@@ -26,6 +26,11 @@
           <%= @alert.callsign %> on <%= @alert.sat.name %>
         </span>
         <SatComponents.sat_modulation_labels sat={@alert.sat} />
+        <%= if @alert.chat_enabled do %>
+          <span title="Chat enabled">
+            <Heroicons.LiveView.icon name="chat-bubble-left-right" type="mini" class="inline h-4 w-4 text-gray-400" />
+          </span>
+        <% end %>
       </div>
     </div>
     <%= if @alert.comment do %>

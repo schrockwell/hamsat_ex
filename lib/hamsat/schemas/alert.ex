@@ -22,6 +22,7 @@ defmodule Hamsat.Schemas.Alert do
     field :observer_lat, :float
     field :observer_lon, :float
     field :grids, {:array, :string}, default: []
+    field :chat_enabled, :boolean, default: false
 
     field :is_workable?, :boolean, default: false, virtual: true
     field :workable_start_at, :utc_datetime, virtual: true
@@ -57,7 +58,8 @@ defmodule Hamsat.Schemas.Alert do
       satellite_id: alert_form.satellite_id,
       user_id: alert_form.context.user.id,
       comment: alert_form.comment,
-      grids: grids_from_alert_form(alert_form)
+      grids: grids_from_alert_form(alert_form),
+      chat_enabled: alert_form.chat_enabled
     })
     |> validate_required([
       :callsign,

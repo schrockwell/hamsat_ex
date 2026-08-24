@@ -27,6 +27,7 @@ import LeafletTracker from "./leaflet-tracker-hook";
 import Registration from "./registration-hook";
 import CopyToClipboard from "./copy-to-clipboard-hook";
 import PassTrackerHook from "./pass-tracker-hook";
+import { ChatMessages, ChatForm } from "./chat-hooks";
 
 const Hooks = {
   LeafletPicker,
@@ -34,6 +35,8 @@ const Hooks = {
   Registration,
   CopyToClipboard,
   PassTrackerHook,
+  ChatMessages,
+  ChatForm,
 };
 
 let csrfToken = document

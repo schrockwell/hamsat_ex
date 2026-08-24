@@ -180,6 +180,89 @@
 
   <%!-- Right column: aux sidebar --%>
   <div class="bg-gray-50 px-3 py-4 md:px-6 md:py-5 flex flex-col gap-6 text-sm border-t md:border-t-0">
+    <%= if @alert.chat_enabled do %>
+      <div class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between">
+          <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">Chat</div>
+          <%= case @chat_status do %>
+            <% :open -> %>
+              <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Open
+              </span>
+            <% :before -> %>
+              <span class="text-xs font-semibold text-gray-400 tabular-nums">
+                Opens in <%= duration(@now, Chat.opens_at(@alert)) %>
+              </span>
+            <% _ -> %>
+              <span class="text-xs font-semibold text-gray-400">Closed</span>
+          <% end %>
+        </div>
+
+        <div class="bg-white border rounded overflow-hidden flex flex-col">
+          <div class="relative">
+            <%= if @chat_empty? do %>
+              <div class="absolute inset-0 flex items-center justify-center text-gray-400 italic pointer-events-none">
+                No messages yet
+              </div>
+            <% end %>
+            <div
+              id="chat-messages"
+              phx-update="append"
+              phx-hook="ChatMessages"
+              class="h-56 overflow-y-auto px-3 py-2 flex flex-col gap-1"
+            >
+              <%= for message <- @chat_messages do %>
+                <div id={"chat-message-#{message.id}"} class="break-words">
+                  <span class="text-xs text-gray-400 tabular-nums">
+                    <%= short_time(@context, message.inserted_at) %>
+                  </span>
+                  <span class="font-semibold text-gray-700"><%= ChatMessage.sender_name(message) %>:</span>
+                  <span class="text-gray-600"><%= message.body %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="border-t px-2 py-2">
+            <%= cond do %>
+              <% @chat_status == :open and @context.user != :guest -> %>
+                <.form
+                  :let={f}
+                  for={@chat_changeset}
+                  as={:chat_message}
+                  id="chat-form"
+                  phx-submit="send-chat-message"
+                  phx-hook="ChatForm"
+                  class="flex items-center gap-2"
+                >
+                  <%= text_input(f, :body,
+                    class: "input-text flex-grow text-sm min-w-0",
+                    placeholder: "Chat as #{Chat.username(@context.user)}",
+                    autocomplete: "off",
+                    required: true,
+                    maxlength: 200
+                  ) %>
+                  <%= submit("Send", class: "btn btn-default") %>
+                </.form>
+                <div class="mt-1.5 text-xs text-gray-400 text-center tabular-nums">
+                  Chat closes in <%= chat_closes_in(@alert, @now) %>
+                </div>
+              <% @chat_status == :open -> %>
+                <div class="text-gray-500 text-center py-1">
+                  <a href={~p"/users/log_in"} class="link">Log in</a> to join the chat.
+                </div>
+              <% @chat_status == :before -> %>
+                <div class="text-gray-500 text-center py-1">
+                  Chat opens 5 minutes before the pass.
+                </div>
+              <% true -> %>
+                <div class="text-gray-500 text-center py-1">Chat has ended.</div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
     <div class="flex flex-col gap-1.5">
       <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">
         Saved by <%= saved_by_count(@saved_by) %>

@@ -25,6 +25,7 @@ defmodule Hamsat.Accounts.User do
     field :prefer_fm_mode, :integer
     field :prefer_dx_el, :integer
     field :prefer_my_el, :integer
+    field :prefer_chat_enabled, :boolean, default: true
     field :feed_key, :string
 
     has_many :alerts, Hamsat.Schemas.Alert
@@ -222,7 +223,8 @@ defmodule Hamsat.Accounts.User do
     |> change(
       latest_callsign: alert.callsign,
       latest_modes: new_latest_modes,
-      latest_mhz_direction: alert.mhz_direction
+      latest_mhz_direction: alert.mhz_direction,
+      prefer_chat_enabled: alert.chat_enabled
     )
     |> format_callsign(:latest_callsign)
   end

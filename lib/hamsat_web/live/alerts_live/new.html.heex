@@ -115,6 +115,15 @@
       <%= error_tag(f, :comment) %>
     </.form_row>
 
+    <.form_row label="Chat">
+      <label class="flex items-center space-x-1.5 cursor-pointer">
+        <%= checkbox(f, :chat_enabled) %> <span>Enable realtime chat</span>
+      </label>
+      <div class="mt-1 text-sm font-medium text-gray-500">
+        Chat opens 5 minutes before the pass begins and closes 60 minutes after it ends
+      </div>
+    </.form_row>
+
     <.form_row label="">
       <%= submit("#{action_verb(@live_action)} Activation", class: "btn btn-default") %>
 
