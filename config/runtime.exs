@@ -69,6 +69,11 @@ if config_env() == :prod do
 
   config :hamsat, mapbox_access_token: System.fetch_env!("MAPBOX_ACCESS_TOKEN")
 
+  config :hamsat, :vapid,
+    subject: "mailto:support@hams.at",
+    public_key: System.fetch_env!("VAPID_PUBLIC_KEY"),
+    private_key: System.fetch_env!("VAPID_PRIVATE_KEY")
+
   #       adapter: Swoosh.Adapters.Mailgun,
   #       api_key: System.get_env("MAILGUN_API_KEY"),
   #       domain: System.get_env("MAILGUN_DOMAIN")

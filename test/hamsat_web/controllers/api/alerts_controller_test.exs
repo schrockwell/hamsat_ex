@@ -93,6 +93,29 @@ defmodule HamsatWeb.API.AlertsControllerTest do
       assert alert.satellite_id == ao_7.id
     end
 
+    test "creates an alert without a frequency or direction", %{
+      conn: conn,
+      user: user,
+      ao_7: ao_7,
+      pass: pass
+    } do
+      # Regression: issue #83 — a post with no mhz/mhz_direction and an
+      # unsupported mode used to 422 with an internal error
+      params =
+        alert_params(ao_7, pass)
+        |> Map.delete(:mhz_direction)
+        |> Map.put(:mode, "USB")
+
+      conn =
+        conn
+        |> authorize(user)
+        |> post_json(~p"/api/alerts", params)
+
+      assert %{"data" => data} = json_response(conn, 201)
+      assert data["mhz_direction"] == "down"
+      assert data["mode"] == "SSB"
+    end
+
     test "returns 401 without an API key", %{conn: conn, ao_7: ao_7, pass: pass} do
       conn = post_json(conn, ~p"/api/alerts", alert_params(ao_7, pass))
       assert json_response(conn, 401) == %{"errors" => ["Unauthorized"]}

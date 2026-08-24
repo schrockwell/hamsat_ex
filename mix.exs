@@ -60,6 +60,7 @@ defmodule Hamsat.MixProject do
         {:atomex, "~> 0.5.1"},
         {:httpoison, "~> 2.2.1"},
         {:live_inspect, "~> 0.2"},
+        {:jose, "~> 1.11"},
         {:live_event, "0.3.0"}
       ]
   end

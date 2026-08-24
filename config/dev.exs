@@ -73,3 +73,9 @@ config :hamsat, Hamsat.Mailer,
   api_key: System.fetch_env!("POSTMARK_API_KEY")
 
 config :hamsat, mapbox_access_token: System.fetch_env!("MAPBOX_ACCESS_TOKEN")
+
+# Web Push (VAPID) keys for development only — prod sets its own via env vars
+config :hamsat, :vapid,
+  subject: "mailto:support@hams.at",
+  public_key: "BEUcb29kKrRHFcbDc7a_Lux1gsY-JFSHuFC0RckBn79waLkjAY4ch2B24Vv_DZqUXDkHhkoRdhAZr7pINkzxk1c",
+  private_key: "PFfUdUXjSrTRMglxJrL0VbwHzqxzMeOCzanvSlvHS3M"

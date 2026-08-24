@@ -6,165 +6,199 @@
     </.link>
   </div>
 
-  <.form_row label="">
-    <h2 class="text-h2">Activation Match Preferences</h2>
-  </.form_row>
+  <div class="flex flex-col md:flex-row items-start gap-4 md:gap-6">
+    <div class="w-full md:flex-1 flex flex-col gap-4 md:gap-6">
+      <%!-- Activation match preferences --%>
+      <section class="border border-gray-300 rounded-lg p-4 md:p-6">
+        <.form :let={f} for={@match_preferences_changeset} action={~p"/users/settings"} id="update_match_preferences">
+          <%= hidden_input(f, :action, name: "action", value: "update_match_preferences") %>
 
-  <.form :let={f} for={@match_preferences_changeset} action={~p"/users/settings"} id="update_match_preferences">
-    <%= hidden_input(f, :action, name: "action", value: "update_match_preferences") %>
+          <p class="text-sm text-gray-500 mb-3">
+            At the moment of closest approach between the two stations, prefer that the satellite is above these
+            elevations. Below these elevations, the match score is reduced.
+          </p>
 
-    <.form_row label="">
-      <p class="text-sm text-gray-500 md:w-96">
-        At the moment of closest approach between the two stations, prefer that the satellite is above these elevations. Below
-        these elevations, the match score is reduced.
-      </p>
-    </.form_row>
+          <%= for {label, field} <- [{"My Minimum Elevation", :prefer_my_el}, {"DX Minimum Elevation", :prefer_dx_el}] do %>
+            <fieldset class="mb-3">
+              <label class="block font-medium mb-1"><%= label %></label>
+              <div class="flex space-x-4">
+                <%= range_input(f, field, required: true, min: 0, max: 90, class: "w-full mt-1") %>
+                <div class="w-12 text-right">
+                  <span data-value-of-range={"update_match_preferences_#{field}"}>0</span>°
+                </div>
+              </div>
+            </fieldset>
+          <% end %>
 
-    <%= for {label, field} <- [{"My Minimum Elevation", :prefer_my_el}, {"DX Minimum Elevation", :prefer_dx_el}] do %>
-      <.form_row label={label} class="w-full pr-4 md:w-96">
-        <div class="flex space-x-4">
-          <%= range_input(f, field, required: true, min: 0, max: 90, class: "w-full mt-1") %>
-          <div class="w-12 text-right">
-            <span data-value-of-range={"update_match_preferences_#{field}"}>0</span>°
+          <p class="text-sm text-gray-500 mt-6 mb-3">
+            Prefer activations with certain modes of operation. The match score is reduced relative to the other mode
+            preferences.
+          </p>
+
+          <%= for {label, field} <- [{"SSB", :prefer_ssb_mode}, {"CW", :prefer_cw_mode}, {"Data", :prefer_data_mode}, {"FM", :prefer_fm_mode}] do %>
+            <fieldset class="mb-3">
+              <label class="block font-medium mb-1"><%= label %></label>
+              <div class="flex space-x-4">
+                <%= range_input(f, field, required: true, min: 0, max: 100, class: "w-full mt-1") %>
+                <div class="w-12 text-right">
+                  <span data-value-of-range={"update_match_preferences_#{field}"}>0</span>%
+                </div>
+              </div>
+            </fieldset>
+          <% end %>
+
+          <div class="mt-4">
+            <%= submit("Save Match Preferences", class: "btn btn-default") %>
           </div>
-        </div>
-      </.form_row>
-    <% end %>
+        </.form>
+      </section>
 
-    <.form_row label="" class="mt-4">
-      <p class="text-sm text-gray-500 md:w-96">
-        Prefer activations with certain modes of operation. The match score is reduced relative to the other mode preferences.
-      </p>
-    </.form_row>
+      <%!-- API --%>
+      <section class="border border-gray-300 rounded-lg p-4 md:p-6">
+        <fieldset class="mb-3">
+          <label class="block font-medium mb-1">API Key</label>
+          <.mono_copy text={@context.user.feed_key} />
 
-    <%= for {label, field} <- [{"SSB", :prefer_ssb_mode}, {"CW", :prefer_cw_mode}, {"Data", :prefer_data_mode}, {"FM", :prefer_fm_mode}] do %>
-      <.form_row label={label} class="w-full pr-4 md:w-96">
-        <div class="flex space-x-4">
-          <%= range_input(f, field, required: true, min: 0, max: 100, class: "w-full mt-1") %>
-          <div class="w-12 text-right">
-            <span data-value-of-range={"update_match_preferences_#{field}"}>0</span>%
+          <div class="text-sm text-gray-500 mt-1">
+            Authenticates the RSS feed and API calls to adapt to your station location.
           </div>
+        </fieldset>
+
+        <fieldset>
+          <label class="block font-medium mb-1">Documentation</label>
+          <%= link("API Documentation", to: ~p"/api/docs", class: "link") %>
+
+          <div class="text-sm text-gray-500 mt-1">
+            Browse the API reference and try requests with your API key.
+          </div>
+        </fieldset>
+      </section>
+    </div>
+
+    <div class="w-full md:flex-1 flex flex-col gap-4 md:gap-6">
+      <%!-- Notifications --%>
+      <section class="border border-gray-300 rounded-lg p-4 md:p-6">
+        <label class="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            id="push-reminders-toggle"
+            data-vapid-public-key={Hamsat.Push.WebPush.vapid_public_key()}
+            checked={@current_user.push_reminders_enabled}
+            class="mt-1"
+          />
+          <span>
+            <span class="font-medium">Activation reminders</span>
+            <span class="block text-sm text-gray-500">
+              Get a browser notification one minute before an activation you liked begins.
+            </span>
+            <span id="push-reminders-status" class="block text-sm text-gray-500 mt-1"></span>
+          </span>
+        </label>
+
+        <div class="mt-4">
+          <button type="button" id="push-test-button" class="btn btn-default btn-sm border-gray-300">
+            Send Test Notification
+          </button>
         </div>
-      </.form_row>
-    <% end %>
+      </section>
 
-    <.form_row label="">
-      <%= submit("Save Match Preferences", class: "btn btn-default") %>
-    </.form_row>
-  </.form>
+      <%!-- Change email --%>
+      <section class="border border-gray-300 rounded-lg p-4 md:p-6">
+        <.form :let={f} for={@email_changeset} action={~p"/users/settings"} id="update_email">
+          <%= if @email_changeset.action do %>
+            <div class="text-red-500 my-2 text-sm font-medium">
+              <p>Oops, something went wrong! Please check the errors below.</p>
+            </div>
+          <% end %>
 
-  <.form_row label="">
-    <h2 class="text-h2 mt-12">Change Email</h2>
-  </.form_row>
+          <%= hidden_input(f, :action, name: "action", value: "update_email") %>
 
-  <.form :let={f} for={@email_changeset} action={~p"/users/settings"} id="update_email">
-    <%= if @email_changeset.action do %>
-      <div class="text-red-500 my-2 text-sm font-medium">
-        <p>Oops, something went wrong! Please check the errors below.</p>
-      </div>
-    <% end %>
+          <fieldset class="mb-3">
+            <label class="block font-medium mb-1">Email</label>
+            <%= email_input(f, :email, required: true, class: "input-text w-full") %>
+            <%= error_tag(f, :email) %>
+          </fieldset>
 
-    <%= hidden_input(f, :action, name: "action", value: "update_email") %>
+          <fieldset class="mb-3">
+            <label class="block font-medium mb-1">Current Password</label>
+            <%= password_input(f, :current_password,
+              required: true,
+              name: "current_password",
+              id: "current_password_for_email",
+              class: "input-text w-full"
+            ) %>
+            <%= error_tag(f, :current_password) %>
+          </fieldset>
 
-    <.form_row label="Email" input?={true}>
-      <%= email_input(f, :email, required: true, class: "input-text") %>
-      <%= error_tag(f, :email) %>
-    </.form_row>
+          <div class="mt-4">
+            <%= submit("Change Email", class: "btn btn-default") %>
+          </div>
+        </.form>
+      </section>
 
-    <.form_row label="Current Password" input?={true}>
-      <%= password_input(f, :current_password,
-        required: true,
-        name: "current_password",
-        id: "current_password_for_email",
-        class: "input-text"
-      ) %>
-      <%= error_tag(f, :current_password) %>
-    </.form_row>
+      <%!-- Change password --%>
+      <section class="border border-gray-300 rounded-lg p-4 md:p-6">
+        <.form :let={f} for={@password_changeset} action={~p"/users/settings"} id="update_password">
+          <%= if @password_changeset.action do %>
+            <div class="alert alert-danger">
+              <p>Oops, something went wrong! Please check the errors below.</p>
+            </div>
+          <% end %>
 
-    <.form_row label="">
-      <%= submit("Change Email", class: "btn btn-default") %>
-    </.form_row>
-  </.form>
+          <%= hidden_input(f, :action, name: "action", value: "update_password") %>
 
-  <.form_row label="">
-    <h2 class="text-h2 mt-12">Change Password</h2>
-  </.form_row>
+          <fieldset class="mb-3">
+            <label class="block font-medium mb-1">New Password</label>
+            <%= password_input(f, :password, required: true, class: "input-text w-full") %>
+            <%= error_tag(f, :password) %>
+            <div class="form-hint"><%= password_requirements() %></div>
+          </fieldset>
 
-  <.form :let={f} for={@password_changeset} action={~p"/users/settings"} id="update_password">
-    <%= if @password_changeset.action do %>
-      <div class="alert alert-danger">
-        <p>Oops, something went wrong! Please check the errors below.</p>
-      </div>
-    <% end %>
+          <fieldset class="mb-3">
+            <label class="block font-medium mb-1">Confirm New Password</label>
+            <%= password_input(f, :password_confirmation, required: true, class: "input-text w-full") %>
+            <%= error_tag(f, :password_confirmation) %>
+          </fieldset>
 
-    <%= hidden_input(f, :action, name: "action", value: "update_password") %>
+          <fieldset class="mb-3">
+            <label class="block font-medium mb-1">Current Password</label>
+            <%= password_input(f, :current_password,
+              required: true,
+              name: "current_password",
+              id: "current_password_for_password",
+              class: "input-text w-full"
+            ) %>
+            <%= error_tag(f, :current_password) %>
+          </fieldset>
 
-    <.form_row label="New Password" input?={true}>
-      <%= password_input(f, :password, required: true, class: "input-text") %>
-      <%= error_tag(f, :password) %>
-      <div class="form-hint"><%= password_requirements() %></div>
-    </.form_row>
+          <div class="mt-4">
+            <%= submit("Change Password", class: "btn btn-default") %>
+          </div>
+        </.form>
+      </section>
 
-    <.form_row label="Confirm New Password" input?={true}>
-      <%= password_input(f, :password_confirmation, required: true, class: "input-text") %>
-      <%= error_tag(f, :password_confirmation) %>
-    </.form_row>
+      <%!-- Change callsign --%>
+      <section class="border border-gray-300 rounded-lg p-4 md:p-6">
+        <.form :let={f} for={@callsign_changeset} action={~p"/users/settings"} id="update_callsign">
+          <%= if @callsign_changeset.action do %>
+            <div class="text-red-500 my-2 text-sm font-medium">
+              <p>Oops, something went wrong! Please check the errors below.</p>
+            </div>
+          <% end %>
 
-    <.form_row label="Current Password" input?={true}>
-      <%= password_input(f, :current_password,
-        required: true,
-        name: "current_password",
-        id: "current_password_for_password",
-        class: "input-text"
-      ) %>
-      <%= error_tag(f, :current_password) %>
-    </.form_row>
+          <%= hidden_input(f, :action, name: "action", value: "update_callsign") %>
 
-    <.form_row label="">
-      <%= submit("Change Password", class: "btn btn-default") %>
-    </.form_row>
-  </.form>
+          <fieldset class="mb-3">
+            <label class="block font-medium mb-1">Callsign</label>
+            <%= text_input(f, :callsign, class: "input-text w-full uppercase", placeholder: "Optional") %>
+            <%= error_tag(f, :callsign) %>
+          </fieldset>
 
-  <.form_row label="">
-    <h2 class="text-h2 mt-12">Change Callsign</h2>
-  </.form_row>
-
-  <.form :let={f} for={@callsign_changeset} action={~p"/users/settings"} id="update_callsign">
-    <%= if @callsign_changeset.action do %>
-      <div class="text-red-500 my-2 text-sm font-medium">
-        <p>Oops, something went wrong! Please check the errors below.</p>
-      </div>
-    <% end %>
-
-    <%= hidden_input(f, :action, name: "action", value: "update_callsign") %>
-
-    <.form_row label="Callsign" input?={true}>
-      <%= text_input(f, :callsign, class: "input-text uppercase", placeholder: "Optional") %>
-      <%= error_tag(f, :callsign) %>
-    </.form_row>
-
-    <.form_row label="">
-      <%= submit("Change Callsign", class: "btn btn-default") %>
-    </.form_row>
-  </.form>
-
-  <.form_row label="">
-    <h2 class="text-h2 mt-12">API</h2>
-  </.form_row>
-
-  <.form_row label="API Key" input?={true}>
-    <.mono_copy text={@context.user.feed_key} />
-
-    <div class="text-sm text-gray-500 mt-1">
-      Authenticates the RSS feed and API calls to adapt to your station location.
+          <div class="mt-4">
+            <%= submit("Change Callsign", class: "btn btn-default") %>
+          </div>
+        </.form>
+      </section>
     </div>
-  </.form_row>
-
-  <.form_row label="Documentation" input?={true}>
-    <%= link("API Documentation", to: ~p"/api/docs", class: "link") %>
-
-    <div class="text-sm text-gray-500 mt-1">
-      Browse the API reference and try requests with your API key.
-    </div>
-  </.form_row>
+  </div>
 </div>

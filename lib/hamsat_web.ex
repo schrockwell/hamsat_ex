@@ -147,7 +147,7 @@ defmodule HamsatWeb do
     end
   end
 
-  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt sw.js)
 
   def verified_routes do
     quote do

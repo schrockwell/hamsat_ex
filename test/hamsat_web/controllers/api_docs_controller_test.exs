@@ -1,9 +1,9 @@
 defmodule HamsatWeb.APIDocsControllerTest do
   use HamsatWeb.ConnCase
 
-  test "GET /api/docs renders the Swagger UI page", %{conn: conn} do
+  test "GET /api/docs renders the API reference page", %{conn: conn} do
     conn = get(conn, ~p"/api/docs")
-    assert html_response(conn, 200) =~ "swagger-ui"
+    assert html_response(conn, 200) =~ "api-reference"
   end
 
   test "GET /api/openapi.json returns the OpenAPI spec", %{conn: conn} do
