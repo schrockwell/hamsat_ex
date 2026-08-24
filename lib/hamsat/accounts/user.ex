@@ -79,7 +79,7 @@ defmodule Hamsat.Accounts.User do
     end
   end
 
-  defp validate_email(changeset, opts \\ []) do
+  defp validate_email(changeset, opts) do
     changeset
     |> validate_required([:email])
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
