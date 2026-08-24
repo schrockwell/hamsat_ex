@@ -3,6 +3,6 @@ defmodule HamsatWeb.PageFooterTest do
 
   test "static pages render the keps timestamp in the footer", %{conn: conn} do
     html = conn |> get(~p"/about") |> html_response(200)
-    assert html =~ ~r/Updated \d{4}-\d{2}-\d{2} at/
+    assert html =~ ~r/Keps updated (just now|\d+h ago)/
   end
 end

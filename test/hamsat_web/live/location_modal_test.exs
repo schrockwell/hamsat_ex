@@ -44,14 +44,17 @@ defmodule HamsatWeb.LocationModalTest do
     assert html =~ ~s(phx-value-redirect="/passes")
   end
 
-  test "footer grid link opens the modal when location is set", %{conn: conn} do
+  test "footer timezone link opens the modal when location is set", %{conn: conn} do
     conn = Plug.Test.init_test_session(conn, %{"lat" => 42.36, "lon" => -71.06})
     {:ok, view, html} = live(conn, ~p"/")
 
     # Passes nav navigates normally when a location is set
     refute html =~ ~s(phx-value-redirect="/passes")
 
-    view |> element(~s{div.justify-center > a[phx-click="show-location-modal"]}, "FN42") |> render_click()
+    # The footer no longer shows the grid or a Set Location link
+    refute html =~ "Set Location"
+
+    view |> element(~s{div.justify-center > a[phx-click="show-location-modal"]}) |> render_click()
 
     assert find_live_child(view, "location-modal-live")
   end

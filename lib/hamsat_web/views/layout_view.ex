@@ -23,18 +23,18 @@ defmodule HamsatWeb.LayoutView do
     Grid.encode!(Hamsat.Context.effective_location(context), 4)
   end
 
-  @nav_time_formats %{"12h" => "{h12}:{m} {AM}", "24h" => "{h24}:{m}"}
-
-  defp nav_time(context) do
-    now = Timex.now(context.timezone)
-    Timex.format!(now, @nav_time_formats[context.time_format]) <> " " <> Timex.format!(now, "{Zabbr}")
-  end
-
   defp location_nav_attrs(%{live?: true} = assigns) do
     [href: "#", "phx-click": "show-location-modal", "phx-value-redirect": assigns.current_path || "/"]
   end
 
   defp location_nav_attrs(_assigns), do: [navigate: ~p"/location"]
+
+  defp keps_updated_ago(updated_at) do
+    case Timex.diff(Timex.now(), updated_at, :hours) do
+      hours when hours < 1 -> "just now"
+      hours -> "#{hours}h ago"
+    end
+  end
 
   def page_layout(assigns) do
     assigns =
@@ -76,10 +76,10 @@ defmodule HamsatWeb.LayoutView do
       <div class="hidden md:flex items-center gap-4">
         <.link
           {@location_nav_attrs}
-          title="Your grid and timezone"
+          title="Your grid"
           class="text-sm text-gray-300 hover:text-white transition-all whitespace-nowrap"
         >
-          <%= nav_grid_label(@context) %> · <%= nav_time(@context) %>
+          <%= nav_grid_label(@context) %>
         </.link>
 
         <%= if @context.user != :guest do %>
@@ -143,14 +143,18 @@ defmodule HamsatWeb.LayoutView do
     </div>
 
     <div class="my-6 text-sm text-gray-500 flex gap-1 justify-center">
-      <.link {@location_nav_attrs} class="hover:underline hover:text-gray-700">
-        <%= if @context.location do %>
-          <%= Grid.encode!(@context.location, 4) %>
-        <% else %>
+      <%= if @keps_updated_at do %>
+        <span title="When the satellite Keplerian elements were last updated">
+          Keps updated <%= keps_updated_ago(@keps_updated_at) %>
+        </span>
+        ·
+      <% end %>
+      <%= unless @context.location do %>
+        <.link {@location_nav_attrs} class="hover:underline hover:text-gray-700">
           Set Location
-        <% end %>
-      </.link>
-      ·
+        </.link>
+        ·
+      <% end %>
       <.link {@location_nav_attrs} class="hover:underline hover:text-gray-700">
         <%= timezone_name(@context.timezone) %>
       </.link>
@@ -170,17 +174,6 @@ defmodule HamsatWeb.LayoutView do
       <.link navigate={~p"/about"} class="hover:underline hover:text-gray-700">
         About
       </.link>
-      ·
-      DE
-      <.link href="https://mastodon.hams.social/@ww1x" class="hover:underline hover:text-gray-700">
-        WW1X
-      </.link>
-      <%= if @keps_updated_at do %>
-        ·
-        <span title="When the satellite Keplerian elements were last updated">
-          Updated <%= date(@context, @keps_updated_at) %> at <%= short_time(@context, @keps_updated_at) %>
-        </span>
-      <% end %>
     </div>
     """
   end
