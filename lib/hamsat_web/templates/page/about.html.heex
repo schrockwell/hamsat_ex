@@ -1,5 +1,6 @@
-<div class="p-3 md:p-6 md:flex gap-8">
-  <div class="md:w-2/3">
+<div class="grid md:grid-cols-[minmax(0,8fr)_minmax(0,3fr)]">
+  <%!-- Left: main content --%>
+  <div class="p-3 md:p-6 md:border-r">
     <h1 class="text-h2 md:text-h1">Working the birds? Let the world know!</h1>
 
     <p class="mt-4">
@@ -15,34 +16,41 @@
       For now, it's just a tool to promote operating activity.
     </p>
 
-    <h2 class="text-h2 mt-12">Feedback</h2>
+    <h2 class="text-h2 mt-12">Feedback?</h2>
     <p class="mt-4">
       Send it along to WW1X at <.link href="mailto:hamsat@schrock.me" class="link">hamsat@schrock.me</.link>
     </p>
-
-    <h2 class="text-h2 mt-12">More from WW1X</h2>
-    <p class="mt-4">
-      <.link href="https://remotehamradio.com/" class="link">Remote Ham Radio</.link> – Get on the air from anywhere
-    </p>
-    <p class="mt-4">
-      <.link href="https://morsle.fun/" class="link">Morsle</.link> – The daily Morse code challenge
-    </p>
-    <p class="mt-4">
-      <.link href="https://www.ww1x.com/sotagoat/" class="link">SOTA Goat for iOS</.link>
-      – Essential tool for Summits On The Air chasers and activators
-    </p>
-    <p class="mt-4">
-      <.link href="https://ww1x.com/" class="link">WW1X.com</.link> – Apps, SOTA, etc.
-    </p>
   </div>
-  <div class="md:w-1/3">
-    <h1 class="text-h2 md:text-h1">Attribution</h1>
-    <ul class="text-sm flex flex-col gap-3 mt-4">
-      <li>
+
+  <%!-- Right: sidebar --%>
+  <div class="bg-gray-50 px-3 py-4 md:px-6 md:py-5 flex flex-col gap-6 text-sm border-t md:border-t-0">
+    <div class="flex flex-col gap-3">
+      <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">More from WW1X</div>
+      <div>
+        <.link href="https://remotehamradio.com/" class="link">Remote Ham Radio</.link>
+        <div class="text-[13px] text-gray-500">Get on the air from anywhere</div>
+      </div>
+      <div>
+        <.link href="https://morsle.fun/" class="link">Morsle</.link>
+        <div class="text-[13px] text-gray-500">The daily Morse code challenge</div>
+      </div>
+      <div>
+        <.link href="https://www.ww1x.radio/sotagoat/" class="link">SOTA Goat for iOS</.link>
+        <div class="text-[13px] text-gray-500">Essential tool for Summits On The Air chasers and activators</div>
+      </div>
+      <div>
+        <.link href="https://ww1x.radio/" class="link">WW1X.radio</.link>
+        <div class="text-[13px] text-gray-500">Apps, SOTA, etc.</div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">Attribution</div>
+      <div class="text-[13px] text-gray-500">
         <.link href="https://leafletjs.com/" class="link">Leaflet</.link>
-        map data © <.link href="https://leafletjs.com/" class="link">OpenStreetMap</.link>
-        contributors, imagery © Mapbox <.link href="https://www.mapbox.com/" class="link">Mapbox</.link>
-      </li>
-    </ul>
+        map data © <.link href="https://www.openstreetmap.org/" class="link">OpenStreetMap</.link>
+        contributors, imagery © <.link href="https://www.mapbox.com/" class="link">Mapbox</.link>
+      </div>
+    </div>
   </div>
 </div>

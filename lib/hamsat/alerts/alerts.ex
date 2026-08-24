@@ -22,6 +22,8 @@ defmodule Hamsat.Alerts do
     with {:ok, alert_form} <- Ecto.Changeset.apply_action(alert_form_changeset, :create),
          {:ok, alert} <- Repo.insert(Alert.changeset(%Alert{}, alert_form)) do
       Accounts.update_alert_preferences!(context.user, alert)
+      # Activators always thumbs-up their own activation
+      save_alert(context, alert)
       {:ok, alert}
     else
       {:error, %Ecto.Changeset{data: %AlertForm{}} = alert_form_changeset} ->

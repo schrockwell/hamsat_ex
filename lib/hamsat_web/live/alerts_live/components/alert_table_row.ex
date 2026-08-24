@@ -5,6 +5,7 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
   alias HamsatWeb.AlertComponents
   alias HamsatWeb.LiveComponents.AlertSaver
   alias HamsatWeb.SatComponents
+  alias Phoenix.LiveView.JS
 
   attr :context, Hamsat.Context, required: true
   attr :now, DateTime, required: true

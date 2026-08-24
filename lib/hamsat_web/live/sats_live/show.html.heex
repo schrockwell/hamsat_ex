@@ -63,11 +63,9 @@
     <% else %>
       <div class="px-3 md:px-6 pt-2 pb-6 overflow-x-auto hidden md:block">
         <table class="w-full border-collapse text-sm slashed-zero">
-          <tbody>
-            <%= for alert <- @alerts do %>
-              <.activation_rows alert={alert} context={@context} now={@now} show_sat={false} />
-            <% end %>
-          </tbody>
+          <%= for alert <- @alerts do %>
+            <.activation_rows alert={alert} context={@context} now={@now} show_sat={false} />
+          <% end %>
         </table>
       </div>
       <div class="px-3 pb-6 md:hidden">

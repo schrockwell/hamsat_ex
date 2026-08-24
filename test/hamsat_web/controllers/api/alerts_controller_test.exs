@@ -82,7 +82,9 @@ defmodule HamsatWeb.API.AlertsControllerTest do
         |> authorize(user)
         |> post_json(~p"/api/alerts", alert_params(ao_7, pass))
 
-      assert %{"data" => %{"id" => id, "callsign" => "WW1X"}} = json_response(conn, 201)
+      assert %{"data" => %{"id" => id, "callsign" => "WW1X", "likes" => 1}} =
+               json_response(conn, 201)
+
       assert [location] = get_resp_header(conn, "location")
       assert location =~ "/api/alerts/#{id}"
 

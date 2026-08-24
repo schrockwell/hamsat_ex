@@ -46,6 +46,9 @@ defmodule AlertsTest do
       assert alert.satellite_id == ao_7.id
       assert alert.callsign == "WW1X"
       assert alert.user_id == context.user.id
+
+      # The activator's own thumbs-up is saved automatically
+      assert Repo.get_by(Hamsat.Schemas.SavedAlert, alert_id: alert.id, user_id: context.user.id)
     end
 
     test "fail creation with invalid attributes", %{context: context, ao_7: ao_7} do
