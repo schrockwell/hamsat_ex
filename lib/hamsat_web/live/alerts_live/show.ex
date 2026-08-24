@@ -122,13 +122,15 @@ defmodule HamsatWeb.AlertsLive.Show do
 
   # When the visible window begins at rise (or ends at set) the emerald node
   # takes over the rise/set node rather than drawing two nodes on top of each other.
-  defp separate_node?(%Alert{is_workable?: false}, _end), do: false
-  defp separate_node?(alert, :rise), do: alert.workable_start_at != alert.aos_at
-  defp separate_node?(alert, :set), do: alert.workable_end_at != alert.los_at
+  # Fraction of the bar under which a visible-window node merges into the
+  # rise/set node instead of drawing overlapping nodes and labels
+  @node_merge_threshold 0.08
+
+  defp separate_node?(alert, which), do: alert.is_workable? and not coincident?(alert, which)
 
   defp coincident?(%Alert{is_workable?: false}, _end), do: false
-  defp coincident?(alert, :rise), do: alert.workable_start_at == alert.aos_at
-  defp coincident?(alert, :set), do: alert.workable_end_at == alert.los_at
+  defp coincident?(alert, :rise), do: progress(alert, alert.workable_start_at) < @node_merge_threshold
+  defp coincident?(alert, :set), do: progress(alert, alert.workable_end_at) > 1.0 - @node_merge_threshold
 
   defp node_class(alert, which),
     do: if(coincident?(alert, which), do: "border-emerald-500", else: "border-gray-300")
