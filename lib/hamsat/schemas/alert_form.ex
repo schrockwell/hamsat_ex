@@ -34,6 +34,7 @@ defmodule Hamsat.Schemas.AlertForm do
     field :mode, :string
     field :callsign, :string
     field :comment, :string
+    field :chat_enabled, :boolean, default: true
   end
 
   def initial_params(%Context{} = context, %Sat{} = sat) do
@@ -47,7 +48,8 @@ defmodule Hamsat.Schemas.AlertForm do
       # Alert info
       "callsign" => context.user.latest_callsign || context.user.callsign,
       "mhz_direction" => preferred_mhz_direction(context.user),
-      "mode" => preferred_mode(context.user, sat)
+      "mode" => preferred_mode(context.user, sat),
+      "chat_enabled" => context.user.prefer_chat_enabled
     }
   end
 
@@ -79,7 +81,8 @@ defmodule Hamsat.Schemas.AlertForm do
       "mhz_direction" => alert.mhz_direction,
       "mode" => alert.mode,
       "callsign" => alert.callsign,
-      "comment" => alert.comment
+      "comment" => alert.comment,
+      "chat_enabled" => alert.chat_enabled
     }
   end
 
@@ -94,6 +97,7 @@ defmodule Hamsat.Schemas.AlertForm do
     %__MODULE__{context: context, sat: sat, pass: pass}
     |> cast(params, [
       :callsign,
+      :chat_enabled,
       :comment,
       :grid_1,
       :grid_2,

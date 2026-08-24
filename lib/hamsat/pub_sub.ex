@@ -21,6 +21,15 @@ defmodule Hamsat.PubSub do
     alert
   end
 
+  def broadcast_chat_message(message) do
+    broadcast(
+      "alert_chat:#{message.alert_id}",
+      {:chat_message, message}
+    )
+
+    message
+  end
+
   def broadcast_satellite_positions(positions) do
     broadcast(
       "satellite_positions",

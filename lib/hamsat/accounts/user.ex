@@ -25,6 +25,7 @@ defmodule Hamsat.Accounts.User do
     field :prefer_fm_mode, :integer
     field :prefer_dx_el, :integer
     field :prefer_my_el, :integer
+    field :prefer_chat_enabled, :boolean, default: true
     field :feed_key, :string
 
     has_many :alerts, Hamsat.Schemas.Alert
@@ -78,7 +79,7 @@ defmodule Hamsat.Accounts.User do
     end
   end
 
-  defp validate_email(changeset, opts \\ []) do
+  defp validate_email(changeset, opts) do
     changeset
     |> validate_required([:email])
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
@@ -133,12 +134,12 @@ defmodule Hamsat.Accounts.User do
 
   It requires the email to change otherwise an error is added.
   """
-  def email_changeset(user, attrs) do
+  def email_changeset(user, attrs, opts \\ []) do
     attrs = trim_params(attrs, [:email])
 
     user
     |> cast(attrs, [:email])
-    |> validate_email()
+    |> validate_email(opts)
     |> case do
       %{changes: %{email: _}} = changeset -> changeset
       %{} = changeset -> add_error(changeset, :email, "did not change")
@@ -222,7 +223,8 @@ defmodule Hamsat.Accounts.User do
     |> change(
       latest_callsign: alert.callsign,
       latest_modes: new_latest_modes,
-      latest_mhz_direction: alert.mhz_direction
+      latest_mhz_direction: alert.mhz_direction,
+      prefer_chat_enabled: alert.chat_enabled
     )
     |> format_callsign(:latest_callsign)
   end

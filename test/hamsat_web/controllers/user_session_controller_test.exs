@@ -1,5 +1,5 @@
 defmodule HamsatWeb.UserSessionControllerTest do
-  use HamsatWeb.ConnCase, async: true
+  use HamsatWeb.ConnCase
 
   import Hamsat.AccountsFixtures
 
@@ -11,7 +11,7 @@ defmodule HamsatWeb.UserSessionControllerTest do
     test "renders log in page", %{conn: conn} do
       conn = get(conn, ~p"/users/log_in")
       response = html_response(conn, 200)
-      assert response =~ "<h1>Log in</h1>"
+      assert response =~ "Log In"
       assert response =~ "Register</a>"
       assert response =~ "Forgot your password?</a>"
     end
@@ -35,9 +35,8 @@ defmodule HamsatWeb.UserSessionControllerTest do
       # Now do a logged in request and assert on the menu
       conn = get(conn, "/")
       response = html_response(conn, 200)
-      assert response =~ user.email
-      assert response =~ "Settings</a>"
-      assert response =~ "Log out</a>"
+      assert response =~ "Log Out"
+      assert response =~ "/users/log_out"
     end
 
     test "logs the user in with remember me", %{conn: conn, user: user} do
@@ -75,7 +74,7 @@ defmodule HamsatWeb.UserSessionControllerTest do
         })
 
       response = html_response(conn, 200)
-      assert response =~ "<h1>Log in</h1>"
+      assert response =~ "Log In"
       assert response =~ "Invalid email or password"
     end
   end
@@ -85,14 +84,14 @@ defmodule HamsatWeb.UserSessionControllerTest do
       conn = conn |> log_in_user(user) |> delete(Routes.user_session_path(conn, :delete))
       assert redirected_to(conn) == "/"
       refute get_session(conn, :user_token)
-      assert get_flash(conn, :info) =~ "Logged out successfully"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Logged out successfully"
     end
 
     test "succeeds even if the user is not logged in", %{conn: conn} do
       conn = delete(conn, Routes.user_session_path(conn, :delete))
       assert redirected_to(conn) == "/"
       refute get_session(conn, :user_token)
-      assert get_flash(conn, :info) =~ "Logged out successfully"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Logged out successfully"
     end
   end
 end

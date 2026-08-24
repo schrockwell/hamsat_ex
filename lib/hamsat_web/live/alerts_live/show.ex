@@ -2,11 +2,13 @@ defmodule HamsatWeb.AlertsLive.Show do
   use HamsatWeb, :live_view
 
   alias Hamsat.Alerts
+  alias Hamsat.Alerts.Chat
   alias Hamsat.Context
   alias Hamsat.Coord
   alias Hamsat.Grid
   alias Hamsat.PassMatch
   alias Hamsat.Schemas.Alert
+  alias Hamsat.Schemas.ChatMessage
   alias Hamsat.Schemas.Sat
   alias HamsatWeb.SatTracker
   alias HamsatWeb.LiveComponents.AlertSaver
@@ -29,17 +31,23 @@ defmodule HamsatWeb.AlertsLive.Show do
 
     if connected?(socket) do
       Phoenix.PubSub.subscribe(Hamsat.PubSub, "alerts")
+      if alert.chat_enabled, do: Chat.subscribe(alert)
     end
+
+    chat_messages = if alert.chat_enabled, do: Chat.list_messages(alert), else: []
 
     socket =
       socket
       |> assign(:now, DateTime.utc_now())
       |> assign(:page_title, "#{alert.callsign} on #{alert.sat.name}")
       |> assign(alert: alert, pass_match: pass_match, saved_by: saved_by)
+      |> assign(:chat_messages, chat_messages)
+      |> assign(:chat_empty?, chat_messages == [])
+      |> assign(:chat_changeset, Chat.change_message())
       |> assign_tick()
       |> schedule_tick()
 
-    {:ok, socket}
+    {:ok, socket, temporary_assigns: [chat_messages: []]}
   end
 
   def handle_event("delete", _, socket) do
@@ -52,6 +60,20 @@ defmodule HamsatWeb.AlertsLive.Show do
        |> redirect(to: ~p"/alerts")}
     else
       {:noreply, socket}
+    end
+  end
+
+  def handle_event("send-chat-message", %{"chat_message" => params}, socket) do
+    case Chat.send_message(socket.assigns.context.user, socket.assigns.alert, params) do
+      {:ok, _message} ->
+        # The message comes back to us (and everyone else) via PubSub
+        {:noreply, assign(socket, :chat_changeset, Chat.change_message())}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, :chat_changeset, changeset)}
+
+      {:error, _} ->
+        {:noreply, socket}
     end
   end
 
@@ -74,6 +96,13 @@ defmodule HamsatWeb.AlertsLive.Show do
       )
 
     {:noreply, socket}
+  end
+
+  def handle_info({:chat_message, %ChatMessage{} = message}, socket) do
+    {:noreply,
+     socket
+     |> update(:chat_messages, &(&1 ++ [message]))
+     |> assign(:chat_empty?, false)}
   end
 
   def handle_info(_msg, socket), do: {:noreply, socket}
@@ -149,6 +178,7 @@ defmodule HamsatWeb.AlertsLive.Show do
 
     assign(socket,
       activator_sat_position: activator_sat_position,
+      chat_status: Chat.status(alert, now),
       cursor_class: cursor_class,
       cursor_style: "left: #{progress * 100}%",
       events: events,
@@ -182,6 +212,12 @@ defmodule HamsatWeb.AlertsLive.Show do
       :passed ->
         {"Passed", "#{Timex.from_now(alert.los_at, now)}", "border-gray-200 bg-gray-100 text-gray-400"}
     end
+  end
+
+  # "12m" until the chat window closes, never below 1m while open
+  defp chat_closes_in(alert, now) do
+    minutes = ceil(DateTime.diff(Chat.closes_at(alert), now) / 60)
+    "#{max(minutes, 1)}m"
   end
 
   defp progress(alert, now) do

@@ -133,7 +133,7 @@ defmodule Hamsat.Accounts do
   """
   def apply_user_email(user, password, attrs) do
     user
-    |> User.email_changeset(attrs)
+    |> User.email_changeset(attrs, repo: Hamsat.Repo)
     |> User.validate_current_password(password)
     |> Ecto.Changeset.apply_action(:update)
   end
