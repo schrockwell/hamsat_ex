@@ -26,6 +26,7 @@ defmodule Hamsat.Accounts.User do
     field :prefer_dx_el, :integer, default: 45
     field :prefer_my_el, :integer, default: 45
     field :prefer_chat_enabled, :boolean, default: true
+    field :push_reminders_enabled, :boolean, default: false
     field :feed_key, :string
 
     has_many :alerts, Hamsat.Schemas.Alert
@@ -227,6 +228,10 @@ defmodule Hamsat.Accounts.User do
       prefer_chat_enabled: alert.chat_enabled
     )
     |> format_callsign(:latest_callsign)
+  end
+
+  def notification_preferences_changeset(user, params \\ %{}) do
+    cast(user, params, [:push_reminders_enabled])
   end
 
   def match_preferences_changeset(user, params \\ %{}) do

@@ -11,6 +11,9 @@ defmodule Hamsat.Schemas.SavedAlert do
     belongs_to :alert, Alert
     belongs_to :user, User
 
+    # When the pre-pass push reminder for this like was sent
+    field :notified_at, :utc_datetime
+
     timestamps()
   end
 

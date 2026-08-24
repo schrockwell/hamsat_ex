@@ -2,6 +2,7 @@ defmodule HamsatWeb.UserSettingsController do
   use HamsatWeb, :controller
 
   alias Hamsat.Accounts
+  alias Hamsat.Accounts.PushSubscription
   alias HamsatWeb.UserAuth
 
   plug :assign_changesets
@@ -95,6 +96,70 @@ defmodule HamsatWeb.UserSettingsController do
         |> redirect(to: ~p"/users/settings")
     end
   end
+
+  # Saves the push-reminder toggle, registering the browser's push
+  # subscription when enabling. Called via fetch from the settings page.
+  def update_push(conn, %{"enabled" => enabled} = params) do
+    user = conn.assigns.current_user
+
+    with {:ok, _user} <- Accounts.update_notification_preferences(user, %{push_reminders_enabled: enabled}),
+         :ok <- maybe_register_subscription(user, params["subscription"]) do
+      json(conn, %{ok: true})
+    else
+      _ ->
+        conn |> put_status(422) |> json(%{ok: false})
+    end
+  end
+
+  # Sends a test push to all of the user's registered subscriptions
+  def send_test_push(conn, _params) do
+    user = conn.assigns.current_user
+
+    payload =
+      Jason.encode!(%{
+        title: "Hams.at test notification",
+        body: "Push notifications are working!",
+        url: ~p"/users/settings"
+      })
+
+    case Accounts.list_push_subscriptions(user) do
+      [] ->
+        conn |> put_status(422) |> json(%{ok: false, error: "no_subscriptions"})
+
+      subscriptions ->
+        delivered =
+          Enum.count(subscriptions, fn subscription ->
+            case Hamsat.Push.WebPush.send_notification(PushSubscription.to_web_push(subscription), payload) do
+              {:ok, _status} ->
+                true
+
+              {:error, :expired} ->
+                Accounts.delete_push_subscription(subscription)
+                false
+
+              {:error, _reason} ->
+                false
+            end
+          end)
+
+        if delivered > 0 do
+          json(conn, %{ok: true, delivered: delivered})
+        else
+          conn |> put_status(502) |> json(%{ok: false, error: "delivery_failed"})
+        end
+    end
+  end
+
+  defp maybe_register_subscription(_user, nil), do: :ok
+
+  defp maybe_register_subscription(user, %{"endpoint" => endpoint, "keys" => %{"p256dh" => p256dh, "auth" => auth}}) do
+    case Accounts.upsert_push_subscription(user, %{endpoint: endpoint, p256dh: p256dh, auth: auth}) do
+      {:ok, _} -> :ok
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  defp maybe_register_subscription(_user, _), do: {:error, :invalid_subscription}
 
   defp assign_changesets(conn, _opts) do
     user = conn.assigns.current_user

@@ -7,6 +7,7 @@ defmodule Hamsat.Accounts do
   alias Hamsat.Repo
 
   alias Hamsat.Accounts.{User, UserToken, UserNotifier}
+  alias Hamsat.Accounts.PushSubscription
   alias Hamsat.Schemas.APIKey
   alias Hamsat.Util
 
@@ -375,6 +376,30 @@ defmodule Hamsat.Accounts do
     user
     |> User.alert_preferences_changeset(alert)
     |> Repo.update!()
+  end
+
+  def update_notification_preferences(user, attrs) do
+    user
+    |> User.notification_preferences_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc "Registers (or refreshes) a browser push subscription for the user."
+  def upsert_push_subscription(user, attrs) do
+    user
+    |> PushSubscription.changeset(attrs)
+    |> Repo.insert(
+      on_conflict: {:replace, [:p256dh, :auth, :updated_at]},
+      conflict_target: [:user_id, :endpoint]
+    )
+  end
+
+  def list_push_subscriptions(user) do
+    Repo.all(from ps in PushSubscription, where: ps.user_id == ^user.id)
+  end
+
+  def delete_push_subscription(%PushSubscription{} = subscription) do
+    Repo.delete_all(from ps in PushSubscription, where: ps.id == ^subscription.id)
   end
 
   def change_user_match_preferences(user, params \\ %{}) do

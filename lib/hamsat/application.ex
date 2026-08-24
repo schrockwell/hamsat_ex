@@ -14,6 +14,7 @@ defmodule Hamsat.Application do
       HamsatWeb.Telemetry,
       {Phoenix.PubSub, name: Hamsat.PubSub},
       Hamsat.Scheduler,
+      Hamsat.Alerts.ReminderNotifier,
       Hamsat.Satellites.PositionServer,
       Hamsat.Satellites.PeriodicSync,
       HamsatWeb.Endpoint
