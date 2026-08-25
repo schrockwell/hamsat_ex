@@ -13,6 +13,7 @@ defmodule Hamsat.Application do
       Hamsat.Repo,
       HamsatWeb.Telemetry,
       {Phoenix.PubSub, name: Hamsat.PubSub},
+      HamsatWeb.Presence,
       Hamsat.Scheduler,
       Hamsat.Alerts.ReminderNotifier,
       Hamsat.Satellites.PositionServer,

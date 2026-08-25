@@ -14,6 +14,7 @@ defmodule HamsatWeb.AlertsLive.Show do
   alias HamsatWeb.SatTracker
   alias HamsatWeb.LiveComponents.AlertSaver
   alias HamsatWeb.LiveComponents.PassTracker
+  alias HamsatWeb.Presence
 
   def mount(%{"id" => alert_id}, _session, socket) do
     alert = Alerts.get_alert!(socket.assigns.context, alert_id)
@@ -32,7 +33,15 @@ defmodule HamsatWeb.AlertsLive.Show do
 
     if connected?(socket) do
       Phoenix.PubSub.subscribe(Hamsat.PubSub, "alerts")
-      if alert.chat_enabled, do: Chat.subscribe(alert)
+
+      if alert.chat_enabled do
+        # Presence diffs are broadcast on the chat topic we subscribe to here
+        Chat.subscribe(alert)
+
+        if socket.assigns.context.user != :guest do
+          {:ok, _} = Presence.track_alert_viewer(self(), alert, socket.assigns.context.user)
+        end
+      end
     end
 
     chat_messages = if alert.chat_enabled, do: Chat.list_messages(alert), else: []
@@ -45,6 +54,7 @@ defmodule HamsatWeb.AlertsLive.Show do
       |> assign(:chat_messages, chat_messages)
       |> assign(:chat_empty?, chat_messages == [])
       |> assign(:chat_changeset, Chat.change_message())
+      |> assign_chat_presence_count()
       |> assign_tick()
       |> schedule_tick()
 
@@ -97,6 +107,10 @@ defmodule HamsatWeb.AlertsLive.Show do
       )
 
     {:noreply, socket}
+  end
+
+  def handle_info(%Phoenix.Socket.Broadcast{event: "presence_diff"}, socket) do
+    {:noreply, assign_chat_presence_count(socket)}
   end
 
   def handle_info({:chat_message, %ChatMessage{} = message}, socket) do
@@ -215,6 +229,17 @@ defmodule HamsatWeb.AlertsLive.Show do
       :passed ->
         {"Passed", "#{Timex.from_now(alert.los_at, now)}", "border-gray-200 bg-gray-100 text-gray-400"}
     end
+  end
+
+  defp assign_chat_presence_count(socket) do
+    count =
+      if socket.assigns.alert.chat_enabled do
+        Presence.count_alert_viewers(socket.assigns.alert)
+      else
+        0
+      end
+
+    assign(socket, :chat_presence_count, count)
   end
 
   # "12m" until the chat window closes, never below 1m while open
