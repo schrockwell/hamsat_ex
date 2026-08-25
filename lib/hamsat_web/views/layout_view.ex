@@ -13,21 +13,26 @@ defmodule HamsatWeb.LayoutView do
   # The /location page remains as a fallback for non-LiveView pages, which
   # cannot open the modal. The Passes nav button opens the modal too when no
   # location is set yet.
-  defp passes_nav_attrs(%{live?: true, context: %{location: nil}}) do
+  #
+  # These are called inline in the template (instead of being derived assigns)
+  # so change tracking only depends on the caller-passed assigns — an assign
+  # added inside a function component is always flagged as changed, which made
+  # these links re-send on every clock tick.
+  defp passes_nav_attrs(true = _live?, %{location: nil}) do
     [href: "#", "phx-click": "show-location-modal", "phx-value-redirect": ~p"/passes"]
   end
 
-  defp passes_nav_attrs(_assigns), do: [navigate: ~p"/passes"]
+  defp passes_nav_attrs(_live?, _context), do: [navigate: ~p"/passes"]
 
   defp nav_grid_label(context) do
     Grid.encode!(Hamsat.Context.effective_location(context), 4)
   end
 
-  defp location_nav_attrs(%{live?: true} = assigns) do
-    [href: "#", "phx-click": "show-location-modal", "phx-value-redirect": assigns.current_path || "/"]
+  defp location_nav_attrs(true = _live?, current_path) do
+    [href: "#", "phx-click": "show-location-modal", "phx-value-redirect": current_path || "/"]
   end
 
-  defp location_nav_attrs(_assigns), do: [navigate: ~p"/location"]
+  defp location_nav_attrs(_live?, _current_path), do: [navigate: ~p"/location"]
 
   defp keps_updated_ago(updated_at) do
     case Timex.diff(Timex.now(), updated_at, :hours) do
@@ -41,14 +46,7 @@ defmodule HamsatWeb.LayoutView do
       assigns
       |> assign_new(:live?, fn -> false end)
       |> assign_new(:current_path, fn -> nil end)
-
-    assigns =
-      assigns
       |> assign_new(:keps_updated_at, fn -> nil end)
-      |> assign(
-        passes_nav_attrs: passes_nav_attrs(assigns),
-        location_nav_attrs: location_nav_attrs(assigns)
-      )
 
     ~H"""
     <div class="md:mt-4 md:mx-4 md:px-6 md:py-2 px-3 py-1 flex items-center justify-between md:rounded-t-xl bg-gray-700 text-white shadow-md">
@@ -61,7 +59,7 @@ defmodule HamsatWeb.LayoutView do
           <.nav_pill_button navigate={~p"/"} active={@active_nav_item == :home}>
             Home
           </.nav_pill_button>
-          <.nav_pill_button {@passes_nav_attrs} active={@active_nav_item == :passes}>
+          <.nav_pill_button {passes_nav_attrs(@live?, @context)} active={@active_nav_item == :passes}>
             Passes
           </.nav_pill_button>
           <.nav_pill_button navigate={~p"/alerts"} active={@active_nav_item == :alerts}>
@@ -75,7 +73,7 @@ defmodule HamsatWeb.LayoutView do
 
       <div class="hidden md:flex items-center gap-4">
         <.link
-          {@location_nav_attrs}
+          {location_nav_attrs(@live?, @current_path)}
           title="Your grid"
           class="text-sm text-gray-300 hover:text-white transition-all whitespace-nowrap"
         >
@@ -107,7 +105,7 @@ defmodule HamsatWeb.LayoutView do
         <.nav_pill_button navigate={~p"/alerts"} active={@active_nav_item == :alerts}>
           <Heroicons.LiveView.icon name="calendar" type="outline" class="h-6 w-6" />
         </.nav_pill_button>
-        <.nav_pill_button {@passes_nav_attrs} active={@active_nav_item == :passes}>
+        <.nav_pill_button {passes_nav_attrs(@live?, @context)} active={@active_nav_item == :passes}>
           <Heroicons.LiveView.icon name="table-cells" type="outline" class="h-6 w-6" />
         </.nav_pill_button>
 
@@ -150,12 +148,12 @@ defmodule HamsatWeb.LayoutView do
         ·
       <% end %>
       <%= unless @context.location do %>
-        <.link {@location_nav_attrs} class="hover:underline hover:text-gray-700">
+        <.link {location_nav_attrs(@live?, @current_path)} class="hover:underline hover:text-gray-700">
           Set Location
         </.link>
         ·
       <% end %>
-      <.link {@location_nav_attrs} class="hover:underline hover:text-gray-700">
+      <.link {location_nav_attrs(@live?, @current_path)} class="hover:underline hover:text-gray-700">
         <%= timezone_name(@context.timezone) %>
       </.link>
       ·
