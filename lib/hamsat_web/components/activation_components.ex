@@ -45,7 +45,16 @@ defmodule HamsatWeb.ActivationComponents do
           <% end %>
         </td>
         <%= if @show_sat do %>
-          <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base"><%= @alert.sat.name %></td>
+          <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base">
+            <button
+              type="button"
+              phx-click={JS.navigate(~p"/sats/#{@alert.sat.number}")}
+              title="Satellite details"
+              class="link"
+            >
+              <%= @alert.sat.name %>
+            </button>
+          </td>
         <% end %>
         <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base"><%= @alert.callsign %></td>
         <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base"><%= alert_grids(@alert) %></td>
@@ -125,7 +134,15 @@ defmodule HamsatWeb.ActivationComponents do
         </div>
         <div class={["text-base mt-0.5", @line1_class]}>
           <%= if @show_sat do %>
-            <%= @alert.sat.name %> ·
+            <button
+              type="button"
+              phx-click={JS.navigate(~p"/sats/#{@alert.sat.number}")}
+              title="Satellite details"
+              class="link"
+            >
+              <%= @alert.sat.name %>
+            </button>
+            ·
           <% end %>
           <%= @alert.callsign %> · <%= alert_grids(@alert) %>
         </div>

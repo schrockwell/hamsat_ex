@@ -25,7 +25,9 @@
   </td>
   <td class="whitespace-nowrap px-1 text-center"><%= @alert.callsign %></td>
   <td class="whitespace-nowrap px-1 text-center">
-    <%= @alert.sat.name %>&nbsp;&nbsp;<SatComponents.sat_modulation_labels sat={@alert.sat} />
+    <button type="button" phx-click={JS.navigate(~p"/sats/#{@alert.sat.number}")} title="Satellite details" class="link">
+      <%= @alert.sat.name %>
+    </button>&nbsp;&nbsp;<SatComponents.sat_modulation_labels sat={@alert.sat} />
   </td>
   <td class="whitespace-nowrap px-1 text-center"><%= alert_grids(@alert) %></td>
   <td class="whitespace-nowrap px-1 text-center"><%= mhz(@alert) %></td>

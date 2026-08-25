@@ -5,7 +5,10 @@
     <div class="bg-gray-50 border-b px-3 pt-4 pb-3 md:px-6 md:pt-6 md:pb-5 flex flex-col gap-2">
       <div class="flex items-center gap-3 flex-wrap">
         <h1 class="text-2xl font-medium text-gray-700 whitespace-nowrap">
-          <%= @alert.callsign %> on <%= @alert.sat.name %>
+          <%= @alert.callsign %> on
+          <.link navigate={~p"/sats/#{@alert.sat.number}"} title="Satellite details" class="hover:underline">
+            <%= @alert.sat.name %>
+          </.link>
         </h1>
         <%= if @alert.match do %>
           <span

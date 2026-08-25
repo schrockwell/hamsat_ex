@@ -116,7 +116,10 @@
           <div class="flex items-center justify-between gap-3 py-3 border-b">
             <div>
               <div class="text-sm font-semibold text-gray-700">
-                <%= pass_sat_name(pass) %> <SatComponents.sat_modulation_labels sat={pass.sat} />
+                <.link navigate={~p"/sats/#{pass.sat.number}"} title="Satellite details" class="link">
+                  <%= pass_sat_name(pass) %>
+                </.link>
+                <SatComponents.sat_modulation_labels sat={pass.sat} />
               </div>
               <div class="text-[13px] text-gray-500">
                 <%= short_time(@context, pass.info.aos.datetime) %> – <%= short_time(
