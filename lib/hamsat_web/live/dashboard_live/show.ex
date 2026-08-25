@@ -69,12 +69,7 @@ defmodule HamsatWeb.DashboardLive.Show do
   end
 
   def handle_info({:quiet_passes_loaded, passes}, socket) do
-    quiet_passes =
-      passes
-      |> Enum.filter(&(&1.alerts == []))
-      |> Enum.take(@max_quiet_passes)
-
-    {:noreply, assign(socket, quiet_passes: quiet_passes, passes_loading?: false)}
+    {:noreply, assign(socket, quiet_passes: passes, passes_loading?: false)}
   end
 
   def handle_info({event, _info} = message, socket)
@@ -114,7 +109,14 @@ defmodule HamsatWeb.DashboardLive.Show do
 
     {:ok, task_pid} =
       Task.start_link(fn ->
-        send(parent, {:quiet_passes_loaded, Passes.list_all_passes(context, sats, ending: ending)})
+        quiet_passes =
+          context
+          |> Passes.list_all_passes(sats, ending: ending)
+          |> Enum.filter(&(&1.alerts == []))
+          |> Enum.take(@max_quiet_passes)
+          |> Enum.map(&Pass.put_plot_coords/1)
+
+        send(parent, {:quiet_passes_loaded, quiet_passes})
       end)
 
     assign(socket, passes_loading?: true, passes_task_pid: task_pid)

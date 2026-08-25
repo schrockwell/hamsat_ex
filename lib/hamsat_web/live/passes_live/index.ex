@@ -13,9 +13,12 @@ defmodule HamsatWeb.PassesLive.Index do
 
   @reload_passes_interval :timer.minutes(15)
 
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
+    print? = params["print"] == "1"
+
     socket =
       socket
+      |> assign(print?: print?, printed_at: DateTime.utc_now())
       |> assign_defaults()
       |> assign_sats()
       |> assign_pass_filter_changeset()
@@ -23,10 +26,19 @@ defmodule HamsatWeb.PassesLive.Index do
 
     if connected?(socket) do
       Process.flag(:trap_exit, true)
-      Process.send_after(self(), :reload_passes, @reload_passes_interval)
+
+      # The print view is a static snapshot, so skip the periodic refresh
+      unless print? do
+        Process.send_after(self(), :reload_passes, @reload_passes_interval)
+      end
     end
 
-    {:ok, socket}
+    # The printer-friendly view swaps the app chrome for a bare layout
+    if print? do
+      {:ok, socket, layout: {HamsatWeb.LayoutView, :print}}
+    else
+      {:ok, socket}
+    end
   end
 
   def handle_params(%{"date" => date}, _uri, socket) do
@@ -257,6 +269,18 @@ defmodule HamsatWeb.PassesLive.Index do
   defp browse_path(timezone) do
     default_date = timezone |> Timex.today() |> Date.to_iso8601()
     ~p"/passes?date=#{default_date}"
+  end
+
+  # Layout is fixed at mount, so switching to the print view must be a full
+  # page load (plain href, not a patch)
+  defp print_path(nil), do: ~p"/passes?#{%{print: 1}}"
+  defp print_path(%Date{} = date), do: ~p"/passes?#{%{date: Date.to_iso8601(date), print: 1}}"
+
+  defp print_title(%{duration: :upcoming} = assigns), do: "Upcoming Satellite Passes from #{print_grid(assigns)}"
+  defp print_title(%{date: date} = assigns), do: "Satellite Passes from #{print_grid(assigns)} on #{date}"
+
+  defp print_grid(%{context: context}) do
+    Hamsat.Grid.encode!(Hamsat.Context.effective_location(context), 6)
   end
 
   def assign_results_description(%{assigns: %{needs_location?: true}} = socket) do

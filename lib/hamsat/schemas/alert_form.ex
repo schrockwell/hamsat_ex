@@ -142,14 +142,8 @@ defmodule Hamsat.Schemas.AlertForm do
   end
 
   defp forced_mhz(changeset, sat) do
-    direction = get_field(changeset, :mhz_direction)
-    mode = get_field(changeset, :mode)
-
-    subbands_field = if direction == :down, do: :downlinks, else: :uplinks
-    modulations = Modulation.list_by_alert_option(mode)
-
-    sat
-    |> Sat.subbands(subbands_field, modulations)
+    changeset
+    |> selected_subbands(sat)
     |> Enum.filter(fn subband ->
       subband.lower_mhz == subband.upper_mhz
     end)
@@ -157,6 +151,36 @@ defmodule Hamsat.Schemas.AlertForm do
       [subband] -> subband.lower_mhz
       _ -> nil
     end
+  end
+
+  @doc """
+  Returns true when the entered MHz falls outside all of the satellite's known
+  subbands for the selected direction and mode.
+
+  Used to show a soft warning on the alert form — out-of-range frequencies are
+  still accepted. Returns false when no frequency is entered or when no
+  subbands are known for the selection.
+  """
+  def mhz_out_of_range?(sat, changeset) do
+    mhz = get_field(changeset, :mhz)
+    subbands = selected_subbands(changeset, sat)
+
+    is_float(mhz) and subbands != [] and
+      not Enum.any?(subbands, fn subband ->
+        mhz >= subband.lower_mhz and mhz <= subband.upper_mhz
+      end)
+  end
+
+  # The sat's uplink or downlink subbands matching the form's selected
+  # direction and mode
+  defp selected_subbands(changeset, sat) do
+    direction = get_field(changeset, :mhz_direction)
+    mode = get_field(changeset, :mode)
+
+    subbands_field = if direction == :down, do: :downlinks, else: :uplinks
+    modulations = Modulation.list_by_alert_option(mode)
+
+    Sat.subbands(sat, subbands_field, modulations)
   end
 
   defp preferred_mode(user, sat) do

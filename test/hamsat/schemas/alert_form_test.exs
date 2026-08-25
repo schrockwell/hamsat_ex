@@ -2,6 +2,62 @@ defmodule Hamsat.Schemas.AlertFormTest do
   use ExUnit.Case, async: true
 
   alias Hamsat.Schemas.AlertForm
+  alias Hamsat.Schemas.FreqRange
+  alias Hamsat.Schemas.Sat
+  alias Hamsat.Schemas.Transponder
+
+  describe "mhz_out_of_range?/2" do
+    # A linear transponder plus a fixed-frequency FM channel, like AO-91-era
+    # birds combined into one test sat
+    defp test_sat do
+      %Sat{
+        modulations: [:linear, :fm],
+        transponders: [
+          %Transponder{
+            mode: :linear,
+            downlink: %FreqRange{lower_mhz: 145.9, upper_mhz: 145.98},
+            uplink: %FreqRange{lower_mhz: 435.1, upper_mhz: 435.18}
+          },
+          %Transponder{
+            mode: :fm,
+            downlink: %FreqRange{lower_mhz: 436.795, upper_mhz: 436.795},
+            uplink: %FreqRange{lower_mhz: 145.99, upper_mhz: 145.99}
+          }
+        ]
+      }
+    end
+
+    defp out_of_range?(sat, params) do
+      AlertForm.mhz_out_of_range?(sat, AlertForm.changeset(nil, sat, nil, params))
+    end
+
+    test "false when the frequency is within a matching subband" do
+      refute out_of_range?(test_sat(), %{"mhz" => "145.95", "mhz_direction" => "down", "mode" => "SSB"})
+    end
+
+    test "false at the exact subband boundaries" do
+      refute out_of_range?(test_sat(), %{"mhz" => "145.9", "mhz_direction" => "down", "mode" => "SSB"})
+      refute out_of_range?(test_sat(), %{"mhz" => "145.98", "mhz_direction" => "down", "mode" => "SSB"})
+    end
+
+    test "true when the frequency is outside all matching subbands" do
+      assert out_of_range?(test_sat(), %{"mhz" => "146.5", "mhz_direction" => "down", "mode" => "SSB"})
+    end
+
+    test "checks uplink subbands when the direction is up" do
+      refute out_of_range?(test_sat(), %{"mhz" => "435.15", "mhz_direction" => "up", "mode" => "SSB"})
+      assert out_of_range?(test_sat(), %{"mhz" => "145.95", "mhz_direction" => "up", "mode" => "SSB"})
+    end
+
+    test "false when no frequency is entered" do
+      refute out_of_range?(test_sat(), %{"mhz_direction" => "down", "mode" => "SSB"})
+    end
+
+    test "false when the satellite has no subbands for the selection" do
+      sat = %Sat{modulations: [:linear], transponders: []}
+      refute out_of_range?(sat, %{"mhz" => "146.5", "mhz_direction" => "down", "mode" => "SSB"})
+    end
+  end
 
   describe "grids_centroid/1" do
     test "returns the center of a single grid" do

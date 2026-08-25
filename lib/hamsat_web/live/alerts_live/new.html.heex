@@ -96,6 +96,13 @@
 
         <%= error_tag(f, :mhz) %>
 
+        <%= if AlertForm.mhz_out_of_range?(@sat, @changeset) do %>
+          <div class="mt-1 text-sm font-medium text-amber-600">
+            <Heroicons.LiveView.icon name="exclamation-triangle" type="mini" class="inline h-4 w-4 align-text-bottom" />
+            This frequency is outside the expected range for this satellite
+          </div>
+        <% end %>
+
         <div class="mt-1 text-sm font-medium text-gray-500">
           <%= sat_freq_ranges(@sat, @changeset) %>
         </div>

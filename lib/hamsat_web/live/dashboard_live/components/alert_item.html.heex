@@ -23,7 +23,10 @@
     <div class="flex w-full items-center justify-between">
       <div class="md:text-lg">
         <span class="font-medium">
-          <%= @alert.callsign %> on <%= @alert.sat.name %>
+          <%= @alert.callsign %> on
+          <.link navigate={~p"/sats/#{@alert.sat.number}"} title="Satellite details" class="hover:underline">
+            <%= @alert.sat.name %>
+          </.link>
         </span>
         <SatComponents.sat_modulation_labels sat={@alert.sat} />
         <%= if @alert.chat_enabled do %>

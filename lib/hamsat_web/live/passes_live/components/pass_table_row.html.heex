@@ -1,11 +1,18 @@
 <tr class={@row_class}>
+  <td class="pl-3 pr-1">
+    <SatComponents.mini_polar_plot coords={@plot_coords} />
+  </td>
   <td class="whitespace-nowrap px-1 text-center whitespace-nowrap">
     <span class="mr-4"><%= date(@context, @pass.info.aos.datetime) %></span>
     <span class="mr-4"><%= time(@context, @pass.info.aos.datetime) %></span>
   </td>
   <td class="whitespace-nowrap px-1 text-center"><%= @next_event_in %></td>
   <td class="whitespace-nowrap px-1 text-center whitespace-nowrap">
-    <%= pass_sat_name(@pass) %>&nbsp;&nbsp;<SatComponents.sat_modulation_labels sat={@pass.sat} />
+    <.link navigate={~p"/sats/#{@pass.sat.number}"} title="Satellite details" class="link">
+      <%= pass_sat_name(@pass) %>
+    </.link>&nbsp;&nbsp;<SatComponents.sat_modulation_labels sat={
+      @pass.sat
+    } />
   </td>
   <td class="whitespace-nowrap px-1 text-center"><%= pass_duration(@pass) %></td>
   <td class="whitespace-nowrap px-1 text-center"><%= pass_max_el(@pass) %></td>

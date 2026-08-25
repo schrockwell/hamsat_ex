@@ -3,7 +3,10 @@
   class={[@row_class, "cursor-pointer hover:bg-gray-50"]}
   title="Track this pass"
 >
-  <td class="text-center pl-3">
+  <td class="pl-3 pr-1">
+    <SatComponents.mini_polar_plot coords={@alert.my_plot_coords} />
+  </td>
+  <td class="text-center">
     <div class="inline-flex items-center gap-1.5">
       <span title="Chat enabled" class={if(@alert.chat_enabled, do: nil, else: "invisible")}>
         <Heroicons.LiveView.icon name="chat-bubble-left-right" type="mini" class="block h-4 w-4 text-gray-400" />
@@ -25,7 +28,11 @@
   </td>
   <td class="whitespace-nowrap px-1 text-center"><%= @alert.callsign %></td>
   <td class="whitespace-nowrap px-1 text-center">
-    <%= @alert.sat.name %>&nbsp;&nbsp;<SatComponents.sat_modulation_labels sat={@alert.sat} />
+    <button type="button" phx-click={JS.navigate(~p"/sats/#{@alert.sat.number}")} title="Satellite details" class="link">
+      <%= @alert.sat.name %>
+    </button>&nbsp;&nbsp;<SatComponents.sat_modulation_labels sat={
+      @alert.sat
+    } />
   </td>
   <td class="whitespace-nowrap px-1 text-center"><%= alert_grids(@alert) %></td>
   <td class="whitespace-nowrap px-1 text-center"><%= mhz(@alert) %></td>

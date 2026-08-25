@@ -1,5 +1,22 @@
 defmodule Hamsat.Alerts.Pass do
-  defstruct [:id, :info, :alerts, :sat, :observer, :hash]
+  defstruct [:id, :info, :alerts, :sat, :observer, :hash, plot_coords: []]
+
+  @doc """
+  Computes the `%{az: ..., el: ...}` sky coordinates of the pass, for drawing
+  a polar plot.
+  """
+  def plot_coords(%__MODULE__{} = pass) do
+    Hamsat.PassPlot.sky_coords(
+      Hamsat.Schemas.Sat.get_satrec(pass.sat),
+      pass.observer,
+      Hamsat.Util.erl_to_utc_datetime(pass.info.aos.datetime),
+      Hamsat.Util.erl_to_utc_datetime(pass.info.los.datetime)
+    )
+  end
+
+  def put_plot_coords(%__MODULE__{} = pass) do
+    %{pass | plot_coords: plot_coords(pass)}
+  end
 
   def progression(pass, now) do
     cond do
