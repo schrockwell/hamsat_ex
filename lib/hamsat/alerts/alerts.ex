@@ -5,6 +5,7 @@ defmodule Hamsat.Alerts do
   alias Hamsat.Alerts.Match
   alias Hamsat.Alerts.PassCache
   alias Hamsat.Coord
+  alias Hamsat.PassPlot
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.AlertForm
   alias Hamsat.Schemas.Sat
@@ -222,13 +223,22 @@ defmodule Hamsat.Alerts do
               pass_info.max.elevation_in_degrees
           end
 
+        my_plot_coords =
+          PassPlot.sky_coords(
+            Sat.get_satrec(alert.sat),
+            Coord.to_observer(coord),
+            alert.aos_at,
+            alert.los_at
+          )
+
         %{
           workable_start_at: overlap_start,
           workable_end_at: overlap_end,
           is_workable?: true,
           my_closest_position: my_closest_position,
           activator_closest_position: activator_closest_position,
-          max_elevation: max_el
+          max_elevation: max_el,
+          my_plot_coords: my_plot_coords
         }
 
       [] ->

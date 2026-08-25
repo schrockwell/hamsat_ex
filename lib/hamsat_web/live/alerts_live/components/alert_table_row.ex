@@ -18,6 +18,7 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
         <thead>
           <tr>
             <th></th>
+            <th></th>
             <th>Date</th>
             <th>Time</th>
             <th>Callsign</th>

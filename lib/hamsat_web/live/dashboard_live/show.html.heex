@@ -114,18 +114,21 @@
       <div class="flex flex-col">
         <%= for pass <- @quiet_passes do %>
           <div class="flex items-center justify-between gap-3 py-3 border-b">
-            <div>
-              <div class="text-sm font-semibold text-gray-700">
-                <.link navigate={~p"/sats/#{pass.sat.number}"} title="Satellite details" class="link">
-                  <%= pass_sat_name(pass) %>
-                </.link>
-                <SatComponents.sat_modulation_labels sat={pass.sat} />
-              </div>
-              <div class="text-[13px] text-gray-500">
-                <%= short_time(@context, pass.info.aos.datetime) %> – <%= short_time(
-                  @context,
-                  pass.info.los.datetime
-                ) %> · max <%= pass_max_el(pass) %>
+            <div class="flex items-center gap-3 min-w-0">
+              <SatComponents.mini_polar_plot coords={pass.plot_coords} class="h-8 w-8 shrink-0" />
+              <div>
+                <div class="text-sm font-semibold text-gray-700">
+                  <.link navigate={~p"/sats/#{pass.sat.number}"} title="Satellite details" class="link">
+                    <%= pass_sat_name(pass) %>
+                  </.link>
+                  <SatComponents.sat_modulation_labels sat={pass.sat} />
+                </div>
+                <div class="text-[13px] text-gray-500">
+                  <%= short_time(@context, pass.info.aos.datetime) %> – <%= short_time(
+                    @context,
+                    pass.info.los.datetime
+                  ) %> · max <%= pass_max_el(pass) %>
+                </div>
               </div>
             </div>
             <.link

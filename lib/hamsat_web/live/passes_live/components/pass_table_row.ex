@@ -15,6 +15,7 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
       <table class="table w-full">
         <thead>
           <tr>
+            <th></th>
             <th class="whitespace-nowrap px-1" title="Time of acquisition of signal">AOS</th>
             <th class="whitespace-nowrap px-1" title="Time until acquisition or loss of signal">Next Event</th>
             <th class="whitespace-nowrap px-1" title="Satellite name and modulation">Sat</th>
@@ -61,7 +62,17 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
      |> assign_next_event_in()
      |> assign_row_class()
      |> assign_show_create_button()
-     |> assign_show_edit_button()}
+     |> assign_show_edit_button()
+     |> assign_plot_coords()}
+  end
+
+  # The sky path never changes for a given pass, so compute it once per row
+  defp assign_plot_coords(socket) do
+    if socket.assigns[:plot_coords] do
+      socket
+    else
+      assign(socket, plot_coords: Pass.plot_coords(socket.assigns.pass))
+    end
   end
 
   defp assign_next_event_in(socket) do
