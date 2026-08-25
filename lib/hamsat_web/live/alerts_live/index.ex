@@ -8,14 +8,22 @@ defmodule HamsatWeb.AlertsLive.Index do
 
   on_mount HamsatWeb.Live.NowTicker
 
-  def mount(_params, _session, socket) do
-    if connected?(socket) do
+  def mount(params, _session, socket) do
+    print? = params["print"] == "1"
+
+    if connected?(socket) and not print? do
       Phoenix.PubSub.subscribe(Hamsat.PubSub, "alerts")
     end
 
-    socket = assign(socket, page_title: "Activations")
+    socket = assign(socket, page_title: "Activations", print?: print?, printed_at: DateTime.utc_now())
 
-    {:ok, socket}
+    # The printer-friendly view is a static snapshot of the same search
+    # results, swapping the app chrome for a bare layout
+    if print? do
+      {:ok, socket, layout: {HamsatWeb.LayoutView, :print}}
+    else
+      {:ok, socket}
+    end
   end
 
   def handle_params(params, _uri, socket) do
@@ -72,5 +80,27 @@ defmodule HamsatWeb.AlertsLive.Index do
   defp browse_path(timezone) do
     params = %{date: timezone |> Timex.today() |> Date.to_iso8601()}
     ~p"/alerts?#{params}"
+  end
+
+  # Layout is fixed at mount, so switching to and from the print view must be
+  # a full page load (plain hrefs, not patches)
+  defp print_path(filter) do
+    case filter[:date] do
+      %Date{} = date -> ~p"/alerts?#{%{date: Date.to_iso8601(date), print: 1}}"
+      _ -> ~p"/alerts?#{%{print: 1}}"
+    end
+  end
+
+  defp print_title(%{duration: :upcoming}), do: "Upcoming Satellite Activations"
+  defp print_title(%{filter: filter}), do: "Satellite Activations on #{filter[:date]}"
+
+  # Comments are freeform text, so tidy them up for the printed page
+  defp print_comment(nil), do: nil
+
+  defp print_comment(comment) do
+    case String.trim(comment) do
+      "" -> nil
+      trimmed -> trimmed
+    end
   end
 end

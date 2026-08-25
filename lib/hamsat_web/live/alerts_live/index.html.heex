@@ -1,25 +1,84 @@
-<.filter_panel>
-  <h2 class="block md:hidden mb-2 text-h2">
-    Activations
-  </h2>
-  <div class="flex space-x-4 items-center">
-    <.pill_picker id="interval" options={duration_options()} value={@duration} />
-    <%= if @duration == :browse do %>
-      <form phx-change="date-changed">
-        <input name="date" type="date" class="input-date text-sm" value={@filter[:date]} phx-debounce="250" />
-      </form>
-    <% end %>
+<%= if @print? do %>
+  <h1 class="text-h1"><%= print_title(assigns) %></h1>
+  <div class="text-base mb-4">
+    hams.at · All times <%= timezone_name(@context.timezone) %> · Updated <%= date(@context, @printed_at) %> <%= short_time(
+      @context,
+      @printed_at
+    ) %>
   </div>
-</.filter_panel>
 
-<AlertTableRow.table alerts={@alerts} now={@now} context={@context} />
+  <%= if @alerts == [] do %>
+    <div class="italic">No activations found.</div>
+  <% else %>
+    <table class="w-full text-base text-left border-collapse">
+      <thead>
+        <tr>
+          <th class="py-1 pr-4 border-b border-black font-semibold">Date</th>
+          <th class="py-1 pr-4 border-b border-black font-semibold">Time</th>
+          <th class="py-1 pr-4 border-b border-black font-semibold">Callsign</th>
+          <th class="py-1 pr-4 border-b border-black font-semibold">Sat</th>
+          <th class="py-1 pr-4 border-b border-black font-semibold">Grid</th>
+          <th class="py-1 pr-4 border-b border-black font-semibold">Freq</th>
+          <th class="py-1 border-b border-black font-semibold">Mode</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for alert <- @alerts do %>
+          <% comment = print_comment(alert.comment) %>
+          <% cell_class = ["py-1 pr-4 whitespace-nowrap", if(comment, do: nil, else: "border-b border-black")] %>
+          <tr>
+            <td class={cell_class}><%= date(@context, alert.aos_at) %></td>
+            <td class={cell_class}>
+              <%= short_time(@context, alert.aos_at) %> &ndash; <%= short_time(@context, alert.los_at) %>
+            </td>
+            <td class={cell_class}><%= alert.callsign %></td>
+            <td class={cell_class}><%= alert.sat.name %></td>
+            <td class={cell_class}><%= alert_grids(alert) %></td>
+            <td class={cell_class}><%= mhz(alert) %></td>
+            <td class={cell_class}><%= alert.mode %></td>
+          </tr>
+          <%= if comment do %>
+            <tr>
+              <td colspan="7" class="pb-1 border-b border-black italic">“<%= comment %>”</td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+<% else %>
+  <.filter_panel>
+    <h2 class="block md:hidden mb-2 text-h2">
+      Activations
+    </h2>
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex space-x-4 items-center">
+        <.pill_picker id="interval" options={duration_options()} value={@duration} />
+        <%= if @duration == :browse do %>
+          <form phx-change="date-changed">
+            <input name="date" type="date" class="input-date text-sm" value={@filter[:date]} phx-debounce="250" />
+          </form>
+        <% end %>
+      </div>
+      <.link
+        href={print_path(@filter)}
+        title="Printer-friendly view"
+        class="btn btn-default btn-sm border-gray-300 whitespace-nowrap"
+      >
+        <Heroicons.LiveView.icon name="printer" type="mini" class="inline h-4 w-4 align-text-bottom" /> Print
+      </.link>
+    </div>
+  </.filter_panel>
 
-<%= if @alerts == [] do %>
-  <div class="text-center py-8 italic text-gray-400">
-    <%= if @duration == :upcoming do %>
-      No future activation alerts have been posted.
-    <% else %>
-      No activation alerts have been posted for <%= @filter[:date] %>.
-    <% end %>
-  </div>
+  <AlertTableRow.table alerts={@alerts} now={@now} context={@context} />
+
+  <%= if @alerts == [] do %>
+    <div class="text-center py-8 italic text-gray-400">
+      <%= if @duration == :upcoming do %>
+        No future activation alerts have been posted.
+      <% else %>
+        No activation alerts have been posted for <%= @filter[:date] %>.
+      <% end %>
+    </div>
+  <% end %>
 <% end %>
