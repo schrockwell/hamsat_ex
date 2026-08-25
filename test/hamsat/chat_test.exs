@@ -124,6 +124,28 @@ defmodule Hamsat.Alerts.ChatTest do
     end
   end
 
+  describe "presence" do
+    test "counts distinct logged-in viewers on the alert page", %{user: user, alert: alert} do
+      assert HamsatWeb.Presence.count_alert_viewers(alert) == 0
+
+      {:ok, _} = HamsatWeb.Presence.track_alert_viewer(self(), alert, user)
+      assert HamsatWeb.Presence.count_alert_viewers(alert) == 1
+
+      # The same user in a second tab still counts once
+      second_tab = spawn(fn -> Process.sleep(:infinity) end)
+      {:ok, _} = HamsatWeb.Presence.track_alert_viewer(second_tab, alert, user)
+      assert HamsatWeb.Presence.count_alert_viewers(alert) == 1
+
+      other_user = user_fixture(%{callsign: "N0CALL"})
+      other_tab = spawn(fn -> Process.sleep(:infinity) end)
+      {:ok, _} = HamsatWeb.Presence.track_alert_viewer(other_tab, alert, other_user)
+      assert HamsatWeb.Presence.count_alert_viewers(alert) == 2
+
+      Process.exit(second_tab, :kill)
+      Process.exit(other_tab, :kill)
+    end
+  end
+
   describe "alert preferences" do
     test "creating an alert remembers the user's chat preference", %{user: user, alert: alert} do
       assert user.prefer_chat_enabled
