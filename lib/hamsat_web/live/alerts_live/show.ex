@@ -382,6 +382,14 @@ defmodule HamsatWeb.AlertsLive.Show do
     end
   end
 
+  defp bluesky_url(alert) do
+    "https://bsky.app/intent/compose?text=#{microblog_url_text(alert)}"
+  end
+
+  defp qrz_url(alert) do
+    "https://www.qrz.com/db/#{alert.callsign}"
+  end
+
   defp activator_coord(alert) do
     %Coord{lat: alert.observer_lat, lon: alert.observer_lon}
   end

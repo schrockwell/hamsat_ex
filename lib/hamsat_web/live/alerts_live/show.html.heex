@@ -196,7 +196,9 @@
       <div class="flex flex-col gap-1.5">
         <div class="flex items-center justify-between">
           <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">
-            Chat<%= if @chat_status == :open do %> · <%= @chat_presence_count %> here<% end %>
+            Chat<%= if @chat_status == :open do %>
+              · <%= @chat_presence_count %> here
+            <% end %>
           </div>
           <%= case @chat_status do %>
             <% :open -> %>
@@ -297,9 +299,11 @@
 
     <div class="flex flex-col gap-1.5">
       <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">Links</div>
-      <a href={satmatch_url(@context, @alert)} class="link font-normal" target="_blank">SatMatch ↗</a>
-      <a href={tweet_url(@alert)} class="link font-normal">Share on X</a>
+      <a href={satmatch_url(@context, @alert)} class="link font-normal">SatMatch</a>
+      <a href={qrz_url(@alert)} class="link font-normal">QRZ</a>
+      <a href={bluesky_url(@alert)} class="link font-normal">Share on Bluesky</a>
       <a href={mastodon_url(@alert)} class="link font-normal">Share on Mastodon</a>
+      <a href={tweet_url(@alert)} class="link font-normal">Share on X</a>
     </div>
 
     <%= if @my_sat_position do %>
