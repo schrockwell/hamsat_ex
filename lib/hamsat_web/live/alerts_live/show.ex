@@ -140,6 +140,59 @@ defmodule HamsatWeb.AlertsLive.Show do
   # Position (0.0–1.0) of a moment within the pass, for the timeline bar
   defp marker_left(alert, datetime), do: "left: #{progress(alert, datetime) * 100}%"
 
+  # The label row under the timeline as `{marker, flex_grow, min_width_px}`:
+  # labels are zero-width flex anchors (content centered on them, so each label
+  # is centered under its node), preceded by spacers that grow in proportion to
+  # the gap from the previous node. Each spacer's min-width covers the two
+  # neighboring labels' estimated half-widths, so labels can never overlap —
+  # near-coincident nodes read side by side instead.
+  defp timeline_markers(context, alert) do
+    rise = marker(context, alert.aos_at, node_label(alert, :rise), node_time_class(alert, :rise), 0.0)
+    set = marker(context, alert.los_at, node_label(alert, :set), node_time_class(alert, :set), 100.0)
+
+    visible =
+      if separate_node?(alert, :rise) do
+        marker(
+          context,
+          alert.workable_start_at,
+          "Visible",
+          "text-emerald-700",
+          progress(alert, alert.workable_start_at) * 100
+        )
+      end
+
+    end_visible =
+      if separate_node?(alert, :set) do
+        marker(
+          context,
+          alert.workable_end_at,
+          "End visible",
+          "text-emerald-700",
+          progress(alert, alert.workable_end_at) * 100
+        )
+      end
+
+    markers = Enum.reject([rise, visible, end_visible, set], &is_nil/1)
+
+    {rows, _} =
+      Enum.map_reduce(markers, nil, fn marker, prev ->
+        grow = Float.round(max(marker.pos - ((prev && prev.pos) || 0.0), 0.0), 2)
+        min_width = if prev, do: round(est_width(prev) / 2 + est_width(marker) / 2) + 8, else: 0
+        {{marker, grow, min_width}, marker}
+      end)
+
+    rows
+  end
+
+  defp marker(context, at, label, class, pos) do
+    %{time: short_time(context, at), label: label, class: class, pos: pos}
+  end
+
+  # Rough rendered width of a label's widest line, for spacer minimums
+  defp est_width(marker) do
+    max(String.length(marker.time) * 8, String.length(marker.label) * 7)
+  end
+
   # When the visible window begins at rise (or ends at set) the emerald node
   # takes over the rise/set node rather than drawing two nodes on top of each other.
   # Fraction of the bar under which a visible-window node merges into the

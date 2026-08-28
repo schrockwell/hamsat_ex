@@ -115,38 +115,18 @@
           </div>
         </div>
 
-        <%!-- Node labels --%>
-        <div class="relative h-10 text-[13px] text-gray-500">
-          <div class="absolute -translate-x-1/2 text-center pt-1.5 whitespace-nowrap" style="left: 0%">
-            <div class={["font-semibold", node_time_class(@alert, :rise)]}>
-              <%= short_time(@context, @alert.aos_at) %>
-            </div>
-            <div><%= node_label(@alert, :rise) %></div>
-          </div>
-          <%= if separate_node?(@alert, :rise) do %>
-            <div
-              class="absolute -translate-x-1/2 text-center pt-1.5 whitespace-nowrap"
-              style={marker_left(@alert, @alert.workable_start_at)}
-            >
-              <div class="font-semibold text-emerald-700"><%= short_time(@context, @alert.workable_start_at) %></div>
-              <div>Visible</div>
+        <%!-- Node labels: flex flow with grow-weighted spacers, so each label sits
+             near its node's position but labels can never overlap --%>
+        <div class="flex items-start pt-1.5 text-[13px] text-gray-500">
+          <%= for {marker, grow, min_width} <- timeline_markers(@context, @alert) do %>
+            <div style={"flex-grow: #{grow}; min-width: #{min_width}px"}></div>
+            <div class="w-0 shrink-0 flex justify-center">
+              <div class="text-center whitespace-nowrap">
+                <div class={["font-semibold", marker.class]}><%= marker.time %></div>
+                <div><%= marker.label %></div>
+              </div>
             </div>
           <% end %>
-          <%= if separate_node?(@alert, :set) do %>
-            <div
-              class="absolute -translate-x-1/2 text-center pt-1.5 whitespace-nowrap"
-              style={marker_left(@alert, @alert.workable_end_at)}
-            >
-              <div class="font-semibold text-emerald-700"><%= short_time(@context, @alert.workable_end_at) %></div>
-              <div>End visible</div>
-            </div>
-          <% end %>
-          <div class="absolute -translate-x-1/2 text-center pt-1.5 whitespace-nowrap" style="left: 100%">
-            <div class={["font-semibold", node_time_class(@alert, :set)]}>
-              <%= short_time(@context, @alert.los_at) %>
-            </div>
-            <div><%= node_label(@alert, :set) %></div>
-          </div>
         </div>
       </div>
     </div>
