@@ -89,13 +89,6 @@ defmodule HamsatWeb.LayoutView do
             Log In
           </.nav_pill_button>
         <% end %>
-
-        <.link
-          navigate={~p"/alerts/new"}
-          class="rounded bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium px-4 py-2 transition-all whitespace-nowrap"
-        >
-          + Post Activation
-        </.link>
       </div>
 
       <div class="md:hidden flex items-center">

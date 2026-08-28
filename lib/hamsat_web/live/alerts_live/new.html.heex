@@ -1,151 +1,174 @@
-<div class="p-3 md:p-6">
-  <h1 class="text-h2 md:text-h1 mb-6">
-    <%= action_verb(@live_action) %> an Activation For <%= @sat.name %>
-  </h1>
+<div>
+  <%!-- Header --%>
+  <div class="bg-gray-50 border-b px-3 pt-4 pb-3 md:px-6 md:pt-6 md:pb-5">
+    <h1 class="text-2xl font-medium text-gray-700">
+      <%= action_verb(@live_action) %> an Activation
+    </h1>
+  </div>
 
   <.form :let={f} for={@changeset} phx-change="change" phx-submit="submit">
-    <.form_row label="Satellite" input?={true}>
-      <%= select(f, :satellite_id, Satellites.list_satellite_options()) %>
-    </.form_row>
-
-    <.form_row label="Location" input?={true}>
-      <LocationPicker.component
-        id="location_picker"
-        form={f}
-        fields={%{lat: :observer_lat, lon: :observer_lon, grid: :grid}}
-        on_map_clicked={self()}
-        show_grid?={false}
-      />
-    </.form_row>
-
-    <.form_row label={"Time (#{timezone_name(@context.timezone)})"} input?={true}>
-      <div class="flex items-center space-x-2">
-        <%= date_input(f, :pass_filter_date, class: "input-text text-sm") %>
-
-        <%= if @passes == [] do %>
-          <div class="italic text-gray-500">No passes found</div>
-        <% else %>
-          <%= select(f, :pass_hash, pass_options(@context, @passes)) %>
-        <% end %>
-      </div>
-    </.form_row>
-
-    <.form_row label="Grid(s)" input?={true}>
-      <div class="flex items-top space-x-2">
-        <div>
-          <%= text_input(f, :grid_1, class: "input-text w-16", required: true, placeholder: "Req'd") %>
-          <%= error_tag(f, :grid_1) %>
-        </div>
-        <div>
-          <%= text_input(f, :grid_2, class: "input-text w-16") %>
-          <%= error_tag(f, :grid_2) %>
-        </div>
-        <div>
-          <%= text_input(f, :grid_3, class: "input-text w-16") %>
-          <%= error_tag(f, :grid_3) %>
-        </div>
-        <div>
-          <%= text_input(f, :grid_4, class: "input-text w-16") %>
-          <%= error_tag(f, :grid_4) %>
-        </div>
-      </div>
-
-      <%= if show_recommended_grids?(@changeset) do %>
-        <button type="button" class="text-sm font-medium link" phx-click="use-recommended-grids">
-          Recommended: <%= AlertForm.recommended_grids(@changeset) |> Enum.join(", ") %>
-        </button>
-      <% end %>
-    </.form_row>
-
-    <%= if length(mode_options(@sat)) == 1 do %>
-      <.form_row label="Mode">
-        <%= hidden_input(f, :mode) %>
-        <%= get_field(@changeset, :mode) %>
-      </.form_row>
-    <% else %>
-      <.form_row label="Mode" input?={true}>
-        <%= select(f, :mode, mode_options(@sat)) %>
-        <%= error_tag(f, :mode) %>
-      </.form_row>
-    <% end %>
-
-    <%= if AlertForm.fixed_freq?(@sat, @changeset) do %>
-      <.form_row label="MHz">
-        <div class="flex items-center space-x-4">
-          <span><%= sat_freq_ranges(@sat, @changeset) %></span>
-
-          <label class="flex items-center space-x-1.5 cursor-pointer">
-            <%= radio_button(f, :mhz_direction, :up) %> <span>Uplink</span>
-          </label>
-          <label class="flex items-center space-x-1.5 cursor-pointer">
-            <%= radio_button(f, :mhz_direction, :down) %> <span>Downlink</span>
-          </label>
-        </div>
-      </.form_row>
-    <% else %>
-      <.form_row label="MHz" input?={true}>
-        <div class="flex items-center space-x-4">
-          <%= text_input(f, :mhz, class: "input-text", placeholder: "Optional") %>
-          <label class="flex items-center space-x-1.5 cursor-pointer">
-            <%= radio_button(f, :mhz_direction, :up) %> <span>Uplink</span>
-          </label>
-          <label class="flex items-center space-x-1.5 cursor-pointer">
-            <%= radio_button(f, :mhz_direction, :down) %> <span>Downlink</span>
-          </label>
-        </div>
-
-        <%= error_tag(f, :mhz) %>
-
-        <%= if AlertForm.mhz_out_of_range?(@sat, @changeset) do %>
-          <div class="mt-1 text-sm font-medium text-amber-600">
-            <Heroicons.LiveView.icon name="exclamation-triangle" type="mini" class="inline h-4 w-4 align-text-bottom" />
-            This frequency is outside the expected range for this satellite
+    <div class="grid lg:grid-cols-2">
+      <%!-- Left column: pass, grids, operating location --%>
+      <div class="p-3 md:p-6 lg:border-r flex flex-col gap-8">
+        <div class="flex flex-col">
+          <div class="form-label">
+            Pass · <%= timezone_name(@context.timezone) %>
           </div>
-        <% end %>
-
-        <div class="mt-1 text-sm font-medium text-gray-500">
-          <%= sat_freq_ranges(@sat, @changeset) %>
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
+            <%= select(f, :satellite_id, Satellites.list_satellite_options()) %>
+            <%= date_input(f, :pass_filter_date, class: "input-date text-sm") %>
+            <%= if @passes == [] do %>
+              <div class="italic text-gray-500 text-sm">No passes found on this date.</div>
+            <% else %>
+              <%= select(f, :pass_hash, pass_options(@context, @passes), class: "sm:flex-1 min-w-0") %>
+            <% end %>
+          </div>
         </div>
-      </.form_row>
-    <% end %>
 
-    <.form_row label="Callsign" input?={true}>
-      <%= text_input(f, :callsign, class: "input-text", required: true, minlength: 3, placeholder: "Required") %>
-      <%= error_tag(f, :callsign) %>
-    </.form_row>
+        <div class="flex flex-col gap-2">
+          <div class="flex flex-col mb-6">
+            <div class="form-label">Grids</div>
+            <div class="flex items-start gap-2">
+              <div>
+                <%= text_input(f, :grid_1, class: "input-text w-20", required: true, placeholder: "Req'd") %>
+                <%= error_tag(f, :grid_1) %>
+              </div>
+              <div>
+                <%= text_input(f, :grid_2, class: "input-text w-20") %>
+                <%= error_tag(f, :grid_2) %>
+              </div>
+              <div>
+                <%= text_input(f, :grid_3, class: "input-text w-20") %>
+                <%= error_tag(f, :grid_3) %>
+              </div>
+              <div>
+                <%= text_input(f, :grid_4, class: "input-text w-20") %>
+                <%= error_tag(f, :grid_4) %>
+              </div>
+            </div>
+            <%= if show_recommended_grids?(@changeset) do %>
+              <button type="button" class="self-start text-sm font-medium link" phx-click="use-recommended-grids">
+                Recommended: <%= AlertForm.recommended_grids(@changeset) |> Enum.join(", ") %>
+              </button>
+            <% end %>
+          </div>
 
-    <.form_row label="Comment" input?={true}>
-      <%= text_input(f, :comment, class: "input-text", placeholder: "Optional", maxlength: 50) %>
-      <div class="mt-1 text-sm font-medium text-gray-500">
-        Max 50 characters
+          <LocationPicker.component
+            id="location_picker"
+            form={f}
+            fields={%{lat: :observer_lat, lon: :observer_lon, grid: :grid}}
+            on_map_clicked={self()}
+            show_grid?={false}
+          />
+        </div>
       </div>
-      <%= error_tag(f, :comment) %>
-    </.form_row>
 
-    <.form_row label="Chat">
-      <label class="flex items-center space-x-1.5 cursor-pointer">
-        <%= checkbox(f, :chat_enabled) %> <span>Enable realtime chat</span>
-      </label>
-      <div class="mt-1 text-sm font-medium text-gray-500">
-        Chat opens 5 minutes before the pass begins and closes 60 minutes after it ends
+      <%!-- Right column: radio, details, actions --%>
+      <div class="p-3 md:p-6 border-t lg:border-t-0 flex flex-col gap-8">
+        <div class="flex flex-col gap-4">
+          <div class="flex items-start gap-6 flex-wrap">
+            <div>
+              <label class="form-label">Mode</label>
+              <%= if length(mode_options(@sat)) == 1 do %>
+                <%= hidden_input(f, :mode) %>
+                <div class="text-gray-700 py-1"><%= get_field(@changeset, :mode) %></div>
+              <% else %>
+                <%= select(f, :mode, mode_options(@sat)) %>
+                <%= error_tag(f, :mode) %>
+              <% end %>
+            </div>
+
+            <div>
+              <label class="form-label">Frequency</label>
+              <%= if AlertForm.fixed_freq?(@sat, @changeset) do %>
+                <div class="flex items-center gap-4">
+                  <span class="text-gray-700"><%= sat_freq_ranges(@sat, @changeset) %></span>
+                  <label class="flex items-center gap-1.5 cursor-pointer">
+                    <%= radio_button(f, :mhz_direction, :up) %> <span>Uplink</span>
+                  </label>
+                  <label class="flex items-center gap-1.5 cursor-pointer">
+                    <%= radio_button(f, :mhz_direction, :down) %> <span>Downlink</span>
+                  </label>
+                </div>
+              <% else %>
+                <div class="flex items-center gap-4 flex-wrap">
+                  <%= text_input(f, :mhz, class: "input-text w-32", placeholder: "Optional") %>
+                  <label class="flex items-center gap-1.5 cursor-pointer">
+                    <%= radio_button(f, :mhz_direction, :up) %> <span>Uplink</span>
+                  </label>
+                  <label class="flex items-center gap-1.5 cursor-pointer">
+                    <%= radio_button(f, :mhz_direction, :down) %> <span>Downlink</span>
+                  </label>
+                </div>
+
+                <%= error_tag(f, :mhz) %>
+
+                <%= if AlertForm.mhz_out_of_range?(@sat, @changeset) do %>
+                  <div class="mt-1 text-sm font-medium text-amber-600">
+                    <Heroicons.LiveView.icon
+                      name="exclamation-triangle"
+                      type="mini"
+                      class="inline h-4 w-4 align-text-bottom"
+                    /> This frequency is outside the expected range for this satellite
+                  </div>
+                <% end %>
+
+                <div class="mt-1 text-sm text-gray-500">
+                  <%= sat_freq_ranges(@sat, @changeset) %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <div>
+            <label class="form-label">Callsign</label>
+            <%= text_input(f, :callsign,
+              class: "input-text w-32",
+              required: true,
+              minlength: 3,
+              placeholder: "Required"
+            ) %>
+            <%= error_tag(f, :callsign) %>
+          </div>
+
+          <div>
+            <label class="form-label">Comment</label>
+            <%= text_input(f, :comment, class: "input-text w-full", placeholder: "Optional", maxlength: 50) %>
+            <div class="mt-1 text-sm text-gray-500">Max 50 characters</div>
+            <%= error_tag(f, :comment) %>
+          </div>
+
+          <div>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <%= checkbox(f, :chat_enabled) %> <span>Enable realtime chat</span>
+            </label>
+            <div class="mt-1 text-sm text-gray-500">
+              Chat opens 5 minutes before the pass begins and closes 60 minutes after it ends
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3 pt-4 border-t">
+          <%= submit("#{action_verb(@live_action)} Activation",
+            class: "btn btn-green border-transparent w-full justify-center text-center"
+          ) %>
+
+          <%= if @live_action == :edit do %>
+            <button
+              type="button"
+              phx-click="delete"
+              data-confirm="Are you sure you want to delete this alert?"
+              class="btn btn-default btn-text-danger w-full justify-center text-center"
+            >
+              Delete Activation
+            </button>
+          <% end %>
+
+          <%= error_tag(f, :base) %>
+        </div>
       </div>
-    </.form_row>
-
-    <.form_row label="">
-      <%= submit("#{action_verb(@live_action)} Activation", class: "btn btn-default") %>
-
-      <%= if @live_action == :edit do %>
-        <button
-          type="button"
-          phx-click="delete"
-          data-confirm="Are you sure you want to delete this alert?"
-          class="btn btn-default btn-text-danger"
-        >
-          Delete Activation
-        </button>
-      <% end %>
-
-      <%= error_tag(f, :base) %>
-    </.form_row>
+    </div>
   </.form>
 </div>

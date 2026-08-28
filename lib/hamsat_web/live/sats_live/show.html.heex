@@ -8,7 +8,6 @@
   </div>
   <span class="flex gap-1"><.sat_modulation_labels sat={@sat} /></span>
   <span class="ml-auto text-sm text-gray-400 whitespace-nowrap">NORAD <%= @sat.number %></span>
-  <.status_badge status={overall_status(@sat)} />
 </div>
 
 <%= unless @sat.in_orbit do %>
@@ -164,11 +163,8 @@
 
     <%= for transponder <- @sat.transponders do %>
       <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between gap-2">
-          <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">
-            <%= transponder_mode(transponder.mode) %>
-          </div>
-          <.status_badge status={transponder.status} />
+        <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">
+          <%= transponder_mode(transponder.mode) %>
         </div>
         <%= if transponder.downlink do %>
           <div class="flex justify-between text-gray-500">

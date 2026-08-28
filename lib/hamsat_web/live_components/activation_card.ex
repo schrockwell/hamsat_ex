@@ -35,7 +35,9 @@ defmodule HamsatWeb.LiveComponents.ActivationCard do
         <div class="min-w-0">
           <div class={["text-base whitespace-nowrap", @line1_class]}>
             <%= if @in_progress? do %>
-              now
+              <span class="bg-red-600 text-white text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded">
+                Now
+              </span>
             <% else %>
               in <%= @countdown %>
               <%= if @show_match and @alert.match do %>

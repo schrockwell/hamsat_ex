@@ -43,6 +43,7 @@ defmodule HamsatWeb.Router do
     live "/alerts/:id", AlertsLive.Show, :show
 
     live "/passes", PassesLive.Index, :index
+    live "/passes/:hash", PassesLive.Show, :show
 
     live "/sats", SatsLive.Index, :index
     live "/sats/:number", SatsLive.Show, :show

@@ -8,6 +8,7 @@ defmodule HamsatWeb.AlertsLive.Show do
   alias Hamsat.Coord
   alias Hamsat.Grid
   alias Hamsat.PassMatch
+  alias Hamsat.PassPlot
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.ChatMessage
   alias Hamsat.Schemas.Sat
@@ -46,11 +47,16 @@ defmodule HamsatWeb.AlertsLive.Show do
 
     chat_messages = if alert.chat_enabled, do: Chat.list_messages(alert), else: []
 
+    ground_track =
+      alert.sat
+      |> Sat.get_satrec()
+      |> PassPlot.ground_track(Coord.to_observer(activator_coord(alert)), alert.aos_at, alert.los_at)
+
     socket =
       socket
       |> assign(:now, DateTime.utc_now())
       |> assign(:page_title, "#{alert.callsign} on #{alert.sat.name}")
-      |> assign(alert: alert, pass_match: pass_match, saved_by: saved_by)
+      |> assign(alert: alert, pass_match: pass_match, saved_by: saved_by, ground_track: ground_track)
       |> assign(:chat_messages, chat_messages)
       |> assign(:chat_empty?, chat_messages == [])
       |> assign(:chat_changeset, Chat.change_message())
@@ -380,6 +386,14 @@ defmodule HamsatWeb.AlertsLive.Show do
     else
       "https://satmatch.com/satellite/#{satname}/obs1/#{obs1}/pass/#{timestamp}"
     end
+  end
+
+  defp bluesky_url(alert) do
+    "https://bsky.app/intent/compose?text=#{microblog_url_text(alert)}"
+  end
+
+  defp qrz_url(alert) do
+    "https://www.qrz.com/db/#{alert.callsign}"
   end
 
   defp activator_coord(alert) do

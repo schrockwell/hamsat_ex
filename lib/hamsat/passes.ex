@@ -21,6 +21,25 @@ defmodule Hamsat.Passes do
     pass
   end
 
+  @doc """
+  Fetches a pass from an encoded pass hash, computed for the observer location
+  embedded in the hash (unlike `get_pass_by_hash/2`, which uses the context's
+  location), so pass URLs show the same pass for everyone.
+
+  Returns `{:ok, pass}`, or `{:error, reason}` when the hash is malformed or no
+  longer matches a pass.
+  """
+  def fetch_pass_by_hash(hash) do
+    decoded = Pass.decode_hash!(hash)
+    sat = Satellites.get_satellite_by_number!(decoded.satnum)
+    coord = %Coord{lat: decoded.lat, lon: decoded.lon}
+    max_at = Timex.to_datetime(decoded.max_datetime_erl)
+
+    find_pass_by_max_at(coord, sat, max_at)
+  rescue
+    _ -> {:error, :invalid_hash}
+  end
+
   @pass_match_tolerance_sec 30 * 60
 
   @doc """

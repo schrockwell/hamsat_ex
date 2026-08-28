@@ -1,4 +1,6 @@
-<tr class={@row_class}>
+<%!-- Inner links carry an empty phx-click so a click on them doesn't also
+trigger the row's navigate (LiveView executes only the closest phx-click) --%>
+<tr class={[@row_class, "cursor-pointer"]} phx-click={JS.navigate(~p"/passes/#{@pass.hash}")} title="Pass details">
   <td class="pl-3 pr-1">
     <SatComponents.mini_polar_plot coords={@plot_coords} />
   </td>
@@ -8,7 +10,7 @@
   </td>
   <td class="whitespace-nowrap px-1 text-center"><%= @next_event_in %></td>
   <td class="whitespace-nowrap px-1 text-center whitespace-nowrap">
-    <.link navigate={~p"/sats/#{@pass.sat.number}"} title="Satellite details" class="link">
+    <.link navigate={~p"/sats/#{@pass.sat.number}"} title="Satellite details" class="link" phx-click={%JS{}}>
       <%= pass_sat_name(@pass) %>
     </.link>&nbsp;&nbsp;<SatComponents.sat_modulation_labels sat={
       @pass.sat
@@ -21,19 +23,24 @@
   <td class="whitespace-nowrap px-1 text-left"><%= pass_los_direction(@pass) %></td>
   <td class="whitespace-nowrap px-1 text-center">
     <%= for alert <- @pass.alerts do %>
-      <.link navigate={~p"/alerts/#{alert.id}"} class="link">
+      <.link navigate={~p"/alerts/#{alert.id}"} class="link" phx-click={%JS{}}>
         <%= alert.callsign %>
       </.link>
     <% end %>
   </td>
   <td class="whitespace-nowrap px-1 text-right pr-6">
     <%= if @show_create_button? do %>
-      <.link navigate={~p"/alerts/new?pass=#{Pass.encode_hash(@pass)}"} class="link">
-        Post an Activation
+      <.link
+        navigate={~p"/alerts/new?pass=#{Pass.encode_hash(@pass)}"}
+        class="btn btn-green btn-sm border-transparent whitespace-nowrap"
+        title="Post an activation for this pass"
+        phx-click={%JS{}}
+      >
+        Activate
       </.link>
     <% end %>
     <%= if @show_edit_button? do %>
-      <.link navigate={~p"/alerts/#{Alerts.my_alert_during_pass(@context, @pass)}/edit"} class="link">
+      <.link navigate={~p"/alerts/#{Alerts.my_alert_during_pass(@context, @pass)}/edit"} class="link" phx-click={%JS{}}>
         Edit Activation
       </.link>
     <% end %>

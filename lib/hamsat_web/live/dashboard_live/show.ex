@@ -18,8 +18,8 @@ defmodule HamsatWeb.DashboardLive.Show do
 
   @reload_alerts_interval :timer.minutes(1)
   @reload_passes_interval :timer.minutes(15)
-  @quiet_pass_hours 6
-  @max_quiet_passes 30
+  @upcoming_pass_hours 6
+  @max_upcoming_passes 30
 
   def mount(_params, _session, socket) do
     effective_context = Context.effective(socket.assigns.context)
@@ -30,7 +30,7 @@ defmodule HamsatWeb.DashboardLive.Show do
         page_title: "Home",
         effective_context: effective_context,
         grid_label: Grid.encode!(effective_context.location, 4),
-        quiet_passes: [],
+        upcoming_passes: [],
         passes_loading?: true,
         show_rss_feed: false
       )
@@ -42,7 +42,7 @@ defmodule HamsatWeb.DashboardLive.Show do
         Phoenix.PubSub.subscribe(Hamsat.PubSub, "alerts")
         Process.send_after(self(), :reload_alerts, @reload_alerts_interval)
         Process.send_after(self(), :reload_passes, @reload_passes_interval)
-        start_loading_quiet_passes(socket)
+        start_loading_upcoming_passes(socket)
       else
         socket
       end
@@ -60,16 +60,16 @@ defmodule HamsatWeb.DashboardLive.Show do
     {:noreply,
      socket
      |> assign_upcoming_alerts()
-     |> purge_passed_quiet_passes()}
+     |> purge_passed_upcoming_passes()}
   end
 
   def handle_info(:reload_passes, socket) do
     Process.send_after(self(), :reload_passes, @reload_passes_interval)
-    {:noreply, start_loading_quiet_passes(socket)}
+    {:noreply, start_loading_upcoming_passes(socket)}
   end
 
-  def handle_info({:quiet_passes_loaded, passes}, socket) do
-    {:noreply, assign(socket, quiet_passes: passes, passes_loading?: false)}
+  def handle_info({:upcoming_passes_loaded, passes}, socket) do
+    {:noreply, assign(socket, upcoming_passes: passes, passes_loading?: false)}
   end
 
   def handle_info({event, _info} = message, socket)
@@ -101,32 +101,31 @@ defmodule HamsatWeb.DashboardLive.Show do
     )
   end
 
-  defp start_loading_quiet_passes(socket) do
+  defp start_loading_upcoming_passes(socket) do
     parent = self()
     context = socket.assigns.effective_context
     sats = Satellites.list_in_orbit_satellites()
-    ending = Timex.shift(DateTime.utc_now(), hours: @quiet_pass_hours)
+    ending = Timex.shift(DateTime.utc_now(), hours: @upcoming_pass_hours)
 
     {:ok, task_pid} =
       Task.start_link(fn ->
-        quiet_passes =
+        upcoming_passes =
           context
           |> Passes.list_all_passes(sats, ending: ending)
-          |> Enum.filter(&(&1.alerts == []))
-          |> Enum.take(@max_quiet_passes)
+          |> Enum.take(@max_upcoming_passes)
           |> Enum.map(&Pass.put_plot_coords/1)
 
-        send(parent, {:quiet_passes_loaded, quiet_passes})
+        send(parent, {:upcoming_passes_loaded, upcoming_passes})
       end)
 
     assign(socket, passes_loading?: true, passes_task_pid: task_pid)
   end
 
-  defp purge_passed_quiet_passes(socket) do
-    quiet_passes =
-      Enum.reject(socket.assigns.quiet_passes, &(Pass.progression(&1, socket.assigns.now) == :passed))
+  defp purge_passed_upcoming_passes(socket) do
+    upcoming_passes =
+      Enum.reject(socket.assigns.upcoming_passes, &(Pass.progression(&1, socket.assigns.now) == :passed))
 
-    assign(socket, quiet_passes: quiet_passes)
+    assign(socket, upcoming_passes: upcoming_passes)
   end
 
   defp upcoming_feed_url(%Context{user: :guest}), do: url(~p"/feeds/upcoming_alerts")

@@ -18,12 +18,30 @@ defmodule Hamsat.PassMatch do
 
   defp build_plot(satrec, location, time) do
     observer = Coord.to_observer(location)
-    pass = Satellite.next_pass(satrec, Timex.to_erl(time), observer, Util.pass_opts(time, magnitude?: false))
+
+    # The satellite might never rise above the horizon at this location (e.g. a
+    # low-inclination satellite observed from a high latitude), in which case
+    # there is no pass to plot
+    pass =
+      try do
+        Satellite.next_pass(satrec, Timex.to_erl(time), observer, Util.pass_opts(time, magnitude?: false))
+      rescue
+        _ -> nil
+      end
 
     %PassPlot{satrec: satrec, location: location, pass: pass}
   end
 
+  # If any station never sees the satellite, there is no mutual window
   defp populate_coords(pass_match, opts) do
+    if Enum.any?(pass_match.plots, &is_nil(&1.pass)) do
+      pass_match
+    else
+      do_populate_coords(pass_match, opts)
+    end
+  end
+
+  defp do_populate_coords(pass_match, opts) do
     match_start =
       pass_match.plots
       |> Enum.map(& &1.pass.start_time)
