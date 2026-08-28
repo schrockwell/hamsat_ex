@@ -1,4 +1,5 @@
 const GUIDE_COLOR = "#CCCCCC";
+const FULL_PATH_COLOR = "#d1d5db"; // gray-300
 const SATELLITE_COLOR = "#2563EB"; // blue-700
 const HIDDEN_SATELLITE_COLOR = "rgb(220 38 38)"; // red-600
 const PATH_COLOR = SATELLITE_COLOR; // emerald-500
@@ -15,8 +16,11 @@ export default {
     const path = JSON.parse(this.el.dataset.path).filter(
       (coord) => coord.el >= 0
     );
+    const fullPath = JSON.parse(this.el.dataset.fullPath || "[]").filter(
+      (coord) => coord.el >= 0
+    );
 
-    const { svg, moveSatellite } = createSatelliteSVG(path, {
+    const { svg, moveSatellite } = createSatelliteSVG(path, fullPath, {
       azimuth: 45,
       elevation: 45,
     });
@@ -29,7 +33,7 @@ export default {
   },
 };
 
-function createSatelliteSVG(pathData, currentPosition) {
+function createSatelliteSVG(pathData, fullPathData, currentPosition) {
   const width = 500;
   const height = 500;
   const svgns = "http://www.w3.org/2000/svg";
@@ -115,6 +119,23 @@ function createSatelliteSVG(pathData, currentPosition) {
       label.textContent = dir;
       svg.appendChild(label);
     });
+  }
+
+  // Plain gray line for the station's entire pass, drawn beneath the
+  // highlighted mutual-visibility segment
+  function addFullPath() {
+    if (fullPathData.length < 2) return;
+    const path = document.createElementNS(svgns, "path");
+    let pathD = "M";
+    fullPathData.forEach((coords) => {
+      const { x, y } = convertCoords(coords.az, coords.el);
+      pathD += `${x},${y} `;
+    });
+    path.setAttribute("d", pathD);
+    path.setAttribute("stroke", FULL_PATH_COLOR);
+    path.setAttribute("stroke-width", "3");
+    path.setAttribute("fill", "none");
+    svg.appendChild(path);
   }
 
   function addPath() {
@@ -219,6 +240,7 @@ function createSatelliteSVG(pathData, currentPosition) {
   // Draw elements
   addIntercardinalDirections();
   addElevationCircles();
+  addFullPath();
   addPath();
   const moveSatellite = addSatellite();
   addStartHead();
