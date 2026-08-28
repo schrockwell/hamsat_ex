@@ -65,14 +65,13 @@
             <PassTracker.component id="pass-tracker" sat={@sat} now={@now} pass_plot={@pass_plot} />
           </div>
         </div>
-        <div class="bg-gray-800 rounded-lg overflow-hidden">
+        <div class="bg-gray-800 rounded-lg overflow-hidden aspect-square">
           <SatTracker.component
             id="pass-sat-tracker"
-            height="320px"
+            height="100%"
             sat_positions={[%{sat_id: @sat.id, sat_name: @sat.name, position: position, selected: true}]}
             observer_positions={[@coord]}
             ground_track={@ground_track}
-            observer_lines={false}
           />
         </div>
       </div>

@@ -1,5 +1,4 @@
 import leaflet from "../vendor/leaflet/leaflet";
-import { GreatCircle } from "../vendor/arc";
 
 // Images live in priv/static/images/leaflet
 leaflet.Icon.Default.imagePath = "/images/leaflet/";
@@ -60,13 +59,9 @@ export default {
       })
       .setView([20, 0], 1);
 
-    this.observers = JSON.parse(this.el.dataset.observers).map((coord) => {
-      const marker = leaflet.marker(coord).addTo(this.map);
-      marker.addTo(this.map);
-      const polyline = leaflet.polyline([], {
-        color: "#f59e0b", // amber-500
-      });
-      return { coord, marker, polyline };
+    const observers = JSON.parse(this.el.dataset.observers);
+    observers.forEach((coord) => {
+      leaflet.marker(coord).addTo(this.map);
     });
 
     leaflet
@@ -140,7 +135,8 @@ export default {
           .addTo(this.map);
       });
 
-      this.map.fitBounds(leaflet.latLngBounds(groundTrack), {
+      // Zoom to the pass: the whole track plus every observer marker
+      this.map.fitBounds(leaflet.latLngBounds(groundTrack.concat(observers)), {
         padding: [20, 20],
       });
     }
@@ -214,34 +210,7 @@ export default {
     return sat;
   },
 
-  getHighlightedSat() {
-    const hoveredSats = Object.values(this.sats).filter((sat) => sat.hovered);
-    const selectedSats = Object.values(this.sats).filter((sat) => sat.selected);
-
-    if (hoveredSats.length == 1) {
-      return hoveredSats[0];
-    } else if (selectedSats.length == 1) {
-      return selectedSats[0];
-    }
-
-    return null;
-  },
-
   updateLayers() {
-    // Update observer lines
-    const showObserverLines = this.el.dataset.observerLines !== "false";
-    this.observers.forEach((observer) => {
-      if (showObserverLines && this.getHighlightedSat()) {
-        const coords = [observer.coord, this.getHighlightedSat().coord];
-        observer.polyline.setLatLngs(
-          greatCircleCoords(coords[0], coords[1], 30)
-        );
-        observer.polyline.addTo(this.map);
-      } else {
-        observer.polyline.removeFrom(this.map);
-      }
-    });
-
     // Update footprints
     Object.values(this.sats).forEach((sat) => {
       if (sat.hovered || sat.selected) {
@@ -252,27 +221,3 @@ export default {
     });
   },
 };
-
-function greatCircleCoords(start, end, count) {
-  // x is longitude, y is latitude
-  start = { x: start[1], y: start[0] };
-  end = { x: end[1], y: end[0] };
-
-  const generator = new GreatCircle(start, end);
-
-  // Swap (x, y) to (lat, lon)
-  const output = generator
-    .Arc(count)
-    .geometries[0].coords.map((xy) => [xy[1], xy[0]]);
-
-  // Unwrap longitude
-  for (let i = 1; i < output.length; i++) {
-    const [lat, lon] = output[i];
-    const [prevLat, prevLon] = output[i - 1];
-    if (Math.abs(lon - prevLon) > 180) {
-      output[i][1] += lon > prevLon ? -360 : 360;
-    }
-  }
-
-  return output;
-}

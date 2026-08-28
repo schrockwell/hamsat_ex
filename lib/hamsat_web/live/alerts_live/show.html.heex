@@ -308,10 +308,10 @@
 
     <%= if @my_sat_position do %>
       <div class="flex flex-col gap-2">
-        <div class="bg-gray-800 rounded-lg overflow-hidden min-h-[170px]">
+        <div class="bg-gray-800 rounded-lg overflow-hidden aspect-square">
           <SatTracker.component
             id="sat-tracker"
-            height="220px"
+            height="100%"
             sat_positions={[
               %{
                 sat_id: @alert.satellite_id,
@@ -321,6 +321,7 @@
               }
             ]}
             observer_positions={[@context.location, activator_coord(@alert)]}
+            ground_track={@ground_track}
           />
         </div>
       </div>

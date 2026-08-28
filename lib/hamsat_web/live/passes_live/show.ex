@@ -47,49 +47,12 @@ defmodule HamsatWeb.PassesLive.Show do
     assign(socket, pass_plot: pass_plot)
   end
 
-  # Sub-satellite [lat, lon] points between AOS and LOS, for drawing the
-  # ground track on the map
-  @ground_track_points 40
-
   defp assign_ground_track(socket) do
     pass = socket.assigns.pass
     satrec = Sat.get_satrec(pass.sat)
-    start_time = aos_at(pass)
-    duration = DateTime.diff(los_at(pass), start_time)
 
-    coords =
-      for i <- 0..@ground_track_points do
-        time = DateTime.add(start_time, div(duration * i, @ground_track_points))
-
-        pos =
-          Satellite.Passes.current_position(satrec, pass.observer, Util.utc_datetime_to_erl(time), magnitude?: false)
-
-        {pos.latitude, pos.longitude}
-      end
-
-    assign(socket, ground_track: unwrap_track(coords))
+    assign(socket, ground_track: PassPlot.ground_track(satrec, pass.observer, aos_at(pass), los_at(pass)))
   end
-
-  # Keep each longitude within 180° of the previous point so the polyline
-  # doesn't jump across the antimeridian
-  defp unwrap_track(coords) do
-    coords
-    |> Enum.map_reduce(nil, fn {lat, lon}, prev_lon ->
-      lon =
-        cond do
-          prev_lon == nil -> wrap_lon(lon)
-          lon - prev_lon > 180 -> lon - 360
-          prev_lon - lon > 180 -> lon + 360
-          true -> lon
-        end
-
-      {[lat, lon], lon}
-    end)
-    |> elem(0)
-  end
-
-  defp wrap_lon(lon) when lon > 180, do: lon - 360
-  defp wrap_lon(lon), do: lon
 
   defp observer_coord(pass) do
     %Coord{lat: pass.observer.latitude_deg, lon: pass.observer.longitude_deg}
