@@ -112,7 +112,7 @@
       <div class="text-sm text-gray-500 pb-3 border-b">Next 6 hours</div>
 
       <div class="flex flex-col">
-        <%= for pass <- @quiet_passes do %>
+        <%= for pass <- @upcoming_passes do %>
           <.link
             navigate={~p"/passes/#{Pass.encode_hash(pass)}"}
             title="Pass details"
@@ -131,11 +131,18 @@
                 ) %> · max <%= pass_max_el(pass) %>
               </div>
             </div>
-            <Heroicons.LiveView.icon
-              name="chevron-right"
-              type="mini"
-              class="h-5 w-5 ml-auto shrink-0 text-gray-300 group-hover:text-gray-500"
-            />
+            <div class="ml-auto flex items-center gap-2 shrink-0">
+              <%= if Pass.progression(pass, @now) == :in_progress do %>
+                <span class="bg-red-600 text-white text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded">
+                  Now
+                </span>
+              <% end %>
+              <Heroicons.LiveView.icon
+                name="chevron-right"
+                type="mini"
+                class="h-5 w-5 shrink-0 text-gray-300 group-hover:text-gray-500"
+              />
+            </div>
           </.link>
         <% end %>
 
@@ -143,8 +150,8 @@
           <div class="py-3 text-gray-400 italic">Calculating passes…</div>
         <% end %>
 
-        <%= if not @passes_loading? and @quiet_passes == [] do %>
-          <div class="py-3 text-gray-400 italic">No quiet passes in the next 6 hours.</div>
+        <%= if not @passes_loading? and @upcoming_passes == [] do %>
+          <div class="py-3 text-gray-400 italic">No passes in the next 6 hours.</div>
         <% end %>
       </div>
     </div>

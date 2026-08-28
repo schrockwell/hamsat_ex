@@ -33,7 +33,9 @@ defmodule HamsatWeb.LiveComponents.ActivationRows do
         </td>
         <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base">
           <%= if @in_progress? do %>
-            now
+            <span class="bg-red-600 text-white text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded">
+              Now
+            </span>
           <% else %>
             in <%= @countdown %>
             <%= if @show_match and @alert.match do %>
