@@ -27,6 +27,7 @@ import LeafletTracker from "./leaflet-tracker-hook";
 import Registration from "./registration-hook";
 import CopyToClipboard from "./copy-to-clipboard-hook";
 import PassTrackerHook from "./pass-tracker-hook";
+import SkyViewHook from "./sky-view-hook";
 import { initPushSettings } from "./push-settings";
 import { ChatMessages, ChatForm } from "./chat-hooks";
 
@@ -36,6 +37,7 @@ const Hooks = {
   Registration,
   CopyToClipboard,
   PassTrackerHook,
+  SkyViewHook,
   ChatMessages,
   ChatForm,
 };

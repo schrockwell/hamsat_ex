@@ -11,7 +11,7 @@
           pass over <%= @grid %>
         </h1>
         <% {status_label, status_timer, status_class} = status(@pass, @now) %>
-        <div class="ml-auto flex items-center gap-3">
+        <div class="flex items-center gap-3 w-full sm:w-auto sm:ml-auto">
           <div class={["uppercase tracking-wide px-4 py-1.5 border-2 font-semibold text-sm", status_class]}>
             <%= status_label %>
           </div>
@@ -60,9 +60,26 @@
         </div>
       </div>
       <div class="grid lg:grid-cols-2 gap-6 items-center px-3 py-4 md:px-6 md:py-5">
-        <div class="flex justify-center">
+        <div class="flex flex-col items-center gap-3">
           <div class="w-[80%] max-w-[440px]">
             <PassTracker.component id="pass-tracker" sat={@sat} now={@now} pass_plot={@pass_plot} />
+          </div>
+          <%!-- The sky view gets its live position from PassTracker's "move_satellite"
+               events, so data-tracker-id must match the component id above --%>
+          <div
+            id="sky-view"
+            phx-hook="SkyViewHook"
+            phx-update="ignore"
+            class="flex justify-center"
+            data-path={Jason.encode!(@pass_plot.coords)}
+            data-tracker-id="pass-tracker"
+            data-sat-name={@sat.name}
+            data-initial-az={position.azimuth_in_degrees}
+            data-initial-el={position.elevation_in_degrees}
+          >
+            <button type="button" data-sky-view-open class="btn btn-default btn-sm">
+              Open sky view
+            </button>
           </div>
         </div>
         <div class="bg-gray-800 rounded-lg overflow-hidden aspect-square">
