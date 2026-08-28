@@ -1,0 +1,20 @@
+# HTTPS proxy for testing the dev server from other devices on the LAN —
+# iPhone motion/orientation APIs (used by the pass page's sky view) only work
+# in a secure context, so plain http://<lan-ip>:4000 won't do.
+#
+# Usage: start the dev server (bin/dev), then in another terminal:
+#
+#     caddy run
+#
+# and open https://m5-macbook-pro.local:8443 on the phone (same Wi-Fi). The first
+# visit warns about the locally-issued certificate — tap "Show Details" then
+# "visit this website" to proceed. To make the warning go away entirely, trust
+# Caddy's root CA on the phone: AirDrop
+# ~/Library/Application Support/Caddy/pki/authorities/local/root.crt to it,
+# install the profile, then enable it under Settings > General > About >
+# Certificate Trust Settings.
+
+https://m5-macbook-pro.local:8443 {
+	tls internal
+	reverse_proxy localhost:4000
+}
