@@ -2,7 +2,6 @@ defmodule HamsatWeb.AlertsLive.New do
   use HamsatWeb, :live_view
 
   import Ecto.Changeset
-  import HamsatWeb.LayoutComponents
 
   alias Hamsat.Alerts
   alias Hamsat.Coord

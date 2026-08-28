@@ -43,6 +43,13 @@ export default {
       if (coord && coord.lat && coord.lon) {
         this.marker.setLatLng([coord.lat, coord.lon]);
         this.marker.addTo(this.map);
+
+        // Open centered on the initial location at state scale, then leave
+        // the view alone so later clicks/edits don't yank it around
+        if (!this.zoomedToMarker) {
+          this.zoomedToMarker = true;
+          this.map.setView([coord.lat, coord.lon], 7);
+        }
       } else {
         this.marker.removeFrom(this.map);
       }
