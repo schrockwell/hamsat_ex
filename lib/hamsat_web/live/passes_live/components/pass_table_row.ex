@@ -4,6 +4,7 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
   alias Hamsat.Alerts
   alias Hamsat.Alerts.Pass
   alias HamsatWeb.SatComponents
+  alias Phoenix.LiveView.JS
 
   attr :context, Hamsat.Context, required: true
   attr :now, DateTime, required: true
@@ -49,9 +50,9 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
 
   defp pass_table_row_class(pass, now) do
     case Pass.progression(pass, now) do
-      :upcoming -> ""
-      :in_progress -> "bg-emerald-100 text-emerald-700 font-semibold"
-      :passed -> "text-gray-400"
+      :upcoming -> "hover:bg-gray-50"
+      :in_progress -> "bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-semibold"
+      :passed -> "text-gray-400 hover:bg-gray-50"
     end
   end
 

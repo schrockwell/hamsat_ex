@@ -5,6 +5,8 @@ defmodule HamsatWeb.SatTracker do
   attr :observer_positions, :list, required: true
   attr :sat_positions, :list, required: true
   attr :height, :string, default: "400px"
+  attr :ground_track, :list, default: [], doc: "list of [lat, lon] points to draw as a static track line"
+  attr :observer_lines, :boolean, default: true, doc: "draw a line from each observer to the highlighted satellite"
 
   def component(assigns) do
     ~H"""
@@ -14,6 +16,8 @@ defmodule HamsatWeb.SatTracker do
       observer_positions={@observer_positions}
       sat_positions={@sat_positions}
       height={@height}
+      ground_track={@ground_track}
+      observer_lines={@observer_lines}
     />
     """
   end

@@ -113,32 +113,30 @@
 
       <div class="flex flex-col">
         <%= for pass <- @quiet_passes do %>
-          <div class="flex items-center justify-between gap-3 py-3 border-b">
-            <div class="flex items-center gap-3 min-w-0">
-              <SatComponents.mini_polar_plot coords={pass.plot_coords} class="h-8 w-8 shrink-0" />
-              <div>
-                <div class="text-sm font-semibold text-gray-700">
-                  <.link navigate={~p"/sats/#{pass.sat.number}"} title="Satellite details" class="link">
-                    <%= pass_sat_name(pass) %>
-                  </.link>
-                  <SatComponents.sat_modulation_labels sat={pass.sat} />
-                </div>
-                <div class="text-[13px] text-gray-500">
-                  <%= short_time(@context, pass.info.aos.datetime) %> – <%= short_time(
-                    @context,
-                    pass.info.los.datetime
-                  ) %> · max <%= pass_max_el(pass) %>
-                </div>
+          <.link
+            navigate={~p"/passes/#{Pass.encode_hash(pass)}"}
+            title="Pass details"
+            class="flex items-center gap-3 min-w-0 py-3 border-b group hover:bg-gray-100"
+          >
+            <SatComponents.mini_polar_plot coords={pass.plot_coords} class="h-8 w-8 shrink-0" />
+            <div>
+              <div class="text-sm font-semibold text-gray-700">
+                <%= pass_sat_name(pass) %>
+                <SatComponents.sat_modulation_labels sat={pass.sat} />
+              </div>
+              <div class="text-[13px] text-gray-500">
+                <%= short_time(@context, pass.info.aos.datetime) %> – <%= short_time(
+                  @context,
+                  pass.info.los.datetime
+                ) %> · max <%= pass_max_el(pass) %>
               </div>
             </div>
-            <.link
-              navigate={~p"/alerts/new?pass=#{Pass.encode_hash(pass)}"}
-              class="btn btn-green btn-sm border-transparent whitespace-nowrap"
-              title="Post an activation for this pass"
-            >
-              Activate
-            </.link>
-          </div>
+            <Heroicons.LiveView.icon
+              name="chevron-right"
+              type="mini"
+              class="h-5 w-5 ml-auto shrink-0 text-gray-300 group-hover:text-gray-500"
+            />
+          </.link>
         <% end %>
 
         <%= if @passes_loading? do %>

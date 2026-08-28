@@ -1,0 +1,152 @@
+<div class="grid md:grid-cols-[minmax(0,8fr)_minmax(0,3fr)]">
+  <%!-- Left column: header, tracker --%>
+  <div class="md:border-r">
+    <%!-- Header --%>
+    <div class="bg-gray-50 border-b px-3 pt-4 pb-3 md:px-6 md:pt-6 md:pb-5 flex flex-col gap-2">
+      <div class="flex items-center gap-3 flex-wrap">
+        <h1 class="text-2xl font-medium text-gray-700 whitespace-nowrap">
+          <.link navigate={~p"/sats/#{@sat.number}"} title="Satellite details" class="hover:underline">
+            <%= @sat.name %>
+          </.link>
+          pass over <%= @grid %>
+        </h1>
+        <% {status_label, status_timer, status_class} = status(@pass, @now) %>
+        <div class="ml-auto flex items-center gap-3">
+          <div class={["uppercase tracking-wide px-4 py-1.5 border-2 font-semibold text-sm", status_class]}>
+            <%= status_label %>
+          </div>
+          <div class="text-sm text-gray-500 tabular-nums"><%= status_timer %></div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-x-10 gap-y-3 text-sm">
+        <div>
+          <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5">When</div>
+          <div class="text-gray-700"><%= when_text(@context, @pass) %></div>
+        </div>
+        <div>
+          <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5">Downlink</div>
+          <div class="text-gray-700"><%= sat_freqs(@sat, :downlinks) %></div>
+        </div>
+        <div>
+          <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5">Uplink</div>
+          <div class="text-gray-700"><%= sat_freqs(@sat, :uplinks) %></div>
+        </div>
+        <div>
+          <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5">Activations</div>
+          <div class="text-gray-700"><%= pluralized_count(@pass.alerts, "posted", "posted") %></div>
+        </div>
+      </div>
+    </div>
+
+    <%!-- Sky track --%>
+    <% position = sat_position(@pass, @now) %>
+    <div class="flex flex-col">
+      <div class="flex items-stretch bg-gray-50 border-b">
+        <div class="flex-1 flex items-center px-6 py-2.5 text-xl font-semibold text-gray-700 whitespace-nowrap">
+          Sky track · <%= @grid %>
+        </div>
+        <div class="flex items-baseline gap-2 px-4 py-2.5 border-l">
+          <span class="uppercase text-sm tracking-wider text-gray-400">Az</span>
+          <span class="text-xl text-gray-800 tabular-nums whitespace-nowrap">
+            <%= deg(position.azimuth_in_degrees) %>
+          </span>
+        </div>
+        <div class="flex items-baseline gap-2 px-4 py-2.5 border-l">
+          <span class="uppercase text-sm tracking-wider text-gray-400">El</span>
+          <span class={["text-xl tabular-nums whitespace-nowrap", elevation_class(position.elevation_in_degrees)]}>
+            <%= deg(position.elevation_in_degrees) %>
+          </span>
+        </div>
+      </div>
+      <div class="grid lg:grid-cols-2 gap-6 items-center px-3 py-4 md:px-6 md:py-5">
+        <div class="flex justify-center">
+          <div class="w-[80%] max-w-[440px]">
+            <PassTracker.component id="pass-tracker" sat={@sat} now={@now} pass_plot={@pass_plot} />
+          </div>
+        </div>
+        <div class="bg-gray-800 rounded-lg overflow-hidden">
+          <SatTracker.component
+            id="pass-sat-tracker"
+            height="320px"
+            sat_positions={[%{sat_id: @sat.id, sat_name: @sat.name, position: position, selected: true}]}
+            observer_positions={[@coord]}
+            ground_track={@ground_track}
+            observer_lines={false}
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%!-- Right column: aux sidebar --%>
+  <div class="bg-gray-50 px-3 py-4 md:px-6 md:py-5 flex flex-col gap-6 text-sm border-t md:border-t-0">
+    <%= if Alerts.show_create_alert_button?(@context, @pass, @now) do %>
+      <.link
+        navigate={~p"/alerts/new?pass=#{@pass.hash}"}
+        class="btn btn-green border-transparent w-full justify-center text-center"
+      >
+        Post an Activation
+      </.link>
+    <% end %>
+
+    <%= if Alerts.show_edit_alert_button?(@context, @pass, @now) do %>
+      <.link
+        navigate={~p"/alerts/#{Alerts.my_alert_during_pass(@context, @pass).id}/edit"}
+        class="btn btn-default border-gray-300 w-full justify-center text-center"
+      >
+        Edit My Activation
+      </.link>
+    <% end %>
+
+    <div class="flex flex-col gap-1.5">
+      <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">
+        Activations this pass
+      </div>
+      <%= if @pass.alerts == [] do %>
+        <div class="text-gray-500 italic">None posted yet.</div>
+      <% else %>
+        <%= for alert <- @pass.alerts do %>
+          <div class="flex justify-between gap-3">
+            <.link navigate={~p"/alerts/#{alert.id}"} class="link"><%= alert.callsign %></.link>
+            <span class="text-gray-500 whitespace-nowrap"><%= mhz(alert) %> <%= alert.mode %></span>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">Pass details</div>
+      <div class="flex justify-between text-gray-500">
+        <span>Date</span>
+        <span class="text-gray-700"><%= date(@context, @pass.info.aos.datetime) %></span>
+      </div>
+      <div class="flex justify-between text-gray-500">
+        <span>Length</span>
+        <span class="text-gray-700 tabular-nums"><%= pass_duration(@pass) %></span>
+      </div>
+      <div class="flex justify-between text-gray-500">
+        <span>Observer grid</span>
+        <span class="text-gray-700"><%= @grid %></span>
+      </div>
+      <table class="w-full border-collapse tabular-nums">
+        <tbody>
+          <%= for {label, event} <- [{"Rise (AOS)", @pass.info.aos}, {"Max", @pass.info.max}, {"Set (LOS)", @pass.info.los}] do %>
+            <tr class="border-t border-gray-200">
+              <td class="text-gray-500 py-1.5 pr-2 whitespace-nowrap"><%= label %></td>
+              <td class="text-gray-700 text-right py-1.5 whitespace-nowrap"><%= time(@context, event.datetime) %></td>
+              <td class="text-gray-700 text-right py-1.5 pl-3 whitespace-nowrap"><%= az_text(event) %></td>
+              <td class="text-gray-700 text-right py-1.5 pl-3 whitespace-nowrap"><%= el_text(event) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex flex-col gap-1.5">
+      <div class="text-[13px] font-semibold uppercase tracking-wider text-gray-400">Links</div>
+      <a href={satmatch_url(@pass)} target="_blank" class="link font-normal">SatMatch ↗</a>
+      <.link navigate={~p"/sats/#{@sat.number}"} class="link font-normal">Satellite details</.link>
+    </div>
+  </div>
+</div>

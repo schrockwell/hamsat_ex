@@ -92,7 +92,7 @@ defmodule HamsatWeb.SatsLive.Show do
     |> String.reverse()
   end
 
-  # -- Transponders and status ------------------------------------------------
+  # -- Transponders ------------------------------------------------
 
   defp transponder_mode(:linear), do: "Linear Transponder (Inverting)"
   defp transponder_mode(:linear_non_inv), do: "Linear Transponder (Non-Inverting)"
@@ -101,70 +101,6 @@ defmodule HamsatWeb.SatsLive.Show do
   defp transponder_mode(:cw_beacon), do: "CW Beacon"
   defp transponder_mode(:telemetry), do: "Telemetry"
   defp transponder_mode(other), do: to_string(other)
-
-  # The page-level status: the "best" status among the satellite's transponders
-  defp overall_status(sat) do
-    statuses = Enum.map(sat.transponders, & &1.status)
-
-    Enum.find([:active, :problems, :conflicting, :inactive], :unknown, &(&1 in statuses))
-  end
-
-  attr :status, :atom, required: true
-
-  defp status_badge(%{status: :active} = assigns) do
-    ~H"""
-    <span
-      class="inline-flex items-center gap-1 bg-emerald-500 text-white px-2 py-0.5 uppercase text-[11px] font-semibold rounded tracking-wide"
-      title="Transponder status"
-    >
-      <Heroicons.LiveView.icon name="check" type="mini" class="h-3 w-3" />Active
-    </span>
-    """
-  end
-
-  defp status_badge(%{status: :problems} = assigns) do
-    ~H"""
-    <span
-      class="inline-flex items-center gap-1 bg-orange-500 text-white px-2 py-0.5 uppercase text-[11px] font-semibold rounded tracking-wide"
-      title="Transponder status"
-    >
-      <Heroicons.LiveView.icon name="exclamation-triangle" type="mini" class="h-3 w-3" />Problems
-    </span>
-    """
-  end
-
-  defp status_badge(%{status: :conflicting} = assigns) do
-    ~H"""
-    <span
-      class="inline-flex items-center gap-1 bg-orange-500 text-white px-2 py-0.5 uppercase text-[11px] font-semibold rounded tracking-wide"
-      title="Transponder status"
-    >
-      <Heroicons.LiveView.icon name="question-mark-circle" type="mini" class="h-3 w-3" />Conflicting
-    </span>
-    """
-  end
-
-  defp status_badge(%{status: :inactive} = assigns) do
-    ~H"""
-    <span
-      class="inline-flex items-center gap-1 bg-red-600 text-white px-2 py-0.5 uppercase text-[11px] font-semibold rounded tracking-wide"
-      title="Transponder status"
-    >
-      <Heroicons.LiveView.icon name="x-mark" type="mini" class="h-3 w-3" />Inactive
-    </span>
-    """
-  end
-
-  defp status_badge(assigns) do
-    ~H"""
-    <span
-      class="inline-flex items-center gap-1 bg-red-600 text-white px-2 py-0.5 uppercase text-[11px] font-semibold rounded tracking-wide"
-      title="Transponder status"
-    >
-      <Heroicons.LiveView.icon name="question-mark-circle" type="mini" class="h-3 w-3" />Unknown
-    </span>
-    """
-  end
 
   # -- Orbital details from the TLE -------------------------------------------
 

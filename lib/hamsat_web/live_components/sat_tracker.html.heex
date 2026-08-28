@@ -5,6 +5,8 @@
     phx-hook="LeafletTracker"
     data-mapbox-access-token={mapbox_access_token()}
     data-observers={Jason.encode!(observer_coords(@observer_positions))}
+    data-ground-track={Jason.encode!(@ground_track)}
+    data-observer-lines={to_string(@observer_lines)}
   >
   </div>
 </div>
