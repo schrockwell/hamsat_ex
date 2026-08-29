@@ -3,21 +3,16 @@
   <div class="md:border-r">
     <%!-- Header --%>
     <div class="bg-gray-50 border-b px-3 pt-4 pb-3 md:px-6 md:pt-6 md:pb-5 flex flex-col gap-2">
-      <div class="flex items-center gap-3 flex-wrap">
-        <h1 class="text-2xl font-medium text-gray-700 whitespace-nowrap">
-          <%= @alert.callsign %> on
-          <.link navigate={~p"/sats/#{@alert.sat.number}"} title="Satellite details" class="hover:underline">
-            <%= @alert.sat.name %>
-          </.link>
-        </h1>
-        <%= if @alert.match do %>
-          <span
-            class="bg-emerald-100 text-emerald-600 px-2.5 py-0.5 text-[15px] font-semibold rounded"
-            title={match_tooltip(@alert)}
-          >
-            <%= pct(@alert.match.total) %> match
-          </span>
-        <% end %>
+      <div class="flex items-start gap-6 flex-wrap">
+        <div>
+          <h1 class="text-2xl font-medium text-gray-700 whitespace-nowrap">
+            <%= @alert.callsign %> on
+            <.link navigate={~p"/sats/#{@alert.sat.number}"} title="Satellite details" class="hover:underline">
+              <%= @alert.sat.name %>
+            </.link>
+          </h1>
+          <h2><%= when_text(@context, @alert) %></h2>
+        </div>
         <AlertSaver.component
           alert={@alert}
           context={@context}
@@ -28,10 +23,17 @@
       </div>
 
       <div class="flex flex-wrap gap-x-10 gap-y-3 text-sm">
-        <div>
-          <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5">When</div>
-          <div class="text-gray-700"><%= when_text(@context, @alert) %></div>
-        </div>
+        <%= if @alert.match do %>
+          <div
+            class={[
+              AlertComponents.match_color_class(@alert.match.total),
+              "px-2.5 py-0.5 text-[15px] font-semibold rounded flex items-center"
+            ]}
+            title={match_tooltip(@alert)}
+          >
+            <%= pct(@alert.match.total) %> match
+          </div>
+        <% end %>
         <div>
           <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5">Grid</div>
           <div class="text-gray-700"><%= alert_grids(@alert) %></div>
@@ -115,38 +117,18 @@
           </div>
         </div>
 
-        <%!-- Node labels --%>
-        <div class="relative h-10 text-[13px] text-gray-500">
-          <div class="absolute -translate-x-1/2 text-center pt-1.5 whitespace-nowrap" style="left: 0%">
-            <div class={["font-semibold", node_time_class(@alert, :rise)]}>
-              <%= short_time(@context, @alert.aos_at) %>
-            </div>
-            <div><%= node_label(@alert, :rise) %></div>
-          </div>
-          <%= if separate_node?(@alert, :rise) do %>
-            <div
-              class="absolute -translate-x-1/2 text-center pt-1.5 whitespace-nowrap"
-              style={marker_left(@alert, @alert.workable_start_at)}
-            >
-              <div class="font-semibold text-emerald-700"><%= short_time(@context, @alert.workable_start_at) %></div>
-              <div>Visible</div>
+        <%!-- Node labels: flex flow with grow-weighted spacers, so each label sits
+             near its node's position but labels can never overlap --%>
+        <div class="flex items-start pt-1.5 text-[13px] text-gray-500">
+          <%= for {marker, grow, min_width} <- timeline_markers(@context, @alert) do %>
+            <div style={"flex-grow: #{grow}; min-width: #{min_width}px"}></div>
+            <div class="w-0 shrink-0 flex justify-center">
+              <div class="text-center whitespace-nowrap">
+                <div class={["font-semibold", marker.class]}><%= marker.time %></div>
+                <div><%= marker.label %></div>
+              </div>
             </div>
           <% end %>
-          <%= if separate_node?(@alert, :set) do %>
-            <div
-              class="absolute -translate-x-1/2 text-center pt-1.5 whitespace-nowrap"
-              style={marker_left(@alert, @alert.workable_end_at)}
-            >
-              <div class="font-semibold text-emerald-700"><%= short_time(@context, @alert.workable_end_at) %></div>
-              <div>End visible</div>
-            </div>
-          <% end %>
-          <div class="absolute -translate-x-1/2 text-center pt-1.5 whitespace-nowrap" style="left: 100%">
-            <div class={["font-semibold", node_time_class(@alert, :set)]}>
-              <%= short_time(@context, @alert.los_at) %>
-            </div>
-            <div><%= node_label(@alert, :set) %></div>
-          </div>
         </div>
       </div>
     </div>

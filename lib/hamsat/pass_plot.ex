@@ -1,5 +1,5 @@
 defmodule Hamsat.PassPlot do
-  defstruct [:location, :pass, :satrec, coords: []]
+  defstruct [:location, :pass, :satrec, coords: [], full_coords: []]
 
   alias Hamsat.Coord
   alias Hamsat.Util
@@ -81,6 +81,17 @@ defmodule Hamsat.PassPlot do
         %{az: pos.azimuth_in_degrees, el: pos.elevation_in_degrees}
       end)
 
-    %{plot | coords: coords}
+    # The station's entire pass, which may extend beyond the plotted window
+    # (e.g. when the window is clamped to the mutual visibility of two stations)
+    full_coords =
+      sky_coords(
+        plot.satrec,
+        observer,
+        Timex.to_datetime(plot.pass.start_time),
+        Timex.to_datetime(plot.pass.end_time),
+        num_points
+      )
+
+    %{plot | coords: coords, full_coords: full_coords}
   end
 end

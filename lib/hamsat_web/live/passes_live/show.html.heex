@@ -2,14 +2,17 @@
   <%!-- Left column: header, tracker --%>
   <div class="md:border-r">
     <%!-- Header --%>
-    <div class="bg-gray-50 border-b px-3 pt-4 pb-3 md:px-6 md:pt-6 md:pb-5 flex flex-col gap-2">
+    <div class="bg-gray-50 border-b px-3 pt-4 pb-3 md:px-6 md:pt-6 md:pb-5 flex flex-col gap-3">
       <div class="flex items-center gap-3 flex-wrap">
-        <h1 class="text-2xl font-medium text-gray-700 whitespace-nowrap">
-          <.link navigate={~p"/sats/#{@sat.number}"} title="Satellite details" class="hover:underline">
-            <%= @sat.name %>
-          </.link>
-          pass over <%= @grid %>
-        </h1>
+        <div>
+          <h1 class="text-2xl font-medium text-gray-700 whitespace-nowrap">
+            <.link navigate={~p"/sats/#{@sat.number}"} title="Satellite details" class="hover:underline">
+              <%= @sat.name %>
+            </.link>
+            pass over <%= @grid %>
+          </h1>
+          <h2 class="text-gray-700"><%= when_text(@context, @pass) %></h2>
+        </div>
         <% {status_label, status_timer, status_class} = status(@pass, @now) %>
         <div class="flex items-center gap-3 w-full sm:w-auto sm:ml-auto">
           <div class={["uppercase tracking-wide px-4 py-1.5 border-2 font-semibold text-sm", status_class]}>
@@ -20,10 +23,6 @@
       </div>
 
       <div class="flex flex-wrap gap-x-10 gap-y-3 text-sm">
-        <div>
-          <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5">When</div>
-          <div class="text-gray-700"><%= when_text(@context, @pass) %></div>
-        </div>
         <div>
           <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5">Downlink</div>
           <div class="text-gray-700"><%= sat_freqs(@sat, :downlinks) %></div>
@@ -42,25 +41,23 @@
     <%!-- Sky track --%>
     <% position = sat_position(@pass, @now) %>
     <div class="flex flex-col">
-      <div class="flex items-stretch bg-gray-50 border-b">
-        <div class="flex-1 flex items-center px-6 py-2.5 text-xl font-semibold text-gray-700 whitespace-nowrap">
-          Sky track · <%= @grid %>
-        </div>
-        <div class="flex items-baseline gap-2 px-4 py-2.5 border-l">
-          <span class="uppercase text-sm tracking-wider text-gray-400">Az</span>
-          <span class="text-xl text-gray-800 tabular-nums whitespace-nowrap">
-            <%= deg(position.azimuth_in_degrees) %>
-          </span>
-        </div>
-        <div class="flex items-baseline gap-2 px-4 py-2.5 border-l">
-          <span class="uppercase text-sm tracking-wider text-gray-400">El</span>
-          <span class={["text-xl tabular-nums whitespace-nowrap", elevation_class(position.elevation_in_degrees)]}>
-            <%= deg(position.elevation_in_degrees) %>
-          </span>
-        </div>
-      </div>
       <div class="grid lg:grid-cols-2 gap-6 items-center px-3 py-4 md:px-6 md:py-5">
         <div class="flex flex-col items-center gap-3">
+          <div class="flex gap-3 border rounded-lg">
+            <div class="flex items-baseline gap-2 px-4 py-2.5">
+              <span class="uppercase text-sm tracking-wider text-gray-400">Az</span>
+              <span class="text-xl text-gray-800 tabular-nums whitespace-nowrap">
+                <%= deg(position.azimuth_in_degrees) %>
+              </span>
+            </div>
+            <div class="flex items-baseline gap-2 px-4 py-2.5 border-l">
+              <span class="uppercase text-sm tracking-wider text-gray-400">El</span>
+              <span class={["text-xl tabular-nums whitespace-nowrap", elevation_class(position.elevation_in_degrees)]}>
+                <%= deg(position.elevation_in_degrees) %>
+              </span>
+            </div>
+          </div>
+
           <div class="w-[80%] max-w-[440px]">
             <PassTracker.component id="pass-tracker" sat={@sat} now={@now} pass_plot={@pass_plot} />
           </div>

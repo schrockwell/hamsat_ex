@@ -61,9 +61,19 @@ defmodule HamsatWeb.LiveComponents.PassTracker do
   defp data_path(nil), do: Jason.encode!([])
   defp data_path(pass_plot), do: Jason.encode!(pass_plot.coords)
 
+  defp data_full_path(nil), do: Jason.encode!([])
+  defp data_full_path(pass_plot), do: Jason.encode!(pass_plot.full_coords)
+
   def render(assigns) do
     ~H"""
-    <div id={@id} phx-hook="PassTrackerHook" phx-update="ignore" data-path={data_path(@pass_plot)}></div>
+    <div
+      id={@id}
+      phx-hook="PassTrackerHook"
+      phx-update="ignore"
+      data-path={data_path(@pass_plot)}
+      data-full-path={data_full_path(@pass_plot)}
+    >
+    </div>
     """
   end
 end
