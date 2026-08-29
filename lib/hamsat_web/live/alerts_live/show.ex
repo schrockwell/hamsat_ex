@@ -12,6 +12,7 @@ defmodule HamsatWeb.AlertsLive.Show do
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.ChatMessage
   alias Hamsat.Schemas.Sat
+  alias HamsatWeb.AlertComponents
   alias HamsatWeb.SatTracker
   alias HamsatWeb.LiveComponents.AlertSaver
   alias HamsatWeb.LiveComponents.PassTracker
