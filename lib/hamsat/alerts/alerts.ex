@@ -83,6 +83,7 @@ defmodule Hamsat.Alerts do
       |> amend_visible_passes(context)
       |> amend_matches(context)
       |> preload_saved_fields(context)
+      |> preload_chat_message_counts()
     end
   end
 
@@ -106,6 +107,7 @@ defmodule Hamsat.Alerts do
       |> amend_visible_passes(context)
       |> amend_matches(context)
       |> preload_saved_fields(context)
+      |> preload_chat_message_counts()
 
     alert
   end
@@ -120,6 +122,7 @@ defmodule Hamsat.Alerts do
         |> amend_visible_passes(context)
         |> amend_matches(context)
         |> preload_saved_fields(context)
+        |> preload_chat_message_counts()
 
       {:ok, alert}
     else
@@ -346,6 +349,14 @@ defmodule Hamsat.Alerts do
     nils = Enum.count(callsigns, &is_nil/1)
     callsigns = callsigns |> Enum.reject(&is_nil/1) |> Enum.sort()
     {callsigns, nils}
+  end
+
+  defp preload_chat_message_counts(alerts) do
+    counts = alerts |> Enum.map(& &1.id) |> Hamsat.Alerts.Chat.message_counts()
+
+    for alert <- alerts do
+      %{alert | chat_message_count: Map.get(counts, alert.id, 0)}
+    end
   end
 
   defp preload_saved_fields(%Alert{} = alert, context) do

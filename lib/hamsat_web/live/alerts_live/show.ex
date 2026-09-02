@@ -302,10 +302,15 @@ defmodule HamsatWeb.AlertsLive.Show do
     assign(socket, :chat_presence_count, count)
   end
 
-  # "12m" until the chat window closes, never below 1m while open
+  # Coarse countdown to chat close: "2d" / "5h" / "12m", never below 1m while open
   defp chat_closes_in(alert, now) do
-    minutes = ceil(DateTime.diff(Chat.closes_at(alert), now) / 60)
-    "#{max(minutes, 1)}m"
+    minutes = max(ceil(DateTime.diff(Chat.closes_at(alert), now) / 60), 1)
+
+    cond do
+      minutes > 24 * 60 -> "#{ceil(minutes / (24 * 60))}d"
+      minutes > 60 -> "#{ceil(minutes / 60)}h"
+      true -> "#{minutes}m"
+    end
   end
 
   defp progress(alert, now) do

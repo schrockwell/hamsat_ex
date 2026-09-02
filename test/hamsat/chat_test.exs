@@ -53,15 +53,13 @@ defmodule Hamsat.Alerts.ChatTest do
       refute Chat.open?(alert, DateTime.utc_now())
     end
 
-    test "opens 5 minutes before AOS and closes 60 minutes after LOS", %{alert: alert} do
-      just_before_open = DateTime.add(alert.aos_at, -5 * 60 - 1)
-      at_open = DateTime.add(alert.aos_at, -5 * 60)
+    test "is open from the start and closes 1 day after LOS", %{alert: alert} do
+      long_before_aos = DateTime.add(alert.aos_at, -30 * 24 * 60 * 60)
       during = DateTime.add(alert.aos_at, 60)
-      at_close = DateTime.add(alert.los_at, 60 * 60)
-      just_after_close = DateTime.add(alert.los_at, 60 * 60 + 1)
+      at_close = DateTime.add(alert.los_at, 24 * 60 * 60)
+      just_after_close = DateTime.add(alert.los_at, 24 * 60 * 60 + 1)
 
-      assert Chat.status(alert, just_before_open) == :before
-      assert Chat.status(alert, at_open) == :open
+      assert Chat.status(alert, long_before_aos) == :open
       assert Chat.status(alert, during) == :open
       assert Chat.status(alert, at_close) == :open
       assert Chat.status(alert, just_after_close) == :closed
@@ -103,15 +101,15 @@ defmodule Hamsat.Alerts.ChatTest do
       assert {:error, :not_signed_in} = Chat.send_message(:guest, alert, %{"body" => "hi"})
     end
 
-    test "rejects messages before the chat window opens", %{user: user, sat: sat} do
-      aos_at = DateTime.utc_now() |> DateTime.add(3600) |> DateTime.truncate(:second)
+    test "accepts messages well before the pass begins", %{user: user, sat: sat} do
+      aos_at = DateTime.utc_now() |> DateTime.add(7 * 24 * 60 * 60) |> DateTime.truncate(:second)
       alert = insert_alert(user, sat, chat_enabled: true, aos_at: aos_at)
 
-      assert {:error, :chat_closed} = Chat.send_message(user, alert, %{"body" => "hi"})
+      assert {:ok, _message} = Chat.send_message(user, alert, %{"body" => "hi"})
     end
 
     test "rejects messages after the chat window closes", %{user: user, sat: sat} do
-      aos_at = DateTime.utc_now() |> DateTime.add(-7200) |> DateTime.truncate(:second)
+      aos_at = DateTime.utc_now() |> DateTime.add(-2 * 24 * 60 * 60) |> DateTime.truncate(:second)
       alert = insert_alert(user, sat, chat_enabled: true, aos_at: aos_at)
 
       assert {:error, :chat_closed} = Chat.send_message(user, alert, %{"body" => "hi"})
@@ -121,6 +119,17 @@ defmodule Hamsat.Alerts.ChatTest do
       alert = insert_alert(user, sat, chat_enabled: false)
 
       assert {:error, :chat_closed} = Chat.send_message(user, alert, %{"body" => "hi"})
+    end
+  end
+
+  describe "message_counts/1" do
+    test "counts messages per alert, defaulting to absent", %{user: user, sat: sat, alert: alert} do
+      other_alert = insert_alert(user, sat, chat_enabled: true)
+
+      {:ok, _} = Chat.send_message(user, alert, %{"body" => "one"})
+      {:ok, _} = Chat.send_message(user, alert, %{"body" => "two"})
+
+      assert Chat.message_counts([alert.id, other_alert.id]) == %{alert.id => 2}
     end
   end
 
