@@ -272,9 +272,12 @@ export default {
       this.noDataTimer = null;
       if (!this.orientation) {
         this.closeOverlay();
+        const qrUrl = new URL(window.location.href);
+        qrUrl.searchParams.set("sky", "1");
         this.showModal(
-          "Device orientation isn't available on this device, so the sky " +
-          "view can't follow your phone."
+          "No compass data is available on this device. Use your phone's " +
+            "compass and motion sensors to locate the satellite:",
+          { qrUrl: qrUrl.toString() }
         );
       }
     }, 2000);
@@ -809,9 +812,11 @@ function isSupported() {
   if (!window.DeviceOrientationEvent) return false;
   if (typeof DeviceOrientationEvent.requestPermission === "function") return true; // iOS 13+
   // Android fires deviceorientationabsolute; desktop Chrome defines the API
-  // but never delivers events, so also require a touch-first device
+  // but never delivers events, so also require an actual touch device
+  // (maxTouchPoints catches touchscreen laptops that report a coarse pointer)
   return (
     "ondeviceorientationabsolute" in window &&
+    navigator.maxTouchPoints > 0 &&
     window.matchMedia("(pointer: coarse)").matches
   );
 }
