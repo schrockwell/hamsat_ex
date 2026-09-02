@@ -3,7 +3,7 @@ defmodule Hamsat.Alerts.Chat do
   Realtime chat attached to an activation alert.
 
   Chat is only available on alerts that opted in (`chat_enabled`), and only
-  while the chat window is open: from 5 minutes before AOS until 60 minutes
+  while the chat window is open: from the moment the alert exists until 1 day
   after LOS.
   """
 
@@ -13,28 +13,21 @@ defmodule Hamsat.Alerts.Chat do
   alias Hamsat.Schemas.Alert
   alias Hamsat.Schemas.ChatMessage
 
-  @open_before_seconds 5 * 60
-  @close_after_seconds 60 * 60
+  @close_after_seconds 24 * 60 * 60
 
-  def opens_at(%Alert{} = alert), do: DateTime.add(alert.aos_at, -@open_before_seconds)
   def closes_at(%Alert{} = alert), do: DateTime.add(alert.los_at, @close_after_seconds)
 
   @doc """
   Returns the chat status of an alert at a moment in time.
 
     * `:disabled` - the activator did not enable chat for this alert
-    * `:before` - chat is enabled but has not opened yet
     * `:open` - chat is open for posting
     * `:closed` - chat has closed
   """
   def status(%Alert{chat_enabled: false}, _now), do: :disabled
 
   def status(%Alert{} = alert, now) do
-    cond do
-      DateTime.compare(now, opens_at(alert)) == :lt -> :before
-      DateTime.compare(now, closes_at(alert)) == :gt -> :closed
-      true -> :open
-    end
+    if DateTime.compare(now, closes_at(alert)) == :gt, do: :closed, else: :open
   end
 
   def open?(%Alert{} = alert, now), do: status(alert, now) == :open
@@ -67,6 +60,20 @@ defmodule Hamsat.Alerts.Chat do
         order_by: [asc: m.inserted_at, asc: m.id],
         preload: [:user]
     )
+  end
+
+  @doc """
+  Returns a map of alert id => chat message count for the given alert ids.
+  Alerts with no messages are absent from the map.
+  """
+  def message_counts(alert_ids) do
+    Repo.all(
+      from m in ChatMessage,
+        where: m.alert_id in ^alert_ids,
+        group_by: m.alert_id,
+        select: {m.alert_id, count(m.id)}
+    )
+    |> Map.new()
   end
 
   @doc """

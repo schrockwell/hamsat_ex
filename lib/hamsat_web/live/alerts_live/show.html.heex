@@ -144,6 +144,7 @@
           now={@now}
           pass_plot={Enum.at(@pass_match.plots, 0)}
           class="md:border-r border-b md:border-b-0"
+          sky_view?={true}
         />
         <.station_tracker
           id="dx-pass-tracker"
@@ -186,10 +187,6 @@
             <% :open -> %>
               <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Open
-              </span>
-            <% :before -> %>
-              <span class="text-xs font-semibold text-gray-400 tabular-nums">
-                Opens in <%= duration(@now, Chat.opens_at(@alert)) %>
               </span>
             <% _ -> %>
               <span class="text-xs font-semibold text-gray-400">Closed</span>
@@ -248,10 +245,6 @@
               <% @chat_status == :open -> %>
                 <div class="text-gray-500 text-center py-1">
                   <a href={~p"/users/log_in"} class="link">Log in</a> to join the chat.
-                </div>
-              <% @chat_status == :before -> %>
-                <div class="text-gray-500 text-center py-1">
-                  Chat opens 5 minutes before the pass.
                 </div>
               <% true -> %>
                 <div class="text-gray-500 text-center py-1">Chat has ended.</div>

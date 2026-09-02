@@ -60,8 +60,9 @@ defmodule HamsatWeb.LiveComponents.ActivationRows do
         <td class="px-1 py-1 border-b text-right align-middle" rowspan="2">
           <div class="flex gap-1.5 justify-end items-center">
             <%= if @alert.chat_enabled do %>
-              <span title="Chat enabled">
-                <Heroicons.LiveView.icon name="chat-bubble-left-right" type="mini" class="block h-4 w-4 text-gray-400" />
+              <span title="Chat messages" class="inline-flex items-center gap-1 text-sm text-gray-400 tabular-nums">
+                <Heroicons.LiveView.icon name="chat-bubble-left-right" type="mini" class="block h-4 w-4" />
+                <%= @alert.chat_message_count %>
               </span>
             <% end %>
             <AlertSaver.component

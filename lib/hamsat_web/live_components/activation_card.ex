@@ -74,8 +74,9 @@ defmodule HamsatWeb.LiveComponents.ActivationCard do
       </div>
       <div class="flex gap-1.5 items-center shrink-0">
         <%= if @alert.chat_enabled do %>
-          <span title="Chat enabled">
-            <Heroicons.LiveView.icon name="chat-bubble-left-right" type="mini" class="block h-4 w-4 text-gray-400" />
+          <span title="Chat messages" class="inline-flex items-center gap-1 text-sm text-gray-400 tabular-nums">
+            <Heroicons.LiveView.icon name="chat-bubble-left-right" type="mini" class="block h-4 w-4" />
+            <%= @alert.chat_message_count %>
           </span>
         <% end %>
         <AlertSaver.component

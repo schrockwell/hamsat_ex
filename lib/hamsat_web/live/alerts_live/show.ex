@@ -302,10 +302,15 @@ defmodule HamsatWeb.AlertsLive.Show do
     assign(socket, :chat_presence_count, count)
   end
 
-  # "12m" until the chat window closes, never below 1m while open
+  # Coarse countdown to chat close: "2d" / "5h" / "12m", never below 1m while open
   defp chat_closes_in(alert, now) do
-    minutes = ceil(DateTime.diff(Chat.closes_at(alert), now) / 60)
-    "#{max(minutes, 1)}m"
+    minutes = max(ceil(DateTime.diff(Chat.closes_at(alert), now) / 60), 1)
+
+    cond do
+      minutes > 24 * 60 -> "#{ceil(minutes / (24 * 60))}d"
+      minutes > 60 -> "#{ceil(minutes / 60)}h"
+      true -> "#{minutes}m"
+    end
   end
 
   defp progress(alert, now) do
@@ -353,6 +358,7 @@ defmodule HamsatWeb.AlertsLive.Show do
   attr :now, DateTime, required: true
   attr :pass_plot, :any, default: nil
   attr :class, :string, default: nil
+  attr :sky_view?, :boolean, default: false
 
   defp station_tracker(assigns) do
     ~H"""
@@ -379,6 +385,25 @@ defmodule HamsatWeb.AlertsLive.Show do
           <PassTracker.component id={@id} sat={@alert.sat} now={@now} pass_plot={@pass_plot} />
         </div>
       </div>
+      <%= if @sky_view? && @pass_plot do %>
+        <%!-- The sky view gets its live position from this PassTracker's
+             "move_satellite" events, so data-tracker-id must match its id --%>
+        <div
+          id="sky-view"
+          phx-hook="SkyViewHook"
+          phx-update="ignore"
+          class="flex justify-center pb-5"
+          data-path={Jason.encode!(@pass_plot.coords)}
+          data-tracker-id={@id}
+          data-sat-name={@alert.sat.name}
+          data-initial-az={@position.azimuth_in_degrees}
+          data-initial-el={@position.elevation_in_degrees}
+        >
+          <button type="button" data-sky-view-open class="btn btn-default btn-sm">
+            Open sky view
+          </button>
+        </div>
+      <% end %>
     </div>
     """
   end
