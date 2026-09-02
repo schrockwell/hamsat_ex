@@ -239,9 +239,11 @@
                   ) %>
                   <%= submit("Send", class: "btn btn-default") %>
                 </.form>
-                <div class="mt-1.5 text-xs text-gray-400 text-center tabular-nums">
-                  Chat closes in <%= chat_closes_in(@alert, @now) %>
-                </div>
+                <%= if DateTime.compare(@now, @alert.aos_at) != :lt do %>
+                  <div class="mt-1.5 text-xs text-gray-400 text-center tabular-nums">
+                    Chat closes in <%= chat_closes_in(@alert, @now) %>
+                  </div>
+                <% end %>
               <% @chat_status == :open -> %>
                 <div class="text-gray-500 text-center py-1">
                   <a href={~p"/users/log_in"} class="link">Log in</a> to join the chat.
