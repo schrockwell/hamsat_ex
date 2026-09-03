@@ -37,6 +37,9 @@ defmodule Hamsat.Satellites.PeriodicSync do
 
     # this purge isn't really necessary here, but it's a good time to do it
     Hamsat.Alerts.PassCache.purge_all()
+    # Cached API alerts carry pass-derived fields (workable window, max
+    # elevation) computed from the old TLEs
+    Hamsat.Alerts.AlertCache.invalidate()
 
     Hamsat.PubSub.broadcast_satellites_updated()
     Process.send_after(self(), :sync, :timer.hours(24))

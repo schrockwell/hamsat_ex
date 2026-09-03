@@ -4,7 +4,8 @@ defmodule Hamsat.Scheduler do
   require Logger
 
   @task_intervals %{
-    purge_pass_cache: :timer.hms(24, 0, 0)
+    purge_pass_cache: :timer.hms(24, 0, 0),
+    purge_alert_cache: :timer.hms(1, 0, 0)
   }
 
   def start_link(_) do
@@ -22,6 +23,15 @@ defmodule Hamsat.Scheduler do
     Logger.info("Purged #{count} passes from the ETS cache")
 
     schedule_task(:purge_pass_cache)
+    {:noreply, state}
+  end
+
+  def handle_info(:purge_alert_cache, state) do
+    count = Hamsat.Alerts.AlertCache.purge()
+
+    Logger.info("Purged #{count} expired entries from the alert cache")
+
+    schedule_task(:purge_alert_cache)
     {:noreply, state}
   end
 
