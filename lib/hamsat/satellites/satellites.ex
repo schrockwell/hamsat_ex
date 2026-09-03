@@ -146,7 +146,8 @@ defmodule Hamsat.Satellites do
 
     from a in Alert,
       where: a.satellite_id == parent_as(:sat).id,
-      where: a.inserted_at >= ^cutoff
+      where: a.inserted_at >= ^cutoff,
+      where: not a.is_test
   end
 
   defp recent_alert_count_query do
@@ -167,6 +168,7 @@ defmodule Hamsat.Satellites do
 
     from(a in Alert,
       where: a.inserted_at >= ^cutoff,
+      where: not a.is_test,
       group_by: [a.satellite_id, fragment("date(?)", a.inserted_at)],
       select: {a.satellite_id, fragment("date(?)", a.inserted_at), count()}
     )
@@ -189,6 +191,7 @@ defmodule Hamsat.Satellites do
       Repo.all(
         from a in Alert,
           where: a.satellite_id == ^sat.id,
+          where: not a.is_test,
           select: {a.callsign, a.grids, a.inserted_at}
       )
 
@@ -203,6 +206,7 @@ defmodule Hamsat.Satellites do
   @doc "Returns `%{satellite_id => most_recent_aos_at}` across all alerts."
   def last_activation_dates do
     from(a in Alert,
+      where: not a.is_test,
       group_by: a.satellite_id,
       select: {a.satellite_id, max(a.aos_at)}
     )

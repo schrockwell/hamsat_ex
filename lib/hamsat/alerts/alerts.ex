@@ -18,11 +18,19 @@ defmodule Hamsat.Alerts do
 
   @doc """
   Creates an alert for a pass.
+
+  Options:
+
+    * `:test` - when true, creates a test alert. Test alerts are hidden from
+      everyone but their owner (see `Alert.visible_query/2`) and don't update
+      the activator's form preferences.
   """
-  def create_alert(context, alert_form_changeset) do
+  def create_alert(context, alert_form_changeset, opts \\ []) do
+    test? = Keyword.get(opts, :test, false)
+
     with {:ok, alert_form} <- Ecto.Changeset.apply_action(alert_form_changeset, :create),
-         {:ok, alert} <- Repo.insert(Alert.changeset(%Alert{}, alert_form)) do
-      Accounts.update_alert_preferences!(context.user, alert)
+         {:ok, alert} <- Repo.insert(Alert.changeset(%Alert{is_test: test?}, alert_form)) do
+      unless test?, do: Accounts.update_alert_preferences!(context.user, alert)
       # Activators always thumbs-up their own activation
       save_alert(context, alert)
       {:ok, alert}
@@ -65,11 +73,15 @@ defmodule Hamsat.Alerts do
   end
 
   @doc """
-  Lists all upcoming alerts.
+  Lists alerts matching the filter, ordered by AOS.
+
+  Test alerts are only included for their owner, unless the filter has
+  `test: :all` (see `apply_alert_filter/3`).
   """
   def list_alerts(context, filter \\ [], opts \\ []) do
     alerts =
       filter
+      |> with_test_filter()
       |> Enum.reduce(Alert, &apply_alert_filter(&1, &2, context))
       |> order_by([a], a.aos_at)
       |> Repo.all()
@@ -92,13 +104,20 @@ defmodule Hamsat.Alerts do
   """
   def count_alerts(context, filter \\ []) do
     filter
+    |> with_test_filter()
     |> Enum.reduce(Alert, &apply_alert_filter(&1, &2, context))
     |> Repo.aggregate(:count)
   end
 
-  def get_alert!(context, id) do
+  @doc """
+  Fetches an alert visible to the context (see `list_alerts/3` for the `:test`
+  filter), raising if there is none.
+  """
+  def get_alert!(context, id, filter \\ []) do
     alert =
-      Alert
+      filter
+      |> with_test_filter()
+      |> Enum.reduce(Alert, &apply_alert_filter(&1, &2, context))
       |> Repo.get!(id)
       |> Repo.preload(sat: [:transponders])
 
@@ -112,9 +131,18 @@ defmodule Hamsat.Alerts do
     alert
   end
 
-  def get_alert(context, id) do
+  @doc """
+  Fetches an alert visible to the context (see `list_alerts/3` for the `:test`
+  filter) as `{:ok, alert}`, or `{:error, :not_found}`.
+  """
+  def get_alert(context, id, filter \\ []) do
+    query =
+      filter
+      |> with_test_filter()
+      |> Enum.reduce(Alert, &apply_alert_filter(&1, &2, context))
+
     with {:ok, uuid} <- Ecto.UUID.cast(id),
-         %Alert{} = alert <- Repo.get(Alert, uuid) do
+         %Alert{} = alert <- Repo.get(query, uuid) do
       alert = Repo.preload(alert, sat: [:transponders])
 
       [alert] =
@@ -139,6 +167,17 @@ defmodule Hamsat.Alerts do
 
   defp user_alert_query(queryable, user) do
     from(a in queryable, where: a.user_id == ^user.id)
+  end
+
+  # Test alerts are hidden from everyone but their owner unless asked for
+  defp with_test_filter(filter), do: Keyword.put_new(filter, :test, :visible)
+
+  defp apply_alert_filter({:test, :visible}, query, context) do
+    Alert.visible_query(query, context.user)
+  end
+
+  defp apply_alert_filter({:test, :all}, query, _context) do
+    query
   end
 
   defp apply_alert_filter({:date, :upcoming}, query, _context) do

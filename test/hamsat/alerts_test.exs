@@ -60,6 +60,97 @@ defmodule AlertsTest do
     end
   end
 
+  describe "test alerts" do
+    setup %{context: context, ao_7: ao_7} do
+      owner_context = %{context | user: user_fixture()}
+      other_context = %{context | user: user_fixture()}
+      [pass | _] = Passes.list_passes(owner_context, ao_7, @one_day)
+
+      {:ok, real} =
+        Alerts.create_alert(
+          other_context,
+          Alerts.change_alert(other_context, ao_7, pass, alert_params(ao_7, pass, "W1AW"))
+        )
+
+      {:ok, test_alert} =
+        Alerts.create_alert(
+          owner_context,
+          Alerts.change_alert(owner_context, ao_7, pass, alert_params(ao_7, pass, "WW1X")),
+          test: true
+        )
+
+      %{
+        guest_context: context,
+        owner_context: owner_context,
+        other_context: other_context,
+        pass: pass,
+        real: real,
+        test_alert: test_alert
+      }
+    end
+
+    test "are flagged and skip preference updates", %{owner_context: context, test_alert: test_alert} do
+      assert test_alert.is_test
+      assert Repo.get!(Hamsat.Accounts.User, context.user.id).latest_callsign == nil
+    end
+
+    test "are listed only for their owner", %{
+      guest_context: guest,
+      owner_context: owner,
+      other_context: other,
+      real: real,
+      test_alert: test_alert
+    } do
+      assert ids(Alerts.list_alerts(guest)) == [real.id]
+      assert ids(Alerts.list_alerts(other)) == [real.id]
+      assert ids(Alerts.list_alerts(owner)) == Enum.sort([real.id, test_alert.id])
+      assert Alerts.count_alerts(guest) == 1
+      assert Alerts.count_alerts(owner) == 2
+    end
+
+    test "are listed for everyone with test: :all", %{
+      guest_context: guest,
+      real: real,
+      test_alert: test_alert
+    } do
+      assert ids(Alerts.list_alerts(guest, test: :all)) == Enum.sort([real.id, test_alert.id])
+    end
+
+    test "can only be fetched by their owner", %{
+      guest_context: guest,
+      owner_context: owner,
+      test_alert: test_alert
+    } do
+      assert {:error, :not_found} = Alerts.get_alert(guest, test_alert.id)
+      assert {:ok, _} = Alerts.get_alert(guest, test_alert.id, test: :all)
+      assert {:ok, _} = Alerts.get_alert(owner, test_alert.id)
+
+      assert_raise Ecto.NoResultsError, fn -> Alerts.get_alert!(guest, test_alert.id) end
+      assert Alerts.get_alert!(owner, test_alert.id).id == test_alert.id
+    end
+
+    test "are attached to passes only for their owner", %{
+      guest_context: guest,
+      owner_context: owner,
+      ao_7: ao_7,
+      pass: pass,
+      real: real,
+      test_alert: test_alert
+    } do
+      opts = [starting: pass_max_at(pass), ending: pass_max_at(pass)]
+
+      [guest_pass] = Passes.list_passes(guest, ao_7, opts)
+      assert ids(guest_pass.alerts) == [real.id]
+
+      [owner_pass] = Passes.list_passes(owner, ao_7, opts)
+      assert ids(owner_pass.alerts) == Enum.sort([real.id, test_alert.id])
+    end
+
+    defp ids(alerts), do: alerts |> Enum.map(& &1.id) |> Enum.sort()
+
+    defp pass_max_at(pass), do: Hamsat.Util.erl_to_utc_datetime(pass.info.max.datetime)
+  end
+
   defp alert_params(sat, pass, callsign) do
     %{
       "callsign" => callsign,

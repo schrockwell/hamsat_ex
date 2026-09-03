@@ -17,6 +17,17 @@ defmodule HamsatWeb.APISpec do
         (found on the Settings page) as a bearer token, which also adapts \
         pass predictions to your station location. Creating an alert requires \
         authentication.
+
+        ## Test alerts
+
+        While developing an integration you can create alerts with \
+        `"test": true`. Test alerts are never shown on the website, in feeds, \
+        or in satellite statistics, and they don't appear in API responses \
+        for anyone but their owner (when authenticated). Read endpoints \
+        accept a `test=1` query parameter that includes everyone's test \
+        alerts, so you can verify your own round trip. Test alerts are \
+        otherwise indistinguishable from regular ones: the response payload \
+        has no `test` field.
         """
       },
       servers: [%{url: "/"}],
@@ -40,6 +51,7 @@ defmodule HamsatWeb.APISpec do
         get: %{
           summary: "List upcoming alerts",
           tags: ["Alerts"],
+          parameters: [test_parameter()],
           responses: %{
             "200" => %{
               description: "Upcoming alerts, soonest first",
@@ -54,6 +66,10 @@ defmodule HamsatWeb.APISpec do
           identified by the satellite, the observer coordinates, and the \
           approximate time of maximum elevation (`max_at`) — the server \
           matches the nearest computed pass within ±30 minutes.
+
+          Set `test` to `true` to create a test alert, which is hidden from \
+          everyone but you unless requested with `?test=1`. Whether an alert \
+          is a test cannot be changed afterwards.
           """,
           tags: ["Alerts"],
           security: [%{bearerAuth: []}],
@@ -76,6 +92,7 @@ defmodule HamsatWeb.APISpec do
           summary: "List upcoming alerts (legacy)",
           description: "Legacy alias for `GET /api/alerts`.",
           tags: ["Alerts"],
+          parameters: [test_parameter()],
           responses: %{
             "200" => %{
               description: "Upcoming alerts, soonest first",
@@ -88,10 +105,13 @@ defmodule HamsatWeb.APISpec do
         get: %{
           summary: "Get an alert",
           tags: ["Alerts"],
-          parameters: [id_parameter()],
+          parameters: [id_parameter(), test_parameter()],
           responses: %{
             "200" => %{description: "The alert", content: json_content("AlertResponse")},
-            "404" => %{description: "Alert not found", content: json_content("Error")}
+            "404" => %{
+              description: "Alert not found (or a test alert you can't see)",
+              content: json_content("Error")
+            }
           }
         },
         patch: %{
@@ -100,7 +120,8 @@ defmodule HamsatWeb.APISpec do
           Updates an alert you own. All fields are optional — omitted fields \
           keep their current values. The pass identifies the alert, so \
           `satellite_number`, `observer_lat`, `observer_lon`, and `max_at` are \
-          immutable; sending them is rejected. Also available as PUT.
+          immutable; sending them is rejected, as is `test`. Also available \
+          as PUT.
           """,
           tags: ["Alerts"],
           security: [%{bearerAuth: []}],
@@ -140,6 +161,19 @@ defmodule HamsatWeb.APISpec do
       in: "path",
       required: true,
       schema: %{type: "string", format: "uuid"}
+    }
+  end
+
+  defp test_parameter do
+    %{
+      name: "test",
+      in: "query",
+      required: false,
+      schema: %{type: "string", enum: ["1"]},
+      description: """
+      Include everyone's test alerts. Without it, only your own test alerts \
+      are included (none when unauthenticated).\
+      """
     }
   end
 
@@ -187,7 +221,17 @@ defmodule HamsatWeb.APISpec do
           "callsign",
           "grids"
         ],
-        properties: alert_input_properties()
+        properties:
+          Map.put(alert_input_properties(), :test, %{
+            type: "boolean",
+            default: false,
+            description: """
+            Create a test alert for trying out your integration. Test alerts \
+            are hidden from everyone but you unless requested with `?test=1`, \
+            never appear on the website, and don't update your activation \
+            form defaults. Cannot be changed after creation.\
+            """
+          })
       },
       "AlertUpdate" => %{
         type: "object",

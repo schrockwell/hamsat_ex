@@ -10,6 +10,7 @@
             <.link navigate={~p"/sats/#{@alert.sat.number}"} title="Satellite details" class="hover:underline">
               <%= @alert.sat.name %>
             </.link>
+            <AlertComponents.test_badge alert={@alert} />
           </h1>
           <h2><%= when_text(@context, @alert) %></h2>
         </div>

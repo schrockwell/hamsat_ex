@@ -16,6 +16,26 @@ defmodule HamsatWeb.AlertComponents do
 
   def match_percentage(assigns), do: ~H""
 
+  @doc """
+  Marks a test alert (created via the API). Only the owner ever sees a test
+  alert, so this is a reminder rather than a warning.
+  """
+  attr :alert, Hamsat.Schemas.Alert, required: true
+
+  def test_badge(%{alert: %{is_test: true}} = assigns) do
+    ~H"""
+    <span class={test_badge_class()} title={test_badge_title()}>Test</span>
+    """
+  end
+
+  def test_badge(assigns), do: ~H""
+
+  # See match_class/1 for why these live in functions
+  defp test_badge_class,
+    do: "text-xs px-1.5 py-0.5 uppercase font-medium bg-purple-100 text-purple-700 align-middle"
+
+  defp test_badge_title, do: "Test activation, created via the API. Only you can see it."
+
   # Kept as a function so the badge span stays on one line in the template —
   # a line break inside the span renders as visible whitespace in the label
   defp match_class(pct) do
