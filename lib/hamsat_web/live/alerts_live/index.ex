@@ -6,7 +6,12 @@ defmodule HamsatWeb.AlertsLive.Index do
   alias Hamsat.Alerts
   alias HamsatWeb.Alerts.Components.AlertTableRow
 
-  on_mount HamsatWeb.Live.NowTicker
+  on_mount {HamsatWeb.Live.NowTicker, fingerprint: {__MODULE__, :now_fingerprint}}
+
+  # Rows change style as activations progress (see NowTicker)
+  def now_fingerprint(assigns, now) do
+    for alert <- assigns.alerts, do: {alert.id, Hamsat.Schemas.Alert.progression(alert, now)}
+  end
 
   def mount(params, _session, socket) do
     print? = params["print"] == "1"

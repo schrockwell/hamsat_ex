@@ -9,7 +9,12 @@ defmodule HamsatWeb.PassesLive.Index do
   alias Hamsat.Util
   alias HamsatWeb.PassesLive.Components.PassTableRow
 
-  on_mount HamsatWeb.Live.NowTicker
+  on_mount {HamsatWeb.Live.NowTicker, fingerprint: {__MODULE__, :now_fingerprint}}
+
+  # Rows change style and lose their buttons as passes progress (see NowTicker)
+  def now_fingerprint(assigns, now) do
+    for pass <- assigns.passes, do: {pass.hash, Pass.progression(pass, now)}
+  end
 
   @reload_passes_interval :timer.minutes(15)
 

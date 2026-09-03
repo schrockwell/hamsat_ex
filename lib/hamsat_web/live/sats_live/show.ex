@@ -14,7 +14,12 @@ defmodule HamsatWeb.SatsLive.Show do
 
   alias HamsatWeb.SatTracker
 
-  on_mount HamsatWeb.Live.NowTicker
+  on_mount {HamsatWeb.Live.NowTicker, fingerprint: {__MODULE__, :now_fingerprint}}
+
+  # Activation rows change style as they progress (see NowTicker)
+  def now_fingerprint(assigns, now) do
+    for alert <- assigns.alerts, do: {alert.id, Hamsat.Schemas.Alert.progression(alert, now)}
+  end
 
   # Earth's gravitational parameter (km³/s²) and mean radius (km), for
   # deriving the orbit summary from the TLE's mean motion and eccentricity
