@@ -3,6 +3,7 @@ defmodule HamsatWeb.API.AlertsController do
 
   alias Hamsat.Accounts.User
   alias Hamsat.Alerts
+  alias Hamsat.Alerts.AlertCache
   alias Hamsat.Coord
   alias Hamsat.Passes
   alias Hamsat.Satellites
@@ -13,18 +14,49 @@ defmodule HamsatWeb.API.AlertsController do
   plug :require_user when action in [:create, :update, :delete]
 
   def index(conn, params) do
-    alerts = Alerts.list_alerts(conn.assigns.context, date: :upcoming, test: test_scope(params))
-    render(conn, "index.json", alerts: alerts)
+    render(conn, "index.json", alerts: list_upcoming_alerts(conn.assigns.context, test_scope(params)))
   end
 
   # Deprecated alias for index, kept for API compatibility
   def upcoming(conn, params), do: index(conn, params)
 
   def show(conn, %{"id" => id} = params) do
-    with {:ok, alert} <- Alerts.get_alert(conn.assigns.context, id, test: test_scope(params)) do
+    with {:ok, alert} <- fetch_alert(conn.assigns.context, id, test_scope(params)) do
       render(conn, "show.json", alert: alert)
     end
   end
+
+  # Reads go through AlertCache. Everything in the response that varies by
+  # caller (test alert visibility, workable window, match) derives from the
+  # user, so the caller's identity is enough for the cache key. The cache is
+  # invalidated whenever alerts change, so the only drift is time: alerts that
+  # ended since the list was cached are filtered out here.
+  defp list_upcoming_alerts(context, scope) do
+    now = DateTime.utc_now()
+
+    {:upcoming, scope, cache_key(context)}
+    |> AlertCache.fetch(fn -> Alerts.list_alerts(context, date: :upcoming, test: scope) end)
+    |> Enum.filter(&(DateTime.compare(&1.los_at, now) != :lt))
+  end
+
+  # Only found alerts are cached, so unknown or malformed ids can't fill the
+  # table.
+  defp fetch_alert(context, id, scope) do
+    key = {:alert, id, scope, cache_key(context)}
+
+    case AlertCache.get(key) do
+      {:ok, alert} ->
+        {:ok, alert}
+
+      :miss ->
+        with {:ok, alert} <- Alerts.get_alert(context, id, test: scope) do
+          {:ok, AlertCache.put(key, alert)}
+        end
+    end
+  end
+
+  defp cache_key(%{user: %User{id: user_id}}), do: user_id
+  defp cache_key(_context), do: :guest
 
   def create(conn, params) do
     context = conn.assigns.context

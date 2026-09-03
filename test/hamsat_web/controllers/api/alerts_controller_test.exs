@@ -1,16 +1,24 @@
 defmodule HamsatWeb.API.AlertsControllerTest do
   use HamsatWeb.ConnCase
 
+  import Ecto.Query
   import Hamsat.AccountsFixtures
 
   alias Hamsat.Alerts
+  alias Hamsat.Alerts.AlertCache
   alias Hamsat.Factory
   alias Hamsat.Passes
+  alias Hamsat.Repo
+  alias Hamsat.Schemas.Alert
   alias Hamsat.Util
 
   @one_day [ending: Timex.shift(DateTime.utc_now(), hours: 24)]
 
   setup do
+    # The cache outlives the SQL sandbox, so don't let one test's alerts leak
+    # into the next
+    AlertCache.invalidate()
+
     %{}
     |> Factory.guest_context(:context)
     |> Factory.satellite(:ao_7, "AO-7")
@@ -130,6 +138,118 @@ defmodule HamsatWeb.API.AlertsControllerTest do
                json_response(conn |> authorize(owner) |> get(~p"/api/alerts/#{alert.id}"), 200)
 
       assert id == alert.id
+    end
+  end
+
+  # Changes that bypass Hamsat.Alerts don't invalidate the cache, which makes
+  # them a way to tell a cache hit from a fresh query.
+  describe "read caching" do
+    setup %{context: context, ao_7: ao_7} do
+      user = user_fixture()
+      %{user: user, alert: insert_alert(context, ao_7, user)}
+    end
+
+    test "serves the alert list from the cache", %{conn: conn, alert: alert} do
+      assert %{"data" => [%{"callsign" => "WW1X"}]} = conn |> get(~p"/api/alerts") |> json_response(200)
+
+      rename_alert_directly(alert, "W1AW")
+
+      assert %{"data" => [%{"callsign" => "WW1X"}]} = conn |> get(~p"/api/alerts") |> json_response(200)
+    end
+
+    test "serves a single alert from the cache", %{conn: conn, alert: alert} do
+      assert %{"data" => %{"callsign" => "WW1X"}} =
+               conn |> get(~p"/api/alerts/#{alert.id}") |> json_response(200)
+
+      rename_alert_directly(alert, "W1AW")
+
+      assert %{"data" => %{"callsign" => "WW1X"}} =
+               conn |> get(~p"/api/alerts/#{alert.id}") |> json_response(200)
+    end
+
+    test "does not cache missing alerts", %{conn: conn, alert: alert} do
+      id = Ecto.UUID.generate()
+      assert json_response(get(conn, ~p"/api/alerts/#{id}"), 404)
+      assert json_response(get(conn, ~p"/api/alerts/#{alert.id}"), 200)
+
+      assert AlertCache.get({:alert, id, :visible, :guest}) == :miss
+      assert {:ok, %Alert{}} = AlertCache.get({:alert, alert.id, :visible, :guest})
+    end
+
+    test "drops alerts from the cached list once they end", %{conn: conn, alert: alert} do
+      assert %{"data" => [_alert]} = conn |> get(~p"/api/alerts") |> json_response(200)
+
+      # Simulate the clock passing LOS while the list is still cached
+      key = {:upcoming, :visible, :guest}
+      assert {:ok, [cached]} = AlertCache.get(key)
+      assert cached.id == alert.id
+
+      past = DateTime.utc_now() |> DateTime.add(-60) |> DateTime.truncate(:second)
+      AlertCache.put(key, [%{cached | aos_at: DateTime.add(past, -600), los_at: past}])
+
+      assert %{"data" => []} = conn |> get(~p"/api/alerts") |> json_response(200)
+    end
+
+    test "invalidates when an alert is updated through the API", %{
+      conn: conn,
+      user: user,
+      alert: alert
+    } do
+      assert %{"data" => [%{"callsign" => "WW1X"}]} = conn |> get(~p"/api/alerts") |> json_response(200)
+
+      conn |> authorize(user) |> patch_json(~p"/api/alerts/#{alert.id}", %{callsign: "W1AW"})
+
+      assert %{"data" => [%{"callsign" => "W1AW"}]} = conn |> get(~p"/api/alerts") |> json_response(200)
+
+      assert %{"data" => %{"callsign" => "W1AW"}} =
+               conn |> get(~p"/api/alerts/#{alert.id}") |> json_response(200)
+    end
+
+    test "invalidates when an alert is deleted through the API", %{
+      conn: conn,
+      user: user,
+      alert: alert
+    } do
+      assert %{"data" => [_alert]} = conn |> get(~p"/api/alerts") |> json_response(200)
+      assert json_response(get(conn, ~p"/api/alerts/#{alert.id}"), 200)
+
+      conn |> authorize(user) |> delete(~p"/api/alerts/#{alert.id}")
+
+      assert %{"data" => []} = conn |> get(~p"/api/alerts") |> json_response(200)
+      assert json_response(get(conn, ~p"/api/alerts/#{alert.id}"), 404)
+    end
+
+    test "invalidates when an alert is created", %{conn: conn, context: context, ao_7: ao_7} do
+      assert %{"data" => [_alert]} = conn |> get(~p"/api/alerts") |> json_response(200)
+
+      insert_alert(context, ao_7)
+
+      assert %{"data" => [_, _]} = conn |> get(~p"/api/alerts") |> json_response(200)
+    end
+
+    test "caches per caller", %{conn: conn, context: context, ao_7: ao_7} do
+      owner = user_fixture()
+      test_alert = insert_alert(context, ao_7, owner, test: true)
+
+      # Guest first, so the owner's request can't be served from the guest entry
+      assert %{"data" => [%{"id" => _real}]} = conn |> get(~p"/api/alerts") |> json_response(200)
+
+      assert %{"data" => data} = conn |> authorize(owner) |> get(~p"/api/alerts") |> json_response(200)
+      assert test_alert.id in Enum.map(data, & &1["id"])
+
+      assert %{"data" => [%{"id" => _real}]} = conn |> get(~p"/api/alerts") |> json_response(200)
+    end
+
+    test "caches the test scope separately", %{conn: conn, context: context, ao_7: ao_7} do
+      test_alert = insert_alert(context, ao_7, user_fixture(), test: true)
+
+      assert %{"data" => [_real]} = conn |> get(~p"/api/alerts") |> json_response(200)
+      assert %{"data" => [_, _]} = conn |> get(~p"/api/alerts?test=1") |> json_response(200)
+      assert %{"data" => [_real]} = conn |> get(~p"/api/alerts") |> json_response(200)
+
+      assert json_response(get(conn, ~p"/api/alerts/#{test_alert.id}"), 404)
+      assert json_response(get(conn, ~p"/api/alerts/#{test_alert.id}?test=1"), 200)
+      assert json_response(get(conn, ~p"/api/alerts/#{test_alert.id}"), 404)
     end
   end
 
@@ -441,6 +561,11 @@ defmodule HamsatWeb.API.AlertsControllerTest do
 
   defp authorize(conn, user) do
     put_req_header(conn, "authorization", "Bearer #{user.feed_key}")
+  end
+
+  # Bypasses Hamsat.Alerts, so the cache is not invalidated
+  defp rename_alert_directly(alert, callsign) do
+    Repo.update_all(from(a in Alert, where: a.id == ^alert.id), set: [callsign: callsign])
   end
 
   defp post_json(conn, path, params) do
