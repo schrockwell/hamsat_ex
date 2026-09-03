@@ -33,7 +33,10 @@
   <td class="whitespace-nowrap px-1 text-center">
     <%= short_time(@context, @alert.aos_at) %> &ndash; <%= short_time(@context, @alert.los_at) %>
   </td>
-  <td class="whitespace-nowrap px-1 text-center"><%= @alert.callsign %></td>
+  <td class="whitespace-nowrap px-1 text-center">
+    <%= @alert.callsign %>
+    <AlertComponents.test_badge alert={@alert} />
+  </td>
   <td class="whitespace-nowrap px-1 text-center">
     <button type="button" phx-click={JS.navigate(~p"/sats/#{@alert.sat.number}")} title="Satellite details" class="link">
       <%= @alert.sat.name %>

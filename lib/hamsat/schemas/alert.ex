@@ -1,6 +1,8 @@
 defmodule Hamsat.Schemas.Alert do
   use Hamsat, :schema
 
+  import Ecto.Query, only: [from: 2]
+
   alias Hamsat.Accounts.User
   alias Hamsat.Schemas.AlertForm
   alias Hamsat.Schemas.Sat
@@ -23,6 +25,9 @@ defmodule Hamsat.Schemas.Alert do
     field :observer_lon, :float
     field :grids, {:array, :string}, default: []
     field :chat_enabled, :boolean, default: false
+    # Set only via the API, for partners testing their integrations; hidden
+    # from everyone but the owner unless explicitly requested
+    field :is_test, :boolean, default: false
 
     field :is_workable?, :boolean, default: false, virtual: true
     field :workable_start_at, :utc_datetime, virtual: true
@@ -187,4 +192,16 @@ defmodule Hamsat.Schemas.Alert do
 
   def owned?(_alert, :guest), do: false
   def owned?(%__MODULE__{} = alert, %User{} = user), do: alert.user_id == user.id
+
+  @doc """
+  Narrows `queryable` to the alerts `user` is allowed to see: every regular
+  alert, plus the user's own test alerts. Guests see no test alerts.
+  """
+  def visible_query(queryable, :guest) do
+    from(a in queryable, where: not a.is_test)
+  end
+
+  def visible_query(queryable, %User{id: user_id}) do
+    from(a in queryable, where: not a.is_test or a.user_id == ^user_id)
+  end
 end

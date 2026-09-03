@@ -45,6 +45,51 @@ defmodule HamsatWeb.API.AlertsControllerTest do
     end
   end
 
+  describe "GET /api/alerts with test alerts" do
+    setup %{context: context, ao_7: ao_7} do
+      owner = user_fixture()
+      real = insert_alert(context, ao_7)
+      test_alert = insert_alert(context, ao_7, owner, test: true)
+      %{owner: owner, real: real, test_alert: test_alert}
+    end
+
+    test "hides test alerts from unauthenticated requests", %{conn: conn, real: real} do
+      assert %{"data" => [%{"id" => id}]} = conn |> get(~p"/api/alerts") |> json_response(200)
+      assert id == real.id
+    end
+
+    test "includes everyone's test alerts with ?test=1", %{
+      conn: conn,
+      real: real,
+      test_alert: test_alert
+    } do
+      assert %{"data" => data} = conn |> get(~p"/api/alerts?test=1") |> json_response(200)
+      assert Enum.map(data, & &1["id"]) |> Enum.sort() == Enum.sort([real.id, test_alert.id])
+    end
+
+    test "includes the caller's own test alerts when authenticated", %{
+      conn: conn,
+      owner: owner,
+      real: real,
+      test_alert: test_alert
+    } do
+      assert %{"data" => data} = conn |> authorize(owner) |> get(~p"/api/alerts") |> json_response(200)
+      assert Enum.map(data, & &1["id"]) |> Enum.sort() == Enum.sort([real.id, test_alert.id])
+    end
+
+    test "hides other people's test alerts when authenticated", %{conn: conn, real: real} do
+      assert %{"data" => [%{"id" => id}]} =
+               conn |> authorize(user_fixture()) |> get(~p"/api/alerts") |> json_response(200)
+
+      assert id == real.id
+    end
+
+    test "never marks alerts as test in the payload", %{conn: conn} do
+      assert %{"data" => data} = conn |> get(~p"/api/alerts?test=1") |> json_response(200)
+      refute Enum.any?(data, &Map.has_key?(&1, "test"))
+    end
+  end
+
   describe "GET /api/alerts/:id" do
     test "returns an alert", %{conn: conn, context: context, ao_7: ao_7} do
       alert = insert_alert(context, ao_7)
@@ -65,6 +110,26 @@ defmodule HamsatWeb.API.AlertsControllerTest do
     test "returns 404 for a malformed id", %{conn: conn} do
       conn = get(conn, ~p"/api/alerts/not-a-uuid")
       assert json_response(conn, 404) == %{"errors" => ["Not Found"]}
+    end
+
+    test "only shows a test alert to its owner or with ?test=1", %{
+      conn: conn,
+      context: context,
+      ao_7: ao_7
+    } do
+      owner = user_fixture()
+      alert = insert_alert(context, ao_7, owner, test: true)
+
+      assert json_response(get(conn, ~p"/api/alerts/#{alert.id}"), 404)
+      assert json_response(conn |> authorize(user_fixture()) |> get(~p"/api/alerts/#{alert.id}"), 404)
+
+      assert %{"data" => %{"id" => id}} = json_response(get(conn, ~p"/api/alerts/#{alert.id}?test=1"), 200)
+      assert id == alert.id
+
+      assert %{"data" => %{"id" => id}} =
+               json_response(conn |> authorize(owner) |> get(~p"/api/alerts/#{alert.id}"), 200)
+
+      assert id == alert.id
     end
   end
 
@@ -114,6 +179,46 @@ defmodule HamsatWeb.API.AlertsControllerTest do
       assert %{"data" => data} = json_response(conn, 201)
       assert data["mhz_direction"] == "down"
       assert data["mode"] == "SSB"
+    end
+
+    test "creates a test alert", %{conn: conn, user: user, ao_7: ao_7, pass: pass} do
+      params = Map.put(alert_params(ao_7, pass), :test, true)
+
+      conn =
+        conn
+        |> authorize(user)
+        |> post_json(~p"/api/alerts", params)
+
+      # The payload is identical to a regular alert's
+      assert %{"data" => %{"id" => id} = data} = json_response(conn, 201)
+      refute Map.has_key?(data, "test")
+
+      alert = Hamsat.Repo.get!(Hamsat.Schemas.Alert, id)
+      assert alert.is_test
+
+      # A test alert doesn't become the user's form defaults
+      assert Hamsat.Repo.get!(Hamsat.Accounts.User, user.id).latest_callsign == nil
+    end
+
+    test "accepts test as a string flag", %{conn: conn, user: user, ao_7: ao_7, pass: pass} do
+      for value <- ["1", "true"] do
+        conn =
+          conn
+          |> authorize(user)
+          |> post_json(~p"/api/alerts", Map.put(alert_params(ao_7, pass), :test, value))
+
+        assert %{"data" => %{"id" => id}} = json_response(conn, 201)
+        assert Hamsat.Repo.get!(Hamsat.Schemas.Alert, id).is_test
+      end
+    end
+
+    test "returns 422 for a non-boolean test flag", %{conn: conn, user: user, ao_7: ao_7, pass: pass} do
+      conn =
+        conn
+        |> authorize(user)
+        |> post_json(~p"/api/alerts", Map.put(alert_params(ao_7, pass), :test, "yes"))
+
+      assert json_response(conn, 422) == %{"errors" => ["test must be a boolean"]}
     end
 
     test "returns 401 without an API key", %{conn: conn, ao_7: ao_7, pass: pass} do
@@ -245,7 +350,8 @@ defmodule HamsatWeb.API.AlertsControllerTest do
         satellite_number: 39444,
         observer_lat: 40.0,
         observer_lon: -74.0,
-        max_at: DateTime.to_iso8601(DateTime.utc_now())
+        max_at: DateTime.to_iso8601(DateTime.utc_now()),
+        test: true
       }
 
       for {field, value} <- immutable do
@@ -363,7 +469,7 @@ defmodule HamsatWeb.API.AlertsControllerTest do
     }
   end
 
-  defp insert_alert(context, sat, user \\ nil) do
+  defp insert_alert(context, sat, user \\ nil, opts \\ []) do
     context = %{context | user: user || user_fixture()}
     [pass | _] = Passes.list_passes(context, sat, @one_day)
 
@@ -378,7 +484,7 @@ defmodule HamsatWeb.API.AlertsControllerTest do
     }
 
     {:ok, alert} =
-      Alerts.create_alert(context, Alerts.change_alert(context, sat, pass, params))
+      Alerts.create_alert(context, Alerts.change_alert(context, sat, pass, params), opts)
 
     alert
   end

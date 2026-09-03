@@ -29,6 +29,7 @@
           </.link>
         </span>
         <SatComponents.sat_modulation_labels sat={@alert.sat} />
+        <AlertComponents.test_badge alert={@alert} />
         <%= if @alert.chat_enabled do %>
           <span title="Chat messages" class="inline-flex items-center gap-1 text-sm text-gray-400 tabular-nums">
             <Heroicons.LiveView.icon name="chat-bubble-left-right" type="mini" class="inline h-4 w-4" />

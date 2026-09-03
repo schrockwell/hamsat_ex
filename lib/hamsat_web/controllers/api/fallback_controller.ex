@@ -37,6 +37,10 @@ defmodule HamsatWeb.API.FallbackController do
     unprocessable(conn, ["max_at must be an ISO 8601 datetime"])
   end
 
+  def call(conn, {:error, :invalid_test}) do
+    unprocessable(conn, ["test must be a boolean"])
+  end
+
   def call(conn, {:error, {:immutable_params, fields}}) do
     unprocessable(conn, Enum.map(fields, &"#{&1} cannot be changed"))
   end

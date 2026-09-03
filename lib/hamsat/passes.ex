@@ -77,14 +77,17 @@ defmodule Hamsat.Passes do
   def list_passes(context, sat, opts \\ [])
 
   def list_passes(%Context{} = context, sat, opts) do
-    list_passes(context.location, sat, opts)
+    context.location
+    |> list_pass_infos(sat, opts)
+    |> Enum.sort_by(& &1.aos.datetime)
+    |> convert_pass_infos_to_passes(context.location, context.user)
   end
 
   def list_passes(%Coord{} = coord, sat, opts) do
     coord
     |> list_pass_infos(sat, opts)
     |> Enum.sort_by(& &1.aos.datetime)
-    |> convert_pass_infos_to_passes(coord)
+    |> convert_pass_infos_to_passes(coord, :guest)
   end
 
   @doc """
@@ -104,7 +107,7 @@ defmodule Hamsat.Passes do
     |> List.flatten()
     |> filter_pass_infos(pass_filter)
     |> Enum.sort_by(& &1.aos.datetime)
-    |> convert_pass_infos_to_passes(context.location)
+    |> convert_pass_infos_to_passes(context.location, context.user)
   end
 
   defp filter_sats(sats, pass_filter) do
@@ -128,7 +131,9 @@ defmodule Hamsat.Passes do
     PassCache.list_passes_until(sat, coord, starting, ending)
   end
 
-  defp convert_pass_infos_to_passes(infos, coord) do
+  # Each pass carries the alerts posted during it that `user` may see (test
+  # alerts are only shown to their owner)
+  defp convert_pass_infos_to_passes(infos, coord, user) do
     sat_numbers = infos |> Enum.map(& &1.satnum) |> Enum.uniq()
     observer = Coord.to_observer(coord)
 
@@ -143,6 +148,7 @@ defmodule Hamsat.Passes do
         join: s in assoc(a, :sat),
         where: s.number in ^sat_numbers
       )
+      |> Alert.visible_query(user)
       |> Repo.all()
       |> Repo.preload([:sat])
       |> Enum.group_by(& &1.sat.number)

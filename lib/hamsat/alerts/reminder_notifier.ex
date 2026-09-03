@@ -78,6 +78,7 @@ defmodule Hamsat.Alerts.ReminderNotifier do
         join: u in assoc(sa, :user),
         where: is_nil(sa.notified_at),
         where: u.push_reminders_enabled,
+        where: not a.is_test,
         where: a.aos_at <= ^lead and a.los_at > ^now,
         select: {sa.id, sa.user_id, sa.alert_id}
     )

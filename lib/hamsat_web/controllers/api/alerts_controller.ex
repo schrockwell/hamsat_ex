@@ -12,16 +12,16 @@ defmodule HamsatWeb.API.AlertsController do
 
   plug :require_user when action in [:create, :update, :delete]
 
-  def index(conn, _params) do
-    alerts = Alerts.list_alerts(conn.assigns.context, date: :upcoming)
+  def index(conn, params) do
+    alerts = Alerts.list_alerts(conn.assigns.context, date: :upcoming, test: test_scope(params))
     render(conn, "index.json", alerts: alerts)
   end
 
   # Deprecated alias for index, kept for API compatibility
   def upcoming(conn, params), do: index(conn, params)
 
-  def show(conn, %{"id" => id}) do
-    with {:ok, alert} <- Alerts.get_alert(conn.assigns.context, id) do
+  def show(conn, %{"id" => id} = params) do
+    with {:ok, alert} <- Alerts.get_alert(conn.assigns.context, id, test: test_scope(params)) do
       render(conn, "show.json", alert: alert)
     end
   end
@@ -32,10 +32,11 @@ defmodule HamsatWeb.API.AlertsController do
     with {:ok, sat} <- Satellites.fetch_satellite_by_number(params["satellite_number"]),
          {:ok, coord} <- parse_observer(params),
          {:ok, max_at} <- parse_max_at(params["max_at"]),
+         {:ok, test?} <- parse_test(params),
          {:ok, pass} <- Passes.find_pass_by_max_at(coord, sat, max_at),
          {:ok, form_params} <- build_form_params(params, sat),
          changeset = Alerts.change_alert(context, sat, pass, form_params),
-         {:ok, alert} <- Alerts.create_alert(context, changeset) do
+         {:ok, alert} <- Alerts.create_alert(context, changeset, test: test?) do
       alert = Alerts.get_alert!(context, alert.id)
 
       conn
@@ -45,8 +46,9 @@ defmodule HamsatWeb.API.AlertsController do
     end
   end
 
-  # The pass identifies the alert, so the fields that select it are immutable
-  @immutable_update_params ~w(satellite_number observer_lat observer_lon max_at)
+  # The pass identifies the alert, so the fields that select it are immutable.
+  # Whether an alert is a test is decided at creation, too.
+  @immutable_update_params ~w(satellite_number observer_lat observer_lon max_at test)
 
   def update(conn, %{"id" => id} = params) do
     context = conn.assigns.context
@@ -178,4 +180,24 @@ defmodule HamsatWeb.API.AlertsController do
   end
 
   defp parse_max_at(_value), do: {:error, :invalid_max_at}
+
+  # The `test` body param on create: a JSON boolean, or the same "1"/"true"
+  # spellings the query param accepts
+  defp parse_test(%{"test" => value}) do
+    cond do
+      truthy?(value) -> {:ok, true}
+      value in [false, "false", "0", 0, nil, ""] -> {:ok, false}
+      true -> {:error, :invalid_test}
+    end
+  end
+
+  defp parse_test(_params), do: {:ok, false}
+
+  # Read requests only include test alerts when asked with ?test=1. Without it,
+  # a caller sees only their own test alerts (or none, unauthenticated).
+  defp test_scope(params) do
+    if truthy?(params["test"]), do: :all, else: :visible
+  end
+
+  defp truthy?(value), do: value in [true, "true", "1", 1]
 end
