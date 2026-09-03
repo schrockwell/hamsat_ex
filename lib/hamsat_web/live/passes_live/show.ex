@@ -61,18 +61,26 @@ defmodule HamsatWeb.PassesLive.Show do
   defp aos_at(pass), do: Util.erl_to_utc_datetime(pass.info.aos.datetime)
   defp los_at(pass), do: Util.erl_to_utc_datetime(pass.info.los.datetime)
 
-  # The status chip next to the title: {label, timer, class}
+  # The status chip next to the title: {label, class}. The timer beside it is
+  # a browser-side countdown (see status_timer_segments/1).
   defp status(pass, now) do
     case Pass.progression(pass, now) do
-      :upcoming ->
-        {"Upcoming", "rises in #{duration(now, aos_at(pass))}", "border-gray-300 bg-gray-100 text-gray-700"}
-
-      :in_progress ->
-        {"In progress", "sets in #{duration(now, los_at(pass))}", "border-emerald-500 bg-emerald-100 text-emerald-700"}
-
-      :passed ->
-        {"Passed", "#{Timex.from_now(los_at(pass), now)}", "border-gray-200 bg-gray-100 text-gray-400"}
+      :upcoming -> {"Upcoming", "border-gray-300 bg-gray-100 text-gray-700"}
+      :in_progress -> {"In progress", "border-emerald-500 bg-emerald-100 text-emerald-700"}
+      :passed -> {"Passed", "border-gray-200 bg-gray-100 text-gray-400"}
     end
+  end
+
+  # "rises in 1:23:45" / "sets in 4:56" / "2 hours ago"
+  defp status_timer_segments(pass) do
+    aos_at = aos_at(pass)
+    los_at = los_at(pass)
+
+    [
+      %{until: aos_at, template: "rises in %s", to: aos_at, style: :hms},
+      %{until: los_at, template: "sets in %s", to: los_at, style: :hms},
+      %{until: nil, template: "%s", to: los_at, style: :ago}
+    ]
   end
 
   defp sat_position(pass, _now) do

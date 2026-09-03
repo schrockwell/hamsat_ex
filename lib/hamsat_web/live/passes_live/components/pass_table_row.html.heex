@@ -8,7 +8,9 @@ trigger the row's navigate (LiveView executes only the closest phx-click) --%>
     <span class="mr-4"><%= date(@context, @pass.info.aos.datetime) %></span>
     <span class="mr-4"><%= time(@context, @pass.info.aos.datetime) %></span>
   </td>
-  <td class="whitespace-nowrap px-1 text-center"><%= @next_event_in %></td>
+  <td class="whitespace-nowrap px-1 text-center">
+    <.countdown id={"pass-next-event-#{@pass.hash}"} segments={pass_next_event_segments(@pass)} />
+  </td>
   <td class="whitespace-nowrap px-1 text-center whitespace-nowrap">
     <.link navigate={~p"/sats/#{@pass.sat.number}"} title="Satellite details" class="link" phx-click={%JS{}}>
       <%= pass_sat_name(@pass) %>

@@ -14,7 +14,7 @@ defmodule HamsatWeb.DashboardLive.Show do
 
   alias HamsatWeb.SatComponents
 
-  on_mount HamsatWeb.Live.NowTicker
+  on_mount {HamsatWeb.Live.NowTicker, fingerprint: {__MODULE__, :now_fingerprint}}
 
   @reload_alerts_interval :timer.minutes(1)
   @reload_passes_interval :timer.minutes(15)
@@ -119,6 +119,23 @@ defmodule HamsatWeb.DashboardLive.Show do
       end)
 
     assign(socket, passes_loading?: true, passes_task_pid: task_pid)
+  end
+
+  # Everything on this page that depends on the clock (see NowTicker):
+  # activation rows change style as they progress, and passed passes get purged
+  def now_fingerprint(assigns, now) do
+    alerts = for alert <- assigns.my_alerts ++ assigns.visible_alerts, do: {alert.id, Alert.progression(alert, now)}
+    passes = for pass <- assigns.upcoming_passes, do: {pass.hash, Pass.progression(pass, now)}
+    {alerts, passes}
+  end
+
+  # Countdown segments for the "Now" badge, shown only while the pass is up
+  defp pass_now_segments(pass) do
+    [
+      %{until: Hamsat.Util.erl_to_utc_datetime(pass.info.aos.datetime), text: ""},
+      %{until: Hamsat.Util.erl_to_utc_datetime(pass.info.los.datetime), text: "Now"},
+      %{until: nil, text: ""}
+    ]
   end
 
   defp purge_passed_upcoming_passes(socket) do

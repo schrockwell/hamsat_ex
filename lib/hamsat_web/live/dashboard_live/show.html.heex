@@ -132,11 +132,11 @@
               </div>
             </div>
             <div class="ml-auto flex items-center gap-2 shrink-0">
-              <%= if Pass.progression(pass, @now) == :in_progress do %>
-                <span class="bg-red-600 text-white text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded">
-                  Now
-                </span>
-              <% end %>
+              <.countdown
+                id={"pass-now-#{Pass.encode_hash(pass)}"}
+                segments={pass_now_segments(pass)}
+                class="bg-red-600 text-white text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded"
+              />
               <Heroicons.LiveView.icon
                 name="chevron-right"
                 type="mini"

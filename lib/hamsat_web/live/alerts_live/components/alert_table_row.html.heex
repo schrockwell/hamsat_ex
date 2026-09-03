@@ -70,7 +70,7 @@
     <% end %>
   </td>
   <td class="whitespace-nowrap px-1 text-center text-emerald-700">
-    <%= @next_workable_in %>
+    <.countdown id={"alert-next-workable-#{@alert.id}"} segments={alert_next_workable_segments(@alert)} />
   </td>
   <td class="whitespace-nowrap px-1 text-right px-3">
     <%= if Alert.owned?(@alert, @context.user) do %>

@@ -58,8 +58,7 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
     {:ok,
      socket
      |> assign(assigns)
-     |> assign_row_class()
-     |> assign_next_workable_in()}
+     |> assign_row_class()}
   end
 
   defp alert_table_row_class(alert, now) do
@@ -80,9 +79,5 @@ defmodule HamsatWeb.Alerts.Components.AlertTableRow do
 
   defp assign_row_class(socket) do
     assign(socket, row_class: alert_table_row_class(socket.assigns.alert, socket.assigns.now))
-  end
-
-  defp assign_next_workable_in(socket) do
-    assign(socket, next_workable_in: alert_next_workable_in(socket.assigns.now, socket.assigns.alert))
   end
 end

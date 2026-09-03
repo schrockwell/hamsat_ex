@@ -14,7 +14,12 @@ defmodule HamsatWeb.SatsLive.Show do
 
   alias HamsatWeb.SatTracker
 
-  on_mount HamsatWeb.Live.NowTicker
+  on_mount {HamsatWeb.Live.NowTicker, fingerprint: {__MODULE__, :now_fingerprint}}
+
+  # Activation rows change style as they progress (see NowTicker)
+  def now_fingerprint(assigns, now) do
+    for alert <- assigns.alerts, do: {alert.id, Hamsat.Schemas.Alert.progression(alert, now)}
+  end
 
   # Earth's gravitational parameter (km³/s²) and mean radius (km), for
   # deriving the orbit summary from the TLE's mean motion and eccentricity
@@ -187,24 +192,15 @@ defmodule HamsatWeb.SatsLive.Show do
     prefix <> short_time(context, aos) <> " – " <> short_time(context, los)
   end
 
-  # "in 1:44" / "in 1d 1:00" until AOS; "now" once the pass has started
-  defp pass_countdown(pass, now) do
-    seconds = Timex.diff(pass_aos_at(pass), now, :second)
+  # Countdown segments: "in 1:44" / "in 1d 1:00" until AOS; "now" once the
+  # pass has started
+  defp pass_countdown_segments(pass) do
+    aos = pass_aos_at(pass)
 
-    if seconds <= 0 do
-      "now"
-    else
-      days = div(seconds, 86_400)
-      hours = div(rem(seconds, 86_400), 3600)
-      minutes = div(rem(seconds, 3600), 60)
-      minutes = if minutes < 10, do: "0#{minutes}", else: to_string(minutes)
-
-      if days > 0 do
-        "in #{days}d #{hours}:#{minutes}"
-      else
-        "in #{hours}:#{minutes}"
-      end
-    end
+    [
+      %{until: aos, template: "in %s", to: aos, style: :countdown},
+      %{until: nil, text: "now"}
+    ]
   end
 
   # "212° SW → 38° NE"
@@ -215,25 +211,25 @@ defmodule HamsatWeb.SatsLive.Show do
     "#{round(aos_az)}° #{cardinal_direction(aos_az)} → #{round(los_az)}° #{cardinal_direction(los_az)}"
   end
 
-  # "Next pass over FN42 · today 11:46 · max 62°"
-  defp next_pass_caption(context, [pass | _], now) do
+  # Countdown segments for "Next pass over FN42 · today 11:46 · max 62°",
+  # which becomes "· now until 12:03 ·" once the pass has started
+  defp next_pass_caption_segments(context, [pass | _]) do
     aos = pass_aos_at(pass)
+    los = Util.erl_to_utc_datetime(pass.info.los.datetime)
     aos_local = Timex.to_datetime(aos, context.timezone)
 
     day =
-      cond do
-        Timex.compare(now, aos) == 1 -> "now"
-        Timex.to_date(aos_local) == Timex.today(context.timezone) -> "today"
-        true -> Timex.format!(aos_local, "{WDshort}")
-      end
+      if Timex.to_date(aos_local) == Timex.today(context.timezone),
+        do: "today",
+        else: Timex.format!(aos_local, "{WDshort}")
 
-    time =
-      if day == "now",
-        do: "until #{short_time(context, Util.erl_to_utc_datetime(pass.info.los.datetime))}",
-        else: short_time(context, aos)
+    caption = fn when_text ->
+      "Next pass over #{grid_label(context)} · #{when_text} · max #{pass_max_el(pass)}"
+    end
 
-    "Next pass over #{grid_label(context)} · #{day} #{time} · max #{pass_max_el(pass)}"
+    [
+      %{until: aos, text: caption.("#{day} #{short_time(context, aos)}")},
+      %{until: nil, text: caption.("now until #{short_time(context, los)}")}
+    ]
   end
-
-  defp next_pass_caption(_context, _passes, _now), do: nil
 end

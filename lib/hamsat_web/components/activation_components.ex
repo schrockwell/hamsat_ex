@@ -78,20 +78,9 @@ defmodule HamsatWeb.ActivationComponents do
     [color, "text-xs font-semibold px-1.5 py-0.5 rounded ml-1.5"]
   end
 
-  @doc "\"in 1:44\" / \"in 2d 2:25\" countdown until the activation's AOS"
-  def countdown(%Alert{} = alert, now) do
-    seconds = max(Timex.diff(alert.aos_at, now, :second), 0)
-
-    days = div(seconds, 86_400)
-    hours = div(rem(seconds, 86_400), 3600)
-    minutes = div(rem(seconds, 3600), 60)
-    minutes = if minutes < 10, do: "0#{minutes}", else: to_string(minutes)
-
-    if days > 0 do
-      "#{days}d #{hours}:#{minutes}"
-    else
-      "#{hours}:#{minutes}"
-    end
+  @doc "Countdown segments for \"1:44\" / \"2d 2:25\" until the activation's AOS"
+  def countdown_segments(%Alert{} = alert) do
+    [%{until: nil, template: "%s", to: alert.aos_at, style: :countdown}]
   end
 
   @doc """
