@@ -19,7 +19,6 @@ defmodule HamsatWeb.LiveComponents.ActivationCard do
      |> assign(:card_class, if(in_progress?, do: "bg-emerald-100 text-emerald-700", else: nil))
      |> assign(:line1_class, if(in_progress?, do: "font-semibold", else: nil))
      |> assign(:detail_class, if(in_progress?, do: "text-emerald-700", else: "text-gray-500"))
-     |> assign(:countdown, if(in_progress?, do: nil, else: ActivationComponents.countdown(assigns.alert, now)))
      |> assign(:time_span, ActivationComponents.alert_time_span(assigns.context, assigns.alert))}
   end
 
@@ -39,7 +38,11 @@ defmodule HamsatWeb.LiveComponents.ActivationCard do
                 Now
               </span>
             <% else %>
-              in <%= @countdown %>
+              in
+              <.countdown
+                id={"activation-card-countdown#{@id_suffix}-#{@alert.id}"}
+                segments={ActivationComponents.countdown_segments(@alert)}
+              />
               <%= if @show_match and @alert.match do %>
                 <span class={ActivationComponents.match_badge_class(@alert.match.total)}>
                   <%= pct(@alert.match.total) %>

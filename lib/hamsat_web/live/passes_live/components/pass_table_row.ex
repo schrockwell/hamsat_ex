@@ -60,7 +60,6 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
     {:ok,
      socket
      |> assign(assigns)
-     |> assign_next_event_in()
      |> assign_row_class()
      |> assign_show_create_button()
      |> assign_show_edit_button()
@@ -73,14 +72,6 @@ defmodule HamsatWeb.PassesLive.Components.PassTableRow do
       socket
     else
       assign(socket, plot_coords: Pass.plot_coords(socket.assigns.pass))
-    end
-  end
-
-  defp assign_next_event_in(socket) do
-    if changed?(socket, :now) do
-      assign(socket, next_event_in: pass_next_event_in(socket.assigns.now, socket.assigns.pass))
-    else
-      socket
     end
   end
 

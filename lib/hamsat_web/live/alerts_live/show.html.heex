@@ -54,12 +54,14 @@
 
     <%!-- Timeline --%>
     <div class="px-10 pt-5 pb-4 md:pt-7 md:pb-5 flex flex-col md:flex-row gap-10">
-      <% {status_label, status_timer, status_class} = @status %>
+      <% {status_label, status_class} = @status %>
       <div class="flex flex-col items-center gap-1.5 mr-4">
         <div class={["uppercase tracking-wide px-4 py-1.5 border-2 font-semibold text-sm", status_class]}>
           <%= status_label %>
         </div>
-        <div class="text-sm text-gray-500 tabular-nums"><%= status_timer %></div>
+        <div class="text-sm text-gray-500 tabular-nums">
+          <.countdown id="alert-status-timer" segments={status_timer_segments(@alert)} />
+        </div>
       </div>
 
       <div class="mx-4 flex-grow">
@@ -101,12 +103,14 @@
           <% end %>
 
           <%!-- Satellite cursor --%>
-          <div
+          <.progress_cursor
+            id="alert-cursor"
+            start_at={@alert.aos_at}
+            end_at={@alert.los_at}
             class={[
               @cursor_class,
               "absolute top-px w-[30px] h-[30px] -ml-[15px] rounded-full shadow flex items-center justify-center transition-[left] duration-1000 ease-linear"
             ]}
-            style={@cursor_style}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
               <g transform="rotate(45 12 12)">
@@ -115,7 +119,7 @@
                 <rect x="15.8" y="10.4" width="6.2" height="3.2" rx="0.6"></rect>
               </g>
             </svg>
-          </div>
+          </.progress_cursor>
         </div>
 
         <%!-- Node labels: flex flow with grow-weighted spacers, so each label sits
@@ -240,11 +244,11 @@
                   ) %>
                   <%= submit("Send", class: "btn btn-default") %>
                 </.form>
-                <%= if DateTime.compare(@now, @alert.aos_at) != :lt do %>
-                  <div class="mt-1.5 text-xs text-gray-400 text-center tabular-nums">
-                    Chat closes in <%= chat_closes_in(@alert, @now) %>
-                  </div>
-                <% end %>
+                <.countdown
+                  id="chat-closes-in"
+                  class="block mt-1.5 text-xs text-gray-400 text-center tabular-nums"
+                  segments={chat_closes_segments(@alert)}
+                />
               <% @chat_status == :open -> %>
                 <div class="text-gray-500 text-center py-1">
                   <a href={~p"/users/log_in"} class="link">Log in</a> to join the chat.

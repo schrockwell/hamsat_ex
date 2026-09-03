@@ -115,7 +115,11 @@
             <div class="grid grid-cols-[200px_90px_minmax(0,1fr)_auto] gap-3 items-center px-4 py-2 border-b border-gray-100 text-[15px] hover:bg-gray-50">
               <div class="whitespace-nowrap">
                 <%= pass_time_span(@context, pass) %>
-                <span class="text-[13px] text-gray-400"><%= pass_countdown(pass, @now) %></span>
+                <.countdown
+                  id={"pass-countdown-#{Pass.encode_hash(pass)}"}
+                  class="text-[13px] text-gray-400"
+                  segments={pass_countdown_segments(pass)}
+                />
               </div>
               <div class="tabular-nums"><%= pass_max_el(pass) %></div>
               <div class="text-sm text-gray-500 whitespace-nowrap"><%= pass_azimuths(pass) %></div>
@@ -156,8 +160,10 @@
           sat_positions={@sat_positions}
         />
       </div>
-      <%= if @context.location && next_pass_caption(@context, @passes, @now) do %>
-        <div class="text-[13px] text-gray-500"><%= next_pass_caption(@context, @passes, @now) %></div>
+      <%= if @context.location && @passes != [] do %>
+        <div class="text-[13px] text-gray-500">
+          <.countdown id="next-pass-caption" segments={next_pass_caption_segments(@context, @passes)} />
+        </div>
       <% end %>
     </div>
 

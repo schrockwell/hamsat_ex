@@ -30,6 +30,7 @@ import PassTrackerHook from "./pass-tracker-hook";
 import SkyViewHook from "./sky-view-hook";
 import { initPushSettings } from "./push-settings";
 import { ChatMessages, ChatForm } from "./chat-hooks";
+import { Countdown, ProgressCursor } from "./countdown-hook";
 
 const Hooks = {
   LeafletPicker,
@@ -40,6 +41,8 @@ const Hooks = {
   SkyViewHook,
   ChatMessages,
   ChatForm,
+  Countdown,
+  ProgressCursor,
 };
 
 let csrfToken = document

@@ -8,8 +8,8 @@ defmodule HamsatWeb.LiveComponents.ActivationRows do
   alias Phoenix.LiveView.JS
 
   # `now` is deliberately derived into assigns instead of being assigned
-  # itself, so the per-second clock tick only diffs the countdown text rather
-  # than re-sending the whole group over the wire.
+  # itself, so the clock tick re-renders nothing unless the activation's
+  # progression actually changed. The countdown itself ticks in the browser.
   def update(assigns, socket) do
     {now, assigns} = Map.pop!(assigns, :now)
     in_progress? = Alert.progression(assigns.alert, now) not in [:upcoming, :passed]
@@ -20,7 +20,6 @@ defmodule HamsatWeb.LiveComponents.ActivationRows do
      |> assign(:in_progress?, in_progress?)
      |> assign(:row1_class, if(in_progress?, do: "bg-emerald-100 text-emerald-700 font-semibold", else: nil))
      |> assign(:row2_class, if(in_progress?, do: "bg-emerald-100 text-emerald-700", else: "text-gray-500"))
-     |> assign(:countdown, if(in_progress?, do: nil, else: ActivationComponents.countdown(assigns.alert, now)))
      |> assign(:time_span, ActivationComponents.alert_time_span(assigns.context, assigns.alert))}
   end
 
@@ -37,7 +36,11 @@ defmodule HamsatWeb.LiveComponents.ActivationRows do
               Now
             </span>
           <% else %>
-            in <%= @countdown %>
+            in
+            <.countdown
+              id={"activation-countdown#{@id_suffix}-#{@alert.id}"}
+              segments={ActivationComponents.countdown_segments(@alert)}
+            />
             <%= if @show_match and @alert.match do %>
               <span class={ActivationComponents.match_badge_class(@alert.match.total)}><%= pct(@alert.match.total) %></span>
             <% end %>

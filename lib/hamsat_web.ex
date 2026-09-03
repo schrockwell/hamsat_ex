@@ -142,6 +142,7 @@ defmodule HamsatWeb do
       import HamsatWeb.Gettext
 
       import HamsatWeb.CommonComponents
+      import HamsatWeb.CountdownComponents, only: [countdown: 1, progress_cursor: 1]
 
       unquote(verified_routes())
     end

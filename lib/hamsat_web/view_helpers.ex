@@ -140,20 +140,29 @@ defmodule HamsatWeb.ViewHelpers do
     :io_lib.format("~.#{precision}f", [float])
   end
 
-  def alert_next_workable_in(now, alert) do
-    case Alert.next_event(alert, now) do
-      {:workable, :start, seconds} -> "in #{hms(seconds, coarse?: true)}"
-      {:workable, :end, seconds} -> "for #{hms(seconds, coarse?: true)}"
-      _ -> "–"
-    end
+  # Countdown segments (see HamsatWeb.CountdownComponents) for "in 12:30" /
+  # "for 5:02" until the visible window starts / ends; "–" for an alert that
+  # isn't visible from here
+  def alert_next_workable_segments(%Alert{is_workable?: true} = alert) do
+    [
+      %{until: alert.workable_start_at, template: "in %s", to: alert.workable_start_at, style: :coarse},
+      %{until: alert.workable_end_at, template: "for %s", to: alert.workable_end_at, style: :coarse},
+      %{until: nil, text: "–"}
+    ]
   end
 
-  def pass_next_event_in(now, pass) do
-    case Pass.next_event(pass, now) do
-      {:aos, duration} -> "AOS in #{hms(duration, coarse?: true)}"
-      {:los, duration} -> "LOS in #{hms(duration, coarse?: true)}"
-      :never -> "–"
-    end
+  def alert_next_workable_segments(%Alert{}), do: [%{until: nil, text: "–"}]
+
+  # Countdown segments for "AOS in 12:30" / "LOS in 5:02" / "–"
+  def pass_next_event_segments(%Pass{} = pass) do
+    aos_at = Hamsat.Util.erl_to_utc_datetime(pass.info.aos.datetime)
+    los_at = Hamsat.Util.erl_to_utc_datetime(pass.info.los.datetime)
+
+    [
+      %{until: aos_at, template: "AOS in %s", to: aos_at, style: :coarse},
+      %{until: los_at, template: "LOS in %s", to: los_at, style: :coarse},
+      %{until: nil, text: "–"}
+    ]
   end
 
   def alert_grids(%Alert{} = alert) do

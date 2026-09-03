@@ -121,6 +121,15 @@ defmodule HamsatWeb.DashboardLive.Show do
     assign(socket, passes_loading?: true, passes_task_pid: task_pid)
   end
 
+  # Countdown segments for the "Now" badge, shown only while the pass is up
+  defp pass_now_segments(pass) do
+    [
+      %{until: Hamsat.Util.erl_to_utc_datetime(pass.info.aos.datetime), text: ""},
+      %{until: Hamsat.Util.erl_to_utc_datetime(pass.info.los.datetime), text: "Now"},
+      %{until: nil, text: ""}
+    ]
+  end
+
   defp purge_passed_upcoming_passes(socket) do
     upcoming_passes =
       Enum.reject(socket.assigns.upcoming_passes, &(Pass.progression(&1, socket.assigns.now) == :passed))

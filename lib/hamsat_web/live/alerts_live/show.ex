@@ -224,7 +224,6 @@ defmodule HamsatWeb.AlertsLive.Show do
   def assign_tick(socket) do
     alert = socket.assigns.alert
     now = socket.assigns.now
-    progress = max(min(progress(alert, now), 1.0), 0.0)
 
     progression = Alert.progression(alert, now)
     events = Alert.events(alert, now)
@@ -257,38 +256,57 @@ defmodule HamsatWeb.AlertsLive.Show do
       activator_sat_position: activator_sat_position,
       chat_status: Chat.status(alert, now),
       cursor_class: cursor_class,
-      cursor_style: "left: #{progress * 100}%",
       events: events,
       my_sat_position: my_sat_position,
       progression: progression,
-      status: status(alert, progression, now)
+      status: status(progression)
     )
   end
 
-  # The single status chip shown above the timeline: {label, timer, class}
-  defp status(alert, progression, now) do
+  # The single status chip shown above the timeline: {label, class}. The timer
+  # beside it is a browser-side countdown (see status_timer_segments/1).
+  defp status(progression) do
     gray = "border-gray-300 bg-gray-100 text-gray-700"
 
     case progression do
-      :upcoming ->
-        {"Upcoming", "rises in #{duration(now, alert.aos_at)}", gray}
-
-      :before_workable ->
-        {"In progress", "visible in #{duration(now, alert.workable_start_at)}", gray}
-
-      :workable ->
-        {"Visible", "for another #{duration(now, alert.workable_end_at)}",
-         "border-emerald-500 bg-emerald-100 text-emerald-700"}
-
-      :after_workable ->
-        {"In progress", "sets in #{duration(now, alert.los_at)}", gray}
-
-      :in_progress ->
-        {"In progress", "sets in #{duration(now, alert.los_at)}", gray}
-
-      :passed ->
-        {"Passed", "#{Timex.from_now(alert.los_at, now)}", "border-gray-200 bg-gray-100 text-gray-400"}
+      :upcoming -> {"Upcoming", gray}
+      :before_workable -> {"In progress", gray}
+      :workable -> {"Visible", "border-emerald-500 bg-emerald-100 text-emerald-700"}
+      :after_workable -> {"In progress", gray}
+      :in_progress -> {"In progress", gray}
+      :passed -> {"Passed", "border-gray-200 bg-gray-100 text-gray-400"}
     end
+  end
+
+  # "rises in 1:23:45" / "visible in 4:56" / "for another 4:56" /
+  # "sets in 4:56" / "2 hours ago", following Alert.progression/2
+  defp status_timer_segments(alert) do
+    workable =
+      if alert.is_workable? do
+        [
+          %{until: alert.workable_start_at, template: "visible in %s", to: alert.workable_start_at, style: :hms},
+          %{until: alert.workable_end_at, template: "for another %s", to: alert.workable_end_at, style: :hms}
+        ]
+      else
+        []
+      end
+
+    [%{until: alert.aos_at, template: "rises in %s", to: alert.aos_at, style: :hms}] ++
+      workable ++
+      [
+        %{until: alert.los_at, template: "sets in %s", to: alert.los_at, style: :hms},
+        %{until: nil, template: "%s", to: alert.los_at, style: :ago}
+      ]
+  end
+
+  # "Chat closes in 12m", shown once the alert has started
+  defp chat_closes_segments(alert) do
+    closes_at = Chat.closes_at(alert)
+
+    [
+      %{until: alert.aos_at, text: ""},
+      %{until: nil, template: "Chat closes in %s", to: closes_at, style: :closes}
+    ]
   end
 
   defp assign_chat_presence_count(socket) do
@@ -300,17 +318,6 @@ defmodule HamsatWeb.AlertsLive.Show do
       end
 
     assign(socket, :chat_presence_count, count)
-  end
-
-  # Coarse countdown to chat close: "2d" / "5h" / "12m", never below 1m while open
-  defp chat_closes_in(alert, now) do
-    minutes = max(ceil(DateTime.diff(Chat.closes_at(alert), now) / 60), 1)
-
-    cond do
-      minutes > 24 * 60 -> "#{ceil(minutes / (24 * 60))}d"
-      minutes > 60 -> "#{ceil(minutes / 60)}h"
-      true -> "#{minutes}m"
-    end
   end
 
   defp progress(alert, now) do

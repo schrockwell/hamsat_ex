@@ -13,12 +13,14 @@
           </h1>
           <h2 class="text-gray-700"><%= when_text(@context, @pass) %></h2>
         </div>
-        <% {status_label, status_timer, status_class} = status(@pass, @now) %>
+        <% {status_label, status_class} = status(@pass, @now) %>
         <div class="flex items-center gap-3 w-full sm:w-auto sm:ml-auto">
           <div class={["uppercase tracking-wide px-4 py-1.5 border-2 font-semibold text-sm", status_class]}>
             <%= status_label %>
           </div>
-          <div class="text-sm text-gray-500 tabular-nums"><%= status_timer %></div>
+          <div class="text-sm text-gray-500 tabular-nums">
+            <.countdown id="pass-status-timer" segments={status_timer_segments(@pass)} />
+          </div>
         </div>
       </div>
 
