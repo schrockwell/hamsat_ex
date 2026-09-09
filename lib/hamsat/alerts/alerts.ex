@@ -3,6 +3,7 @@ defmodule Hamsat.Alerts do
 
   alias Hamsat.Accounts
   alias Hamsat.Alerts.AlertCache
+  alias Hamsat.Alerts.AlertCounter
   alias Hamsat.Alerts.Match
   alias Hamsat.Alerts.PassCache
   alias Hamsat.Coord
@@ -32,6 +33,7 @@ defmodule Hamsat.Alerts do
     with {:ok, alert_form} <- Ecto.Changeset.apply_action(alert_form_changeset, :create),
          {:ok, alert} <- Repo.insert(Alert.changeset(%Alert{is_test: test?}, alert_form)) do
       AlertCache.invalidate()
+      AlertCounter.recount()
       unless test?, do: Accounts.update_alert_preferences!(context.user, alert)
       # Activators always thumbs-up their own activation
       save_alert(context, alert)
@@ -74,6 +76,7 @@ defmodule Hamsat.Alerts do
   def delete_alert(alert) do
     with {:ok, alert} <- Repo.delete(alert) do
       AlertCache.invalidate()
+      AlertCounter.recount()
       {:ok, alert}
     end
   end

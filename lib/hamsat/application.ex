@@ -9,6 +9,7 @@ defmodule Hamsat.Application do
   def start(_type, _args) do
     Hamsat.Alerts.PassCache.initialize()
     Hamsat.Alerts.AlertCache.initialize()
+    Hamsat.Alerts.AlertCounter.initialize()
 
     children = [
       Hamsat.Repo,
