@@ -62,7 +62,7 @@ defmodule HamsatWeb.LiveComponents.ActivationRows do
         <td class="pt-3.5 pb-0.5 px-1 whitespace-nowrap text-base"><%= alert_grids(@alert) %></td>
         <td class="px-1 py-1 border-b text-right align-middle" rowspan="2">
           <div class="flex gap-1.5 justify-end items-center">
-            <%= if @alert.chat_enabled do %>
+            <%= if @alert.chat_enabled and @alert.chat_message_count > 0 do %>
               <span title="Chat messages" class="inline-flex items-center gap-1 text-sm text-gray-400 tabular-nums">
                 <Heroicons.LiveView.icon name="chat-bubble-left-right" type="mini" class="block h-4 w-4" />
                 <%= @alert.chat_message_count %>
