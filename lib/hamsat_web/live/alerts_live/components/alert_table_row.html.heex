@@ -12,7 +12,7 @@
         title="Chat messages"
         class={[
           "inline-flex items-center gap-1 text-sm text-gray-400 tabular-nums",
-          if(@alert.chat_enabled, do: nil, else: "invisible")
+          if(@alert.chat_enabled and @alert.chat_message_count > 0, do: nil, else: "invisible")
         ]}
       >
         <Heroicons.LiveView.icon name="chat-bubble-left-right" type="mini" class="block h-4 w-4" />
