@@ -17,6 +17,14 @@ defmodule HamsatWeb.ViewHelpers do
     "24h" => @date_format <> " " <> @time_formats["24h"]
   }
 
+  @doc """
+  Formats a non-negative integer with US thousands separators, e.g. 12345
+  becomes "12,345".
+  """
+  def delimited_integer(integer) when is_integer(integer) and integer >= 0 do
+    Regex.replace(~r/\B(?=(\d{3})+(?!\d))/, Integer.to_string(integer), ",")
+  end
+
   def date(%Context{} = context, utc_datetime) do
     utc_datetime
     |> normalize_datetime()

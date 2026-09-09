@@ -151,6 +151,53 @@ defmodule AlertsTest do
     defp pass_max_at(pass), do: Hamsat.Util.erl_to_utc_datetime(pass.info.max.datetime)
   end
 
+  describe "activation counter" do
+    alias Hamsat.Alerts.AlertCounter
+
+    setup %{context: context, ao_7: ao_7} do
+      # The counter's ETS table is global, so isolate it from other tests
+      :ets.delete(AlertCounter, :total)
+      on_exit(fn -> :ets.delete(AlertCounter, :total) end)
+
+      context = %{context | user: user_fixture()}
+      [pass | _] = Passes.list_passes(context, ao_7, @one_day)
+
+      %{context: context, pass: pass}
+    end
+
+    test "seeds from the database and tracks creates and deletes", %{
+      context: context,
+      ao_7: ao_7,
+      pass: pass
+    } do
+      baseline = AlertCounter.total_count()
+
+      {:ok, alert} =
+        Alerts.create_alert(context, Alerts.change_alert(context, ao_7, pass, alert_params(ao_7, pass, "WW1X")))
+
+      assert AlertCounter.total_count() == baseline + 1
+
+      {:ok, _} = Alerts.delete_alert(alert)
+      assert AlertCounter.total_count() == baseline
+    end
+
+    test "ignores test alerts", %{context: context, ao_7: ao_7, pass: pass} do
+      baseline = AlertCounter.total_count()
+
+      {:ok, alert} =
+        Alerts.create_alert(
+          context,
+          Alerts.change_alert(context, ao_7, pass, alert_params(ao_7, pass, "WW1X")),
+          test: true
+        )
+
+      assert AlertCounter.total_count() == baseline
+
+      {:ok, _} = Alerts.delete_alert(alert)
+      assert AlertCounter.total_count() == baseline
+    end
+  end
+
   defp alert_params(sat, pass, callsign) do
     %{
       "callsign" => callsign,

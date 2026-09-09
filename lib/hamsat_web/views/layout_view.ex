@@ -134,6 +134,10 @@ defmodule HamsatWeb.LayoutView do
     </div>
 
     <div class="my-6 text-sm text-gray-500 flex gap-1 justify-center">
+      <span title="Total activations posted, all time">
+        <%= delimited_integer(Hamsat.Alerts.AlertCounter.total_count()) %> activations so far
+      </span>
+      ·
       <%= if @keps_updated_at do %>
         <span title="When the satellite Keplerian elements were last updated">
           Keps updated <%= keps_updated_ago(@keps_updated_at) %>
