@@ -40,8 +40,8 @@
           <div class="text-gray-700"><%= alert_grids(@alert) %></div>
         </div>
         <div>
-          <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5">Uplink</div>
-          <div class="text-gray-700"><%= uplink_text(@alert) %></div>
+          <div class="uppercase text-[11px] tracking-wider text-gray-400 mb-0.5"><%= freq_label(@alert) %></div>
+          <div class="text-gray-700"><%= freq_text(@alert) %></div>
         </div>
         <%= if @alert.comment do %>
           <div>

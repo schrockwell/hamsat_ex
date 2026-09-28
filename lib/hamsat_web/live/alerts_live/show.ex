@@ -340,7 +340,11 @@ defmodule HamsatWeb.AlertsLive.Show do
     "#{date} · #{short_time(context, aos)} – #{short_time(context, los)} #{zone}"
   end
 
-  defp uplink_text(alert) do
+  defp freq_label(%Alert{mhz: mhz, mhz_direction: :up}) when not is_nil(mhz), do: "Uplink"
+  defp freq_label(%Alert{mhz: mhz, mhz_direction: :down}) when not is_nil(mhz), do: "Downlink"
+  defp freq_label(_alert), do: "Frequency"
+
+  defp freq_text(alert) do
     [mhz(alert, 3, nil), alert.mode]
     |> Enum.reject(&is_nil/1)
     |> Enum.join(" ")
